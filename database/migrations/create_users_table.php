@@ -22,8 +22,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Rename password_hash → password agar Laravel Auth bekerja normal
-        // (atau set 'password' di $authPasswordName di model jika pakai nama kolom berbeda)
     }
 
     public function down(): void
