@@ -2,48 +2,62 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids; // 1. IMPORT TRAIT INI
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasUuids;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',          // member | mentor | super_admin
+        'google_id',
+        'avatar',
+        'is_active',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
+    protected $hidden = ['password', 'remember_token'];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password'          => 'hashed',
+        'is_active'         => 'boolean',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    // ─── Relationships ───────────────────────────────────────────────────────
+
+    public function member()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasOne(Member::class);
+    }
+
+    public function mentor()
+    {
+        return $this->hasOne(Mentor::class);
+    }
+
+    // ─── Helpers ─────────────────────────────────────────────────────────────
+
+    public function isMember(): bool      { return $this->role === 'member'; }
+    public function isMentor(): bool      { return $this->role === 'mentor'; }
+    public function isSuperAdmin(): bool  { return $this->role === 'super_admin'; }
+    public function isGoogleUser(): bool  { return ! is_null($this->google_id); }
+
+    public function dashboardRoute(): string
+    {
+        return match ($this->role) {
+            'member'      => 'member.dashboard',
+            'mentor'      => 'mentor.dashboard',
+            'super_admin' => 'admin.dashboard',
+            default       => '/',
+        };
     }
 }
