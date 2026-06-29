@@ -4,9 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\MemberAuthController;
 use App\Http\Controllers\Auth\MentorAuthController;
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\HomeController;
 
 // ─── Redirect root ───────────────────────────────────────────────────────────
-Route::get('/', fn() => view('welcome'));
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MEMBER AUTH
