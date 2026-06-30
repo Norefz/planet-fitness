@@ -6,10 +6,15 @@ use App\Http\Controllers\Auth\MentorAuthController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\HomeController;
 
-// ─── Redirect root ───────────────────────────────────────────────────────────
+// ─── Public Landing Routes ───────────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [HomeController::class, 'showLoginSelection'])->name('login');
 Route::get('/register', [HomeController::class, 'showRegisterSelection'])->name('register');
+
+// Unified Google OAuth Callback (Handles both roles via session)
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleUnifiedCallback'])->name('auth.google.callback');
+
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // MEMBER AUTH
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -23,16 +28,17 @@ Route::prefix('member')->name('member.')->group(function () {
         Route::post('/register',[MemberAuthController::class, 'register']);
     });
 
-    // Google OAuth — Member
-    Route::get('/auth/google',          [GoogleAuthController::class, 'redirectMember'])->name('auth.google');
-    Route::get('/auth/google/callback', [GoogleAuthController::class, 'callbackMember'])->name('auth.google.callback');
+    // Google OAuth Redirection — Member
+    Route::get('/auth/google', [GoogleAuthController::class, 'redirectMember'])->name('auth.google');
 
     // Authenticated member
     Route::middleware(['auth', 'role:member'])->group(function () {
-        Route::get('/dashboard', fn() => view('member.dashboard'))->name('dashboard');
+        // Pointing to the unified home blade view
+        Route::get('/dashboard', fn() => view('home'))->name('dashboard');
         Route::post('/logout',   [MemberAuthController::class, 'logout'])->name('logout');
     });
 });
+
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MENTOR AUTH
@@ -47,13 +53,13 @@ Route::prefix('mentor')->name('mentor.')->group(function () {
         Route::post('/register',[MentorAuthController::class, 'register']);
     });
 
-    // Google OAuth — Mentor
-    Route::get('/auth/google',          [GoogleAuthController::class, 'redirectMentor'])->name('auth.google');
-    Route::get('/auth/google/callback', [GoogleAuthController::class, 'callbackMentor'])->name('auth.google.callback');
+    // Google OAuth Redirection — Mentor
+    Route::get('/auth/google', [GoogleAuthController::class, 'redirectMentor'])->name('auth.google');
 
     // Authenticated mentor
     Route::middleware(['auth', 'role:mentor'])->group(function () {
-        Route::get('/dashboard', fn() => view('mentor.dashboard'))->name('dashboard');
+        // Pointing to the unified home blade view
+        Route::get('/dashboard', fn() => view('home'))->name('dashboard');
         Route::post('/logout',   [MentorAuthController::class, 'logout'])->name('logout');
     });
 });

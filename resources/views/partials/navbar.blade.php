@@ -30,19 +30,19 @@
     <div class="hidden md:flex items-center gap-8">
         <a href="#fitur"
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200 cursor-pointer">
-            Fitur Utama
+             Fitur Utama
         </a>
         <a href=""
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
-            Program Latihan
+             Program Latihan
         </a>
         <a href=""
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
-            Log Nutrisi
+             Log Nutrisi
         </a>
         <a href=""
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
-            Konsultasi Mentor
+             Konsultasi Mentor
         </a>
     </div>
 
@@ -79,6 +79,7 @@
                     ->take(2)
                     ->join('');
 
+                // Fixed: Correctly maps variables to the matched routing patterns
                 $dashboardRoute = match(auth()->user()->role) {
                     'mentor' => route('mentor.dashboard'),
                     default  => route('member.dashboard'),
@@ -133,8 +134,10 @@
                     <div class="px-4 py-3 border-b border-slate-100">
                         <div class="text-sm font-semibold text-slate-900 truncate">{{ $displayName }}</div>
                         <div class="text-xs text-slate-400 truncate">{{ auth()->user()->email }}</div>
+
+                        {{-- Fixed Badge styling to seamlessly distinguish Mentor vs Member --}}
                         <span class="inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide
-                                     {{ auth()->user()->role === 'mentor' ? 'bg-blue-50 text-blue-700' : 'bg-primary-light text-primary-dark' }}">
+                                     {{ auth()->user()->role === 'mentor' ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700' }}">
                             {{ auth()->user()->role === 'mentor' ? 'Mentor' : 'Member' }}
                         </span>
                     </div>
@@ -180,7 +183,11 @@
 
                     {{-- Logout --}}
                     <div class="py-1 border-t border-slate-100">
-                        <form method="POST" action="{{ route('logout') }}">
+                        @php
+                            $logoutRoute = auth()->user()->role === 'mentor' ? 'mentor.logout' : 'member.logout';
+                        @endphp
+
+                        <form method="POST" action="{{ route($logoutRoute) }}">
                             @csrf
                             <button type="submit"
                                     class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600
@@ -195,7 +202,6 @@
                             </button>
                         </form>
                     </div>
-
                 </div>
             </div>
         @endguest
