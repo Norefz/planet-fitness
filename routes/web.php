@@ -8,7 +8,8 @@ use App\Http\Controllers\HomeController;
 
 // ─── Redirect root ───────────────────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
+Route::get('/login', [HomeController::class, 'showLoginSelection'])->name('login');
+Route::get('/register', [HomeController::class, 'showRegisterSelection'])->name('register');
 // ═══════════════════════════════════════════════════════════════════════════════
 // MEMBER AUTH
 // ═══════════════════════════════════════════════════════════════════════════════

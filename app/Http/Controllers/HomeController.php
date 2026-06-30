@@ -9,4 +9,14 @@ class HomeController extends Controller
     {
         return view('home');
     }
+    public function showLoginSelection()
+    {
+        return view('member.login');
+    }
+
+    // Show the general registration selection page
+    public function showRegisterSelection()
+    {
+        return view('member.register');
+    }
 }
