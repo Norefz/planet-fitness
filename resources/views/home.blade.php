@@ -1,6 +1,6 @@
 {{--
     View  : resources/views/pages/home.blade.php
-    Route : GET /  →  HomeController@index  (atau closure di web.php)
+    Route : GET /  →  HomeController@index
 --}}
 
 @extends('layouts.app')
@@ -51,7 +51,7 @@
 
         {{-- CTA Buttons --}}
         <div class="flex flex-wrap items-center justify-center gap-4 mb-14">
-            <button class="inline-flex items-center gap-2 px-6 py-3 rounded-xl
+            <a href="{{ route('register') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl
                            bg-primary text-white text-sm font-semibold shadow-sm
                            hover:bg-primary-dark hover:-translate-y-0.5 hover:shadow-md
                            transition-all duration-300 cursor-pointer">
@@ -63,7 +63,7 @@
                     <path d="M14 9a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
                 </svg>
                 Mulai Sekarang
-            </button>
+            </a>
             <button class="inline-flex items-center gap-2 px-6 py-3 rounded-xl
                            bg-white/12 border border-white/30 text-white text-sm font-semibold
                            backdrop-blur-md hover:bg-white/20 transition-all duration-300 cursor-pointer">
@@ -393,7 +393,7 @@
             Bergabung bersama ribuan pengguna yang sudah merasakan manfaat Planet
             Fitness. Daftar sekarang dan dapatkan akses gratis selama 7 hari pertama!
         </p>
-        <button class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl
+        <a href="{{ route('register') }}" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl
                        bg-white text-primary-dark text-sm font-semibold shadow-sm
                        hover:bg-slate-50 transition-colors duration-200 cursor-pointer">
             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
@@ -404,7 +404,7 @@
                 <path d="M14 9a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
             </svg>
             Buat Akun Gratis
-        </button>
+        </a>
     </div>
 </div>
 

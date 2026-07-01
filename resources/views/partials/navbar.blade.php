@@ -30,33 +30,181 @@
     <div class="hidden md:flex items-center gap-8">
         <a href="#fitur"
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200 cursor-pointer">
-            Fitur Utama
+             Fitur Utama
         </a>
         <a href=""
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
-            Program Latihan
+             Program Latihan
         </a>
         <a href=""
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
-            Log Nutrisi
+             Log Nutrisi
         </a>
         <a href=""
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
-            Konsultasi Mentor
+             Konsultasi Mentor
         </a>
     </div>
 
-    {{-- Auth Buttons --}}
+    {{-- ═══════════════════════════════════════════════════════════
+         AUTH AREA — beda tampilan tergantung status login
+         ═══════════════════════════════════════════════════════════ --}}
     <div class="flex items-center gap-3">
-        <button class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
-                       bg-white/10 border border-white/30 text-white hover:bg-white/20
-                       backdrop-blur-md transition-all duration-200 cursor-pointer">
-            Masuk
-        </button>
-        <button class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
-                       bg-primary text-white hover:bg-primary-dark shadow-sm
-                       hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 cursor-pointer">
-            Daftar Gratis
-        </button>
+
+        @guest
+            {{-- ── Belum login: tombol Masuk & Daftar ── --}}
+            <a href="{{ route('login') }}"
+               class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
+                      bg-white/10 border border-white/30 text-white hover:bg-white/20
+                      backdrop-blur-md transition-all duration-200 cursor-pointer no-underline">
+                Masuk
+            </a>
+            <a href="{{ route('register') }}"
+               class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
+                      bg-primary text-white hover:bg-primary-dark shadow-sm
+                      hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 cursor-pointer no-underline">
+                Daftar Gratis
+            </a>
+        @else
+            {{-- ── Sudah login: avatar + nama akun + dropdown ── --}}
+            @php
+                // Ambil nama sesuai role (member/mentor punya tabel profil sendiri)
+                $displayName = match(auth()->user()->role) {
+                    'mentor' => auth()->user()->mentor?->full_name,
+                    default  => auth()->user()->member?->full_name,
+                } ?? explode('@', auth()->user()->email)[0];
+
+                $initials = collect(explode(' ', $displayName))
+                    ->map(fn($w) => strtoupper(substr($w, 0, 1)))
+                    ->take(2)
+                    ->join('');
+
+                // Fixed: Correctly maps variables to the matched routing patterns
+                $dashboardRoute = match(auth()->user()->role) {
+                    'mentor' => route('mentor.dashboard'),
+                    default  => route('member.dashboard'),
+                };
+            @endphp
+
+            <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+
+                {{-- Trigger button --}}
+                <button @click="open = !open"
+                        class="flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-xl
+                               bg-white/10 border border-white/20 hover:bg-white/15
+                               backdrop-blur-md transition-all duration-200 cursor-pointer">
+
+                    {{-- Avatar: pakai foto Google kalau ada, fallback inisial --}}
+                    @if(auth()->user()->avatar)
+                        <img src="{{ auth()->user()->avatar }}" alt="{{ $displayName }}"
+                             class="w-7 h-7 rounded-full object-cover flex-shrink-0 border border-white/20" />
+                    @else
+                        <span class="w-7 h-7 rounded-full bg-primary flex items-center justify-center
+                                     text-[11px] font-bold text-white flex-shrink-0">
+                            {{ $initials }}
+                        </span>
+                    @endif
+
+                    <span class="text-sm font-semibold text-white max-w-[120px] truncate">
+                        {{ $displayName }}
+                    </span>
+
+                    <svg class="w-3.5 h-3.5 text-white/60 transition-transform duration-200 flex-shrink-0"
+                         :class="{ 'rotate-180': open }"
+                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+
+                {{-- Dropdown menu --}}
+                <div x-show="open"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-2"
+                     class="absolute right-0 mt-2 w-56 rounded-xl bg-white border border-slate-200
+                            shadow-lg overflow-hidden z-50"
+                     style="display: none;">
+
+                    {{-- User info header --}}
+                    <div class="px-4 py-3 border-b border-slate-100">
+                        <div class="text-sm font-semibold text-slate-900 truncate">{{ $displayName }}</div>
+                        <div class="text-xs text-slate-400 truncate">{{ auth()->user()->email }}</div>
+
+                        {{-- Fixed Badge styling to seamlessly distinguish Mentor vs Member --}}
+                        <span class="inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide
+                                     {{ auth()->user()->role === 'mentor' ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700' }}">
+                            {{ auth()->user()->role === 'mentor' ? 'Mentor' : 'Member' }}
+                        </span>
+                    </div>
+
+                    {{-- Menu items --}}
+                    <div class="py-1">
+                        <a href="{{ $dashboardRoute }}"
+                           class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50
+                                  transition-colors duration-150 no-underline">
+                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                                <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                            </svg>
+                            Dashboard
+                        </a>
+
+                        <a href="#"
+                           class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50
+                                  transition-colors duration-150 no-underline">
+                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            Profil Saya
+                        </a>
+
+                        <a href="#"
+                           class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50
+                                  transition-colors duration-150 no-underline">
+                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1 -2.83 2.83l-.06-.06a1.65 1.65 0 0 0 -1.82-.33 1.65 1.65 0 0 0 -1 1.51V21a2 2 0 0 1 -4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0 -1.82.33l-.06.06a2 2 0 1 1 -2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0 -1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0 -.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0 -.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0 -1.51 1z"/>
+                            </svg>
+                            Pengaturan
+                        </a>
+                    </div>
+
+                    {{-- Logout --}}
+                    <div class="py-1 border-t border-slate-100">
+                        @php
+                            $logoutRoute = auth()->user()->role === 'mentor' ? 'mentor.logout' : 'member.logout';
+                        @endphp
+
+                        <form method="POST" action="{{ route($logoutRoute) }}">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600
+                                           hover:bg-red-50 transition-colors duration-150 cursor-pointer">
+                                <svg class="w-4 h-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/>
+                                    <path d="M9 12h12l-3 -3m0 6l3 -3"/>
+                                </svg>
+                                Keluar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endguest
+
     </div>
 </nav>
