@@ -15,14 +15,22 @@ class GoogleAuthController extends Controller
     public function redirectMember()
     {
         session(['oauth_role' => 'member']);
-        return Socialite::driver('google')->redirect();
+
+        // FIXED: Ditambahkan prompt select_account agar bisa ganti akun Google
+        return Socialite::driver('google')
+            ->with(['prompt' => 'select_account'])
+            ->redirect();
     }
 
     // ─── Mentor Redirect ──────────────────────────────────────────────────────
     public function redirectMentor()
     {
         session(['oauth_role' => 'mentor']);
-        return Socialite::driver('google')->redirect();
+
+        // FIXED: Ditambahkan prompt select_account agar bisa ganti akun Google
+        return Socialite::driver('google')
+            ->with(['prompt' => 'select_account'])
+            ->redirect();
     }
 
     // ─── NEW UNIFIED CALLBACK METHOD ─────────────────────────────────────────
