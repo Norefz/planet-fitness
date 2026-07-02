@@ -5,6 +5,10 @@ use App\Http\Controllers\Auth\MemberAuthController;
 use App\Http\Controllers\Auth\MentorAuthController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Mentor\DashboardController as MentorDashboardController;
+use App\Http\Controllers\Mentor\WorkoutProgramController;
+use App\Http\Controllers\Mentor\BookingController as MentorBookingController;
+use App\Http\Controllers\Mentor\ProfileController as MentorProfileController;
 
 // ─── Public Landing Routes ───────────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -58,8 +62,22 @@ Route::prefix('mentor')->name('mentor.')->group(function () {
 
     // Authenticated mentor
     Route::middleware(['auth', 'role:mentor'])->group(function () {
-        // Pointing to the unified home blade view
-        Route::get('/dashboard', fn() => view('home'))->name('dashboard');
+        Route::get('/dashboard', [MentorDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout',   [MentorAuthController::class, 'logout'])->name('logout');
+
+        // ─── CRUD Program Latihan ───────────────────────────────────────────
+        Route::resource('programs', WorkoutProgramController::class)
+            ->except(['show'])
+            ->parameters(['programs' => 'program']);
+        Route::patch('/programs/{program}/toggle-status', [WorkoutProgramController::class, 'toggleStatus'])
+            ->name('programs.toggle-status');
+
+        // ─── Manajemen Konsultasi (Booking) ─────────────────────────────────
+        Route::get('/bookings', [MentorBookingController::class, 'index'])->name('bookings.index');
+        Route::patch('/bookings/{booking}', [MentorBookingController::class, 'update'])->name('bookings.update');
+
+        // ─── Profil & Sertifikasi ────────────────────────────────────────────
+        Route::get('/profile', [MentorProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [MentorProfileController::class, 'update'])->name('profile.update');
     });
 });
