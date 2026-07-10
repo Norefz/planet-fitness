@@ -62,6 +62,14 @@ Route::prefix('mentor')->name('mentor.')->group(function () {
 
     // Authenticated mentor
     Route::middleware(['auth', 'role:mentor'])->group(function () {
+
+    // ─── ONBOARDING OAUTH GOOGLE ──────────────────────────────────────────
+    // Rute untuk menampilkan form onboarding & simpan data profil tambahan
+   Route::get('/complete-profile', [MentorProfileController::class, 'showOnboarding'])->name('complete-profile');
+Route::post('/complete-profile', [MentorProfileController::class, 'submitOnboarding'])->name('complete-profile.submit');
+
+    // Semua rute di bawah ini dilindungi agar tidak bisa diakses sebelum profile lengkap
+    Route::middleware([\App\Http\Middleware\EnsureMentorProfileComplete::class])->group(function () {
         Route::get('/dashboard', [MentorDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout',   [MentorAuthController::class, 'logout'])->name('logout');
 
@@ -80,4 +88,5 @@ Route::prefix('mentor')->name('mentor.')->group(function () {
         Route::get('/profile', [MentorProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [MentorProfileController::class, 'update'])->name('profile.update');
     });
+});
 });

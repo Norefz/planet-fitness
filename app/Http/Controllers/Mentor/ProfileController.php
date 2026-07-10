@@ -10,6 +10,48 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    // ─── METHOD BARU: Menampilkan Form Onboarding Google ─────────────────────
+    public function showOnboarding(): View
+    {
+        $user = Auth::user();
+        $mentor = $user->mentor;
+
+        // Jika mentor ternyata sudah melengkapi datanya, langsung alihkan ke dashboard
+        if (!empty($mentor->bio) && !empty($mentor->specialization)) {
+            return redirect()->route('mentor.dashboard');
+        }
+
+        // Tampilkan halaman form onboarding yang kita buat di nomor 4
+        return view('auth.complete-profile', compact('user', 'mentor'));
+    }
+
+    // ─── METHOD BARU: Memproses Submit Form Onboarding Google ─────────────────
+    public function submitOnboarding(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+        $mentor = $user->mentor;
+
+        // Validasi input form wajib onboarding
+        $validated = $request->validate([
+            'certification'  => ['required', 'string', 'max:255'],
+            'specialization' => ['required', 'string', 'max:255'],
+            'bio'            => ['required', 'string', 'max:1000'],
+        ]);
+
+        // Update data spesifik milik profil mentor
+        $mentor->update([
+            'bio'            => $validated['bio'],
+            'certification'  => $validated['certification'],
+            'specialization' => $validated['specialization'],
+        ]);
+
+        // Setelah sukses, lempar langsung ke Dashboard utama Mentor!
+        return redirect()
+            ->route('mentor.dashboard')
+            ->with('success', 'Profil mentor Anda berhasil dilengkapi. Selamat datang!');
+    }
+
+    // ─── Fitur Edit Profil Biasa (Bawaanmu) ───────────────────────────────────
     public function edit(): View
     {
         $user = Auth::user();
@@ -18,6 +60,7 @@ class ProfileController extends Controller
         return view('mentor.profile.edit', compact('user', 'mentor'));
     }
 
+    // ─── Fitur Update Profil Biasa (Bawaanmu) ─────────────────────────────────
     public function update(Request $request): RedirectResponse
     {
         $user = Auth::user();
