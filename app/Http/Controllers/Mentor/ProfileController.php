@@ -22,7 +22,7 @@ class ProfileController extends Controller
         }
 
         // Tampilkan halaman form onboarding yang kita buat di nomor 4
-        return view('auth.complete-profile', compact('user', 'mentor'));
+        return view('mentor.complete-profile', compact('user', 'mentor'));
     }
 
     // ─── METHOD BARU: Memproses Submit Form Onboarding Google ─────────────────

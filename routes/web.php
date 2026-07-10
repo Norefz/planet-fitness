@@ -47,46 +47,49 @@ Route::prefix('member')->name('member.')->group(function () {
 // ═══════════════════════════════════════════════════════════════════════════════
 // MENTOR AUTH
 // ═══════════════════════════════════════════════════════════════════════════════
-Route::prefix('mentor')->name('mentor.')->group(function () {
+Route::prefix('mentor')->group(function () {
 
-    // Guest only
-    Route::middleware('guest')->group(function () {
-        Route::get('/login',    [MentorAuthController::class, 'showLogin'])->name('login');
-        Route::post('/login',   [MentorAuthController::class, 'login']);
-        Route::get('/register', [MentorAuthController::class, 'showRegister'])->name('register');
-        Route::post('/register',[MentorAuthController::class, 'register']);
+    // 1. RUTE ONBOARDING: Dibuat mandiri dengan nama mutlak 'mentor.complete-profile'
+    // Memakai middleware 'auth' saja (tanpa role:mentor atau ensure profile complete) agar tidak dicegat di tengah jalan
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/complete-profile', [MentorProfileController::class, 'showOnboarding'])->name('mentor.complete-profile');
+        Route::post('/complete-profile', [MentorProfileController::class, 'submitOnboarding'])->name('mentor.complete-profile.submit');
     });
 
-    // Google OAuth Redirection — Mentor
-    Route::get('/auth/google', [GoogleAuthController::class, 'redirectMentor'])->name('auth.google');
+    // 2. KELOMPOK RUTE LAINNYA YANG OTOMATIS BER-NAME 'mentor.'
+    Route::name('mentor.')->group(function () {
 
-    // Authenticated mentor
-    Route::middleware(['auth', 'role:mentor'])->group(function () {
+        // Guest only (Halaman Login & Register biasa)
+        Route::middleware('guest')->group(function () {
+            Route::get('/login',    [MentorAuthController::class, 'showLogin'])->name('login');
+            Route::post('/login',   [MentorAuthController::class, 'login']);
+            Route::get('/register', [MentorAuthController::class, 'showRegister'])->name('register');
+            Route::post('/register',[MentorAuthController::class, 'register']);
+        });
 
-    // ─── ONBOARDING OAUTH GOOGLE ──────────────────────────────────────────
-    // Rute untuk menampilkan form onboarding & simpan data profil tambahan
-   Route::get('/complete-profile', [MentorProfileController::class, 'showOnboarding'])->name('complete-profile');
-Route::post('/complete-profile', [MentorProfileController::class, 'submitOnboarding'])->name('complete-profile.submit');
+        // Google OAuth Redirection — Mentor
+        Route::get('/auth/google', [GoogleAuthController::class, 'redirectMentor'])->name('auth.google');
 
-    // Semua rute di bawah ini dilindungi agar tidak bisa diakses sebelum profile lengkap
-    Route::middleware([\App\Http\Middleware\EnsureMentorProfileComplete::class])->group(function () {
-        Route::get('/dashboard', [MentorDashboardController::class, 'index'])->name('dashboard');
-        Route::post('/logout',   [MentorAuthController::class, 'logout'])->name('logout');
+        // Authenticated Mentor (Dashboard, Programs, Bookings, dan Profile biasa)
+        // Diproteksi ketat oleh Juri Onboarding (EnsureMentorProfileComplete)
+        Route::middleware(['auth', 'role:mentor', \App\Http\Middleware\EnsureMentorProfileComplete::class])->group(function () {
+            Route::get('/dashboard', [MentorDashboardController::class, 'index'])->name('dashboard');
+            Route::post('/logout',   [MentorAuthController::class, 'logout'])->name('logout');
 
-        // ─── CRUD Program Latihan ───────────────────────────────────────────
-        Route::resource('programs', WorkoutProgramController::class)
-            ->except(['show'])
-            ->parameters(['programs' => 'program']);
-        Route::patch('/programs/{program}/toggle-status', [WorkoutProgramController::class, 'toggleStatus'])
-            ->name('programs.toggle-status');
+            // CRUD Program Latihan
+            Route::resource('programs', WorkoutProgramController::class)
+                ->except(['show'])
+                ->parameters(['programs' => 'program']);
+            Route::patch('/programs/{program}/toggle-status', [WorkoutProgramController::class, 'toggleStatus'])
+                ->name('programs.toggle-status');
 
-        // ─── Manajemen Konsultasi (Booking) ─────────────────────────────────
-        Route::get('/bookings', [MentorBookingController::class, 'index'])->name('bookings.index');
-        Route::patch('/bookings/{booking}', [MentorBookingController::class, 'update'])->name('bookings.update');
+            // Manajemen Konsultasi (Booking)
+            Route::get('/bookings', [MentorBookingController::class, 'index'])->name('bookings.index');
+            Route::patch('/bookings/{booking}', [MentorBookingController::class, 'update'])->name('bookings.update');
 
-        // ─── Profil & Sertifikasi ────────────────────────────────────────────
-        Route::get('/profile', [MentorProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile', [MentorProfileController::class, 'update'])->name('profile.update');
+            // Profil Pengaturan Dashboard Biasa
+            Route::get('/profile', [MentorProfileController::class, 'edit'])->name('profile.edit');
+            Route::put('/profile', [MentorProfileController::class, 'update'])->name('profile.update');
+        });
     });
-});
 });

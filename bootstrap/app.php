@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // ← Add this
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+       'mentor.profile.complete' => \App\Http\Middleware\EnsureMentorProfileComplete::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
