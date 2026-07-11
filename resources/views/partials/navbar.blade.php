@@ -28,7 +28,7 @@
 
     {{-- Nav Links (hidden di mobile) --}}
     <div class="hidden md:flex items-center gap-8">
-        <a href="#fitur"
+        <a href="{{ route('home') }}"
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200 cursor-pointer">
              Fitur Utama
         </a>
