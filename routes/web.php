@@ -14,7 +14,7 @@ use App\Http\Controllers\Mentor\ProfileController as MentorProfileController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [HomeController::class, 'showLoginSelection'])->name('login');
 Route::get('/register', [HomeController::class, 'showRegisterSelection'])->name('register');
-
+Route::get('/programs-preview', [App\Http\Controllers\Member\ProgramController::class, 'guestIndex'])->name('programs.preview');
 // Unified Google OAuth Callback (Handles both roles via session)
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleUnifiedCallback'])->name('auth.google.callback');
 
@@ -31,6 +31,15 @@ Route::prefix('member')->name('member.')->group(function () {
         Route::get('/register', [MemberAuthController::class, 'showRegister'])->name('register');
         Route::post('/register',[MemberAuthController::class, 'register']);
     });
+
+Route::prefix('member')->name('member.')->group(function () {
+    Route::middleware(['auth', 'role:member'])->group(function () {
+        Route::get('/dashboard', [MemberDashboardController::class, 'index'])->name('dashboard');
+
+        // Tambahkan rute program member di sini:
+        Route::get('/programs', [App\Http\Controllers\Member\ProgramController::class, 'index'])->name('programs.index');
+    });
+});
 
     // Google OAuth Redirection — Member
     Route::get('/auth/google', [GoogleAuthController::class, 'redirectMember'])->name('auth.google');
