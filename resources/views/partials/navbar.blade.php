@@ -32,7 +32,7 @@
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200 cursor-pointer">
              Fitur Utama
         </a>
-        <a href=""
+        <a href="{{ Auth::check() ? route('member.programs.index') : route('programs.preview') }}"
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
              Program Latihan
         </a>
