@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class AuditLog extends Model
 {
+    use HasUuids;
+
     protected $table      = 'audit_logs';
-    public    $timestamps = false;
+    public    $timestamps = false;  // tabel tidak punya created_at/updated_at
 
     protected $fillable = [
         'admin_id',
@@ -23,27 +26,30 @@ class AuditLog extends Model
         'performed_at' => 'datetime',
     ];
 
-    // ── Accessor agar bisa pakai $log->created_at di view ──
+    // Accessor supaya view bisa pakai $log->created_at maupun $log->performed_at
     public function getCreatedAtAttribute()
     {
         return $this->performed_at;
     }
 
-    // ── Relasi ke admin yang melakukan aksi ──
+    // ── Relasi ke SuperAdmin ──────────────────────────────────────────────────
     public function admin()
     {
+        // admin_id FK langsung ke super_admins.id (sesuai ERD)
         return $this->belongsTo(SuperAdmin::class, 'admin_id');
     }
 
-    // ── Helper: catat log dengan mudah dari mana saja ──
+    // ── Static helper: catat log dari mana saja ──────────────────────────────
     public static function record(
         string  $action,
         string  $details,
         ?string $targetTable = null,
         ?string $targetId    = null,
     ): void {
+        // Guard 'admin' langsung return SuperAdmin model (bukan User),
+        // jadi tidak perlu ->superAdmin chain lagi
         $adminId = auth('admin')->check()
-            ? auth('admin')->user()->superAdmin?->id
+            ? auth('admin')->id()   // langsung ambil id dari SuperAdmin
             : null;
 
         static::create([

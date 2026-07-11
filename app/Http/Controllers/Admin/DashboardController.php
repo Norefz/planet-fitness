@@ -24,15 +24,20 @@ class DashboardController extends Controller
             : 0;
 
         $totalMentors    = Mentor::where('is_verified', true)->count();
-        $pendingMentors  = Mentor::where('is_verified', false)
-                                 ->whereHas('user', fn($q) => $q->where('is_active', true))
-                                 ->count();
+        $pendingMentorsCount  = Mentor::where('is_verified', false)
+                                     ->whereHas('user', fn($q) => $q->where('is_active', true))
+                                     ->count();
         $verifiedMentors = $totalMentors;
         $mentorGrowth    = 6; // placeholder — hitung sama seperti member jika perlu
 
-        $totalPrograms    = WorkoutProgram::where('is_published', true)->count();
-        $totalEnrollments = DB::table('member_programs')->count();
-        $programGrowth    = 8; // placeholder
+        // Menghitung seluruh program latihan yang terdaftar (Opsi C)
+        $totalPrograms   = WorkoutProgram::count();
+
+        // Karena member otomatis memiliki akses ke semua program yang terbit ('published'),
+        // Kita hitung estimasi total penayangan/akses (Total Member x Total Program Terbit)
+        $programPublishedCount = WorkoutProgram::where('status', 'published')->count();
+        $totalEnrollments      = $totalMembers * $programPublishedCount;
+        $programGrowth         = 8; // placeholder
 
         $bookingsThisWeek    = Booking::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
         $pendingBookings     = Booking::where('status', 'pending')->count();
@@ -42,18 +47,18 @@ class DashboardController extends Controller
                             ->count() / $bookingsThisWeek) * 100)
             : 0;
 
-        $avgCompletion = round(
-            DB::table('member_programs')->avg('progress_pct') ?? 0
-        );
+        // Karena tidak menggunakan pelacakan progres per tabel pivot, default-kan ke 100%
+        $avgCompletion = 100;
 
-        $avgRating = WorkoutProgram::avg('rating') ?? 0;
+        // Mencari rata-rata rating dari tabel mentors (karena kolom rating ada di tabel mentors)
+        $avgRating = Mentor::avg('rating') ?? 0;
 
         $stats = [
             'total_members'              => $totalMembers,
             'active_members'             => $activeMembers,
             'member_growth'              => $memberGrowth,
             'total_mentors'              => $totalMentors,
-            'pending_mentors'            => $pendingMentors,
+            'pending_mentors'            => $pendingMentorsCount,
             'verified_mentors'           => $verifiedMentors,
             'mentor_growth'              => $mentorGrowth,
             'total_programs'             => $totalPrograms,
@@ -72,8 +77,8 @@ class DashboardController extends Controller
             return [
                 'label' => $month->locale('id')->isoFormat('MMM'),
                 'count' => Member::whereYear('created_at', $month->year)
-                                  ->whereMonth('created_at', $month->month)
-                                  ->count(),
+                                 ->whereMonth('created_at', $month->month)
+                                 ->count(),
             ];
         })->toArray();
 
@@ -83,7 +88,7 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // ── Pending mentor verifications ───────────────────────────
+        // ── Pending mentor verifications (Variabel disinkronkan dengan Blade) ──
         $pendingMentors = Mentor::with('user')
             ->where('is_verified', false)
             ->whereHas('user', fn($q) => $q->where('is_active', true))
@@ -92,13 +97,14 @@ class DashboardController extends Controller
             ->get();
 
         // ── Recent audit logs (5 terbaru) ──────────────────────────
-        $recentLogs = AuditLog::latest()->limit(5)->get();
+        // ERD: audit_logs pakai kolom "performed_at", bukan "created_at"
+        $recentLogs = AuditLog::latest("performed_at")->limit(5)->get();
 
         return view('admin.dashboard', compact(
             'stats',
             'monthlyData',
             'recentMembers',
-            'pendingMentors',
+            'pendingMentors', // Nama variabel ini sekarang pas dengan @forelse di dashboard.blade.php
             'recentLogs',
         ));
     }

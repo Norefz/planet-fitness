@@ -13,10 +13,11 @@
   <div>
     <h1 class="text-[22px] font-extrabold tracking-tight text-slate-900">Dashboard</h1>
     <p class="text-[13px] text-slate-500 mt-0.5">
-      Selamat datang kembali, <strong>{{ auth('admin')->user()->full_name }}</strong> ·
+      Selamat datang kembali, <strong>{{ auth('admin')->user()->superAdmin?->full_name ?? auth('admin')->user()->name }}</strong> ·
       {{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
     </p>
-  </div>
+
+    </div>
   <div class="flex gap-2">
     <a href="{{ route('admin.reports') }}"
        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold
@@ -315,7 +316,7 @@
           <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors duration-150 last:border-b-0">
             <td class="px-4 py-3">
               <div class="flex items-center gap-2.5">
-                @if($member->user->avatar)
+                @if($member->user?->avatar)
                   <img src="{{ $member->user->avatar }}"
                        class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
                 @else
@@ -327,7 +328,7 @@
                 @endif
                 <div>
                   <div class="text-[13px] font-semibold text-slate-900">{{ $member->full_name }}</div>
-                  <div class="text-[11px] text-slate-400">{{ $member->user->email }}</div>
+                  <div class="text-[11px] text-slate-400">{{ $member->user?->email ?? '-' }}</div>
                 </div>
               </div>
             </td>
@@ -341,7 +342,7 @@
               @endif
             </td>
             <td class="px-4 py-3">
-              @if($member->user->is_active)
+              @if($member->user?->is_active)
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold
                              bg-primary-light text-primary-dark">
                   <svg fill="currentColor" viewBox="0 0 24 24" class="w-2 h-2"><circle cx="12" cy="12" r="5"/></svg>
@@ -420,7 +421,9 @@
 
           {{-- Info --}}
           <div class="flex-1 min-w-0">
-            <div class="text-[13px] font-semibold text-slate-900 truncate">{{ $mentor->full_name }}</div>
+            <div class="text-[13px] font-semibold text-slate-900 truncate">
+              {{ $mentor->user?->name ?? $mentor->full_name }}
+            </div>
             <div class="text-[11px] text-slate-400 mt-0.5 truncate">
               {{ $mentor->certification ?? 'Belum ada sertifikasi' }}
               @if($mentor->specialization) · {{ $mentor->specialization }} @endif
