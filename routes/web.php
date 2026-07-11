@@ -100,3 +100,4 @@ Route::prefix('mentor')->group(function () {
         });
     });
 });
+require __DIR__.'/admin.php';

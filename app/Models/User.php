@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids; // 1. IMPORT TRAIT INI
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,13 +12,13 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasUuids;
 
     public $incrementing = false;
-    protected $keyType = 'string';
+    protected $keyType   = 'string';
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role',          // member | mentor | super_admin
+        'role',       // member | mentor | super_admin
         'google_id',
         'avatar',
         'is_active',
@@ -32,7 +32,7 @@ class User extends Authenticatable
         'is_active'         => 'boolean',
     ];
 
-    // ─── Relationships ───────────────────────────────────────────────────────
+    // ─── Relationships ────────────────────────────────────────────────────────
 
     public function member()
     {
@@ -44,7 +44,13 @@ class User extends Authenticatable
         return $this->hasOne(Mentor::class);
     }
 
-    // ─── Helpers ─────────────────────────────────────────────────────────────
+    // ← Tambahan: relasi ke tabel super_admins
+    public function superAdmin()
+    {
+        return $this->hasOne(SuperAdmin::class, 'user_id');
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
 
     public function isMember(): bool      { return $this->role === 'member'; }
     public function isMentor(): bool      { return $this->role === 'mentor'; }
@@ -59,5 +65,17 @@ class User extends Authenticatable
             'super_admin' => 'admin.dashboard',
             default       => '/',
         };
+    }
+
+    // ← Tambahan: nama display yang dipakai di navbar & sidebar admin
+    // Mengambil full_name dari tabel profil sesuai role,
+    // fallback ke kolom name di tabel users.
+    public function getDisplayNameAttribute(): string
+    {
+        return match ($this->role) {
+            'super_admin' => $this->superAdmin?->full_name,
+            'mentor'      => $this->mentor?->full_name,
+            default       => $this->member?->full_name,
+        } ?? $this->name ?? explode('@', $this->email)[0];
     }
 }
