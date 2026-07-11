@@ -15,6 +15,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [HomeController::class, 'showLoginSelection'])->name('login');
 Route::get('/register', [HomeController::class, 'showRegisterSelection'])->name('register');
 Route::get('/programs-preview', [App\Http\Controllers\Member\ProgramController::class, 'guestIndex'])->name('programs.preview');
+Route::get('/log-nutrisi', fn() => view('member.log-nutrisi'))->name('log-nutrisi');
 // Unified Google OAuth Callback (Handles both roles via session)
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleUnifiedCallback'])->name('auth.google.callback');
 
@@ -24,7 +25,7 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleUnified
 // ═══════════════════════════════════════════════════════════════════════════════
 Route::prefix('member')->name('member.')->group(function () {
 
-    // Guest only
+    // 1. Hanya untuk Pengunjung yang BELUM LOGIN
     Route::middleware('guest')->group(function () {
         Route::get('/login',    [MemberAuthController::class, 'showLogin'])->name('login');
         Route::post('/login',   [MemberAuthController::class, 'login']);
@@ -32,23 +33,20 @@ Route::prefix('member')->name('member.')->group(function () {
         Route::post('/register',[MemberAuthController::class, 'register']);
     });
 
-Route::prefix('member')->name('member.')->group(function () {
-    Route::middleware(['auth', 'role:member'])->group(function () {
-        Route::get('/dashboard', [MemberDashboardController::class, 'index'])->name('dashboard');
-
-        // Tambahkan rute program member di sini:
-        Route::get('/programs', [App\Http\Controllers\Member\ProgramController::class, 'index'])->name('programs.index');
-    });
-});
-
-    // Google OAuth Redirection — Member
+    // 2. Google OAuth Redirection — Member
     Route::get('/auth/google', [GoogleAuthController::class, 'redirectMember'])->name('auth.google');
 
-    // Authenticated member
+    // 3. Hanya untuk Member yang SUDAH LOGIN & Memiliki Role Member
     Route::middleware(['auth', 'role:member'])->group(function () {
-        // Pointing to the unified home blade view
+
+        // Dashboard Member
         Route::get('/dashboard', fn() => view('home'))->name('dashboard');
-        Route::post('/logout',   [MemberAuthController::class, 'logout'])->name('logout');
+
+        // Logout Member
+        Route::post('/logout', [MemberAuthController::class, 'logout'])->name('logout');
+
+        // Rute Program Latihan Akses Penuh untuk Member
+        Route::get('/programs', [App\Http\Controllers\Member\ProgramController::class, 'index'])->name('programs.index');
     });
 });
 
