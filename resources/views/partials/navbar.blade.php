@@ -36,7 +36,7 @@
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
              Program Latihan
         </a>
-        <a href=""
+        <a href="{{ route('log-nutrisi') }}"
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
              Log Nutrisi
         </a>
