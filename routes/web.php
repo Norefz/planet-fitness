@@ -7,8 +7,10 @@ use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Mentor\DashboardController as MentorDashboardController;
 use App\Http\Controllers\Mentor\WorkoutProgramController;
+use App\Http\Controllers\Mentor\WorkoutExerciseController;
 use App\Http\Controllers\Mentor\BookingController as MentorBookingController;
 use App\Http\Controllers\Mentor\ProfileController as MentorProfileController;
+use App\Http\Controllers\Mentor\StatisticsController as MentorStatisticsController;
 
 // ─── Public Landing Routes ───────────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -83,21 +85,30 @@ Route::prefix('mentor')->group(function () {
             Route::get('/dashboard', [MentorDashboardController::class, 'index'])->name('dashboard');
             Route::post('/logout',   [MentorAuthController::class, 'logout'])->name('logout');
 
-            // CRUD Program Latihan
+            // ─── CRUD Program Latihan ───────────────────────────────────────────
             Route::resource('programs', WorkoutProgramController::class)
-                ->except(['show'])
                 ->parameters(['programs' => 'program']);
             Route::patch('/programs/{program}/toggle-status', [WorkoutProgramController::class, 'toggleStatus'])
                 ->name('programs.toggle-status');
 
-            // Manajemen Konsultasi (Booking)
+            // ─── Latihan di dalam Program (banyak jenis latihan per program) ────
+            Route::post('/programs/{program}/exercises', [WorkoutExerciseController::class, 'store'])->name('programs.exercises.store');
+            Route::put('/programs/{program}/exercises/{exercise}', [WorkoutExerciseController::class, 'update'])->name('programs.exercises.update');
+            Route::delete('/programs/{program}/exercises/{exercise}', [WorkoutExerciseController::class, 'destroy'])->name('programs.exercises.destroy');
+            Route::patch('/programs/{program}/exercises/{exercise}/move', [WorkoutExerciseController::class, 'move'])->name('programs.exercises.move');
+
+            // ─── Statistik & Progres Member ──────────────────────────────────────
+            Route::get('/statistics', [MentorStatisticsController::class, 'index'])->name('statistics.index');
+
+            // ─── Manajemen Konsultasi (Booking) ─────────────────────────────────
             Route::get('/bookings', [MentorBookingController::class, 'index'])->name('bookings.index');
             Route::patch('/bookings/{booking}', [MentorBookingController::class, 'update'])->name('bookings.update');
 
-            // Profil Pengaturan Dashboard Biasa
+            // ─── Profil & Sertifikasi ────────────────────────────────────────────
             Route::get('/profile', [MentorProfileController::class, 'edit'])->name('profile.edit');
             Route::put('/profile', [MentorProfileController::class, 'update'])->name('profile.update');
         });
     });
 });
+
 require __DIR__.'/admin.php';
