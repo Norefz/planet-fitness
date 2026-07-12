@@ -36,6 +36,23 @@ class WorkoutProgram extends Model
         return $this->belongsTo(Mentor::class);
     }
 
+    public function enrollments()
+    {
+        return $this->hasMany(WorkoutEnrollment::class);
+    }
+
+    public function exercises()
+    {
+        return $this->hasMany(WorkoutExercise::class)->orderBy('order_index');
+    }
+
+    public function exerciseCount(): int
+    {
+        return $this->relationLoaded('exercises')
+            ? $this->exercises->count()
+            : $this->exercises()->count();
+    }
+
     // ─── Scopes ──────────────────────────────────────────────────────────────
 
     public function scopePublished(Builder $query): Builder
@@ -63,6 +80,49 @@ class WorkoutProgram extends Model
             'lanjutan' => 'Lanjutan',
             default    => ucfirst($this->level),
         };
+    }
+
+    /**
+     * Jumlah member yang sedang mengambil program ini.
+     */
+    public function enrolledCount(): int
+    {
+        return $this->relationLoaded('enrollments')
+            ? $this->enrollments->count()
+            : $this->enrollments()->count();
+    }
+
+    /**
+     * Rata-rata progres (0-100) seluruh member pada program ini.
+     * Mengembalikan null jika belum ada member yang mengambil program.
+     */
+    public function averageProgress(): ?float
+    {
+        if ($this->relationLoaded('enrollments')) {
+            return $this->enrollments->isEmpty() ? null : round($this->enrollments->avg('progress_pct'), 1);
+        }
+
+        $avg = $this->enrollments()->avg('progress_pct');
+
+        return is_null($avg) ? null : round($avg, 1);
+    }
+
+    /**
+     * Persentase member yang sudah menyelesaikan program ini (0-100).
+     */
+    public function completionRate(): ?float
+    {
+        $total = $this->enrolledCount();
+
+        if ($total === 0) {
+            return null;
+        }
+
+        $completed = $this->relationLoaded('enrollments')
+            ? $this->enrollments->where('status', 'completed')->count()
+            : $this->enrollments()->completed()->count();
+
+        return round(($completed / $total) * 100, 1);
     }
 
     /**

@@ -26,4 +26,9 @@ class Member extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function enrollments()
+    {
+        return $this->hasMany(WorkoutEnrollment::class);
+    }
 }

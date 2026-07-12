@@ -18,7 +18,7 @@ class WorkoutProgramController extends Controller
     {
         $mentor = Auth::user()->mentor;
 
-        $query = $mentor->workoutPrograms()->latest();
+        $query = $mentor->workoutPrograms()->withCount(['enrollments', 'exercises'])->with('enrollments:id,workout_program_id,progress_pct,status')->latest();
 
         if ($request->filled('status') && in_array($request->status, ['draft', 'published'])) {
             $query->where('status', $request->status);
@@ -37,6 +37,43 @@ class WorkoutProgramController extends Controller
         ];
 
         return view('mentor.programs.index', compact('programs', 'stats'));
+    }
+
+    /**
+     * READ — statistik progres member untuk satu program spesifik ("per workoutplan").
+     */
+    public function show(WorkoutProgram $program): View
+    {
+        $this->authorizeOwner($program);
+
+        $program->load('exercises');
+
+        $enrollmentsQuery = $program->enrollments()->with('member');
+
+        if (request('filter') === 'attention') {
+            $enrollmentsQuery->needsAttention();
+        } elseif (request('filter') === 'completed') {
+            $enrollmentsQuery->completed();
+        } elseif (request('filter') === 'active') {
+            $enrollmentsQuery->where('status', 'active');
+        }
+
+        $sort = request('sort', 'progress_desc');
+        $enrollmentsQuery->orderBy(
+            $sort === 'oldest' ? 'started_at' : 'progress_pct',
+            $sort === 'progress_asc' ? 'asc' : ($sort === 'oldest' ? 'asc' : 'desc')
+        );
+
+        $enrollments = $enrollmentsQuery->paginate(10)->withQueryString();
+
+        $stats = [
+            'enrolled'        => $program->enrolledCount(),
+            'avg_progress'    => $program->averageProgress(),
+            'completion_rate' => $program->completionRate(),
+            'needs_attention' => $program->enrollments()->needsAttention()->count(),
+        ];
+
+        return view('mentor.programs.show', compact('program', 'enrollments', 'stats'));
     }
 
     /**
@@ -61,13 +98,13 @@ class WorkoutProgramController extends Controller
         $validated['published_at'] = $isPublish ? now() : null;
         $validated['mentor_id'] = Auth::user()->mentor->id;
 
-        WorkoutProgram::create($validated);
+        $program = WorkoutProgram::create($validated);
 
         return redirect()
-            ->route('mentor.programs.index')
-            ->with('success', $isPublish
+            ->route('mentor.programs.edit', $program)
+            ->with('success', ($isPublish
                 ? 'Program latihan berhasil dipublikasikan.'
-                : 'Program latihan berhasil disimpan sebagai draf.');
+                : 'Program latihan berhasil disimpan sebagai draf.') . ' Sekarang tambahkan latihannya di bawah.');
     }
 
     /**
@@ -76,6 +113,8 @@ class WorkoutProgramController extends Controller
     public function edit(WorkoutProgram $program): View
     {
         $this->authorizeOwner($program);
+
+        $program->load('exercises');
 
         return view('mentor.programs.edit', compact('program'));
     }
@@ -146,9 +185,6 @@ class WorkoutProgramController extends Controller
             'description'        => ['required', 'string', 'max:2000'],
             'duration_weeks'     => ['nullable', 'integer', 'min:1', 'max:52'],
             'sessions_per_week'  => ['nullable', 'integer', 'min:1', 'max:14'],
-            'sets'               => ['nullable', 'integer', 'min:1', 'max:99'],
-            'reps'               => ['nullable', 'integer', 'min:1', 'max:999'],
-            'video_url'          => ['nullable', 'url', 'max:255'],
         ]);
     }
 

@@ -4,24 +4,21 @@
 @section('content')
 
   <div class="mb-8">
-    <div class="text-xs font-bold text-primary-dark tracking-widest uppercase mb-2">Penjadwalan & Interaksi</div>
-    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Konsultasi Mentor</h1>
+    <div class="text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">Penjadwalan & Interaksi</div>
+    <h1 class="text-[28px] sm:text-3xl font-bold tracking-tight text-slate-900">Konsultasi Mentor</h1>
     <p class="text-sm text-slate-500 mt-1.5 max-w-lg">Tinjau permintaan booking yang masuk dan kelola jadwal sesi konsultasimu dengan member.</p>
   </div>
 
-  {{-- Pending requests --}}
   <div class="mb-10">
-    <h3 class="text-base font-bold mb-4 flex items-center gap-2">
+    <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
       Permintaan Booking Masuk
       @if ($pending->count())
-        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" style="background:#fef3c7; color:#92400e;">{{ $pending->count() }}</span>
+        <x-mentor.badge variant="warning">{{ $pending->count() }}</x-mentor.badge>
       @endif
     </h3>
 
     @if ($pending->isEmpty())
-      <div class="bg-white border border-dashed border-slate-300 rounded-2xl p-8 text-center">
-        <p class="text-sm text-slate-500">Tidak ada permintaan booking yang menunggu konfirmasi.</p>
-      </div>
+      <x-mentor.empty-state icon="inbox" title="Tidak ada permintaan baru" description="Permintaan booking dari member akan muncul di sini." />
     @else
       <div class="flex flex-col gap-3">
         @foreach ($pending as $booking)
@@ -31,14 +28,11 @@
     @endif
   </div>
 
-  {{-- Confirmed / upcoming --}}
   <div class="mb-10">
-    <h3 class="text-base font-bold mb-4">Jadwal Terkonfirmasi</h3>
+    <h3 class="text-base font-bold text-slate-900 mb-4">Jadwal Terkonfirmasi</h3>
 
     @if ($confirmed->isEmpty())
-      <div class="bg-white border border-dashed border-slate-300 rounded-2xl p-8 text-center">
-        <p class="text-sm text-slate-500">Belum ada sesi terkonfirmasi mendatang.</p>
-      </div>
+      <x-mentor.empty-state icon="calendar" title="Belum ada sesi terkonfirmasi" description="Sesi yang sudah dikonfirmasi akan tampil di sini lengkap dengan tautan Zoom-nya." />
     @else
       <div class="flex flex-col gap-3">
         @foreach ($confirmed as $booking)
@@ -48,14 +42,11 @@
     @endif
   </div>
 
-  {{-- History --}}
   <div>
-    <h3 class="text-base font-bold mb-4">Riwayat Sesi</h3>
+    <h3 class="text-base font-bold text-slate-900 mb-4">Riwayat Sesi</h3>
 
     @if ($history->isEmpty())
-      <div class="bg-white border border-dashed border-slate-300 rounded-2xl p-8 text-center">
-        <p class="text-sm text-slate-500">Belum ada riwayat sesi selesai atau dibatalkan.</p>
-      </div>
+      <x-mentor.empty-state icon="clock" title="Belum ada riwayat" description="Sesi yang sudah selesai atau dibatalkan akan muncul di sini." />
     @else
       <div class="flex flex-col gap-3">
         @foreach ($history as $booking)
