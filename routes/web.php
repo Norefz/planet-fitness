@@ -46,7 +46,8 @@ Route::prefix('member')->name('member.')->group(function () {
 
         // Logout Member
         Route::post('/logout', [MemberAuthController::class, 'logout'])->name('logout');
-
+        // Konsultasi Member
+        Route::get('/konsultasi', fn() => view('member.konsultasi'))->name('konsultasi');
         // Rute Program Latihan Akses Penuh untuk Member
         Route::get('/programs', [App\Http\Controllers\Member\ProgramController::class, 'index'])->name('programs.index');
     });
