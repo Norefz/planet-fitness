@@ -40,7 +40,7 @@
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
              Log Nutrisi
         </a>
-        <a href="{{ route('member.konsultasi') }}"
+        <a href="{{ Auth::check() ? route('member.konsultasi') : route('konsultasi.preview') }}"
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
              Konsultasi Mentor
         </a>
