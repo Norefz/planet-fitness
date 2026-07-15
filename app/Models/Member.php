@@ -31,4 +31,10 @@ class Member extends Model
     {
         return $this->hasMany(WorkoutEnrollment::class);
     }
+
+    // ← Tambahan: relasi ke bookings
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }

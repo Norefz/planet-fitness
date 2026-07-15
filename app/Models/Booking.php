@@ -17,7 +17,9 @@ class Booking extends Model
         'scheduled_at',
         'duration_minutes',
         'status',
-        'meeting_url',
+        'meeting_url',      // join_url untuk member
+        'zoom_meeting_id',  // ID Zoom untuk hapus meeting saat cancel
+        'zoom_start_url',   // start_url untuk mentor (host)
         'mentor_notes',
     ];
 
@@ -25,7 +27,7 @@ class Booking extends Model
         'scheduled_at' => 'datetime',
     ];
 
-    // ─── Relationships ───────────────────────────────────────────────────────
+    // ─── Relationships ────────────────────────────────────────────────────────
 
     public function member()
     {
@@ -37,7 +39,7 @@ class Booking extends Model
         return $this->belongsTo(Mentor::class);
     }
 
-    // ─── Scopes ──────────────────────────────────────────────────────────────
+    // ─── Scopes ───────────────────────────────────────────────────────────────
 
     public function scopePending(Builder $query): Builder
     {
@@ -54,7 +56,7 @@ class Booking extends Model
         return $query->where('status', 'confirmed')->where('scheduled_at', '>=', now());
     }
 
-    // ─── Helpers ─────────────────────────────────────────────────────────────
+    // ─── Helpers ──────────────────────────────────────────────────────────────
 
     public function statusLabel(): string
     {
@@ -65,5 +67,11 @@ class Booking extends Model
             'cancelled' => 'Dibatalkan',
             default     => ucfirst($this->status),
         };
+    }
+
+    // Cek apakah meeting Zoom sudah dibuat
+    public function hasZoomMeeting(): bool
+    {
+        return ! empty($this->zoom_meeting_id);
     }
 }

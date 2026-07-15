@@ -12,6 +12,9 @@ use App\Http\Controllers\Mentor\BookingController as MentorBookingController;
 use App\Http\Controllers\Mentor\ProfileController as MentorProfileController;
 use App\Http\Controllers\Mentor\StatisticsController as MentorStatisticsController;
 
+// Import Controller Booking untuk sisi Member
+use App\Http\Controllers\Member\BookingController as MemberBookingController;
+
 // ─── Public Landing Routes ───────────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [HomeController::class, 'showLoginSelection'])->name('login');
@@ -47,8 +50,12 @@ Route::prefix('member')->name('member.')->group(function () {
 
         // Logout Member
         Route::post('/logout', [MemberAuthController::class, 'logout'])->name('logout');
-        // Konsultasi Member
-        Route::get('/konsultasi', fn() => view('member.konsultasi-member'))->name('konsultasi');
+
+        // ─── Fitur Manajemen Konsultasi & Booking Zoom Member ──────────────────
+        Route::get('/konsultasi', [MemberBookingController::class, 'index'])->name('konsultasi');
+        Route::post('/konsultasi', [MemberBookingController::class, 'store'])->name('konsultasi.store');
+        Route::patch('/konsultasi/{booking}/cancel', [MemberBookingController::class, 'cancel'])->name('konsultasi.cancel');
+
         // Rute Program Latihan Akses Penuh untuk Member
         Route::get('/programs', [App\Http\Controllers\Member\ProgramController::class, 'index'])->name('programs.index');
     });
