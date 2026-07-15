@@ -91,7 +91,13 @@ class BookingController extends Controller
                 break;
 
             // ── Batalkan: hapus Zoom meeting jika ada ────────────────────
+            // ── Batalkan: hapus Zoom meeting jika ada ────────────────────
             case 'cancel':
+                // Validasi bahwa alasan pembatalan wajib diisi dari sisi mentor
+                $request->validate([
+                    'cancellation_reason' => ['required', 'string', 'max:500'],
+                ]);
+
                 if ($booking->zoom_meeting_id) {
                     try {
                         $this->zoom->deleteMeeting($booking->zoom_meeting_id);
@@ -104,12 +110,13 @@ class BookingController extends Controller
                 }
 
                 $booking->update([
-                    'status'          => 'cancelled',
-                    'meeting_url'     => null,
-                    'zoom_meeting_id' => null,
-                    'zoom_start_url'  => null,
+                    'status'              => 'cancelled',
+                    'meeting_url'         => null,
+                    'zoom_meeting_id'     => null,
+                    'zoom_start_url'      => null,
+                    'cancellation_reason' => $request->input('cancellation_reason'), // Simpan alasan
                 ]);
-                $message = 'Booking dibatalkan.';
+                $message = 'Booking berhasil dibatalkan beserta alasan.';
                 break;
 
             // ── Tandai selesai ────────────────────────────────────────────

@@ -20,6 +20,7 @@ class Booking extends Model
         'meeting_url',      // join_url untuk member
         'zoom_meeting_id',  // ID Zoom untuk hapus meeting saat cancel
         'zoom_start_url',   // start_url untuk mentor (host)
+        'cancellation_reason',
         'mentor_notes',
     ];
 

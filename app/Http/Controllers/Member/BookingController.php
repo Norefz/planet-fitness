@@ -97,7 +97,7 @@ class BookingController extends Controller
     }
 
     // ── Batalkan booking (hanya jika masih pending) ───────────────────────
-    public function cancel(Booking $booking): RedirectResponse
+    public function cancel(Request $request, Booking $booking): RedirectResponse
     {
         $member = Auth::user()->member;
 
@@ -109,10 +109,18 @@ class BookingController extends Controller
             return back()->with('error', 'Hanya booking yang masih pending yang bisa dibatalkan.');
         }
 
-        $booking->update(['status' => 'cancelled']);
+        // PERBAIKAN: Validasi dan update alasan pembatalan ke database
+        $validated = $request->validate([
+            'cancellation_reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        $booking->update([
+            'status'              => 'cancelled',
+            'cancellation_reason' => $validated['cancellation_reason']
+        ]);
 
         return redirect()
             ->route('member.konsultasi')
-            ->with('success', 'Booking berhasil dibatalkan.');
+            ->with('success', 'Booking berhasil dibatalkan beserta alasan.');
     }
 }
