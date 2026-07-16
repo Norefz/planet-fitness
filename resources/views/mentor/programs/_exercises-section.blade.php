@@ -71,7 +71,7 @@
 
 {{-- Add exercise dialog --}}
 <dialog id="add-exercise" class="rounded-2xl p-0 w-full max-w-lg backdrop:bg-slate-900/50 backdrop:backdrop-blur-sm" @if ($errors->any() && old('editing_exercise_id') === 'new') open @endif>
-  <form method="POST" action="{{ route('mentor.programs.exercises.store', $program) }}" class="p-6">
+  <form method="POST" action="{{ route('mentor.programs.exercises.store', $program) }}" enctype="multipart/form-data" class="p-6">
     <h4 class="text-base font-bold text-slate-900 mb-1">Tambah Latihan</h4>
     <p class="text-xs text-slate-500 mb-5">Tambahkan satu jenis latihan baru ke dalam "{{ $program->title }}".</p>
     @include('mentor.programs._exercise-form', ['exercise' => new \App\Models\WorkoutExercise()])
@@ -85,7 +85,7 @@
 {{-- Per-exercise edit & delete dialogs --}}
 @foreach ($program->exercises as $exercise)
   <dialog id="edit-exercise-{{ $exercise->id }}" class="rounded-2xl p-0 w-full max-w-lg backdrop:bg-slate-900/50 backdrop:backdrop-blur-sm" @if ($errors->any() && old('editing_exercise_id') === $exercise->id) open @endif>
-    <form method="POST" action="{{ route('mentor.programs.exercises.update', [$program, $exercise]) }}" class="p-6">
+    <form method="POST" action="{{ route('mentor.programs.exercises.update', [$program, $exercise]) }}" enctype="multipart/form-data" class="p-6">
       @method('PUT')
       <h4 class="text-base font-bold text-slate-900 mb-1">Edit Latihan</h4>
       <p class="text-xs text-slate-500 mb-5">Perbarui detail "{{ $exercise->name }}".</p>

@@ -15,6 +15,7 @@ class WorkoutExercise extends Model
         'name',
         'description',
         'video_url',
+        'video_public_id',
         'sets',
         'reps',
         'duration_seconds',
