@@ -14,13 +14,14 @@ use App\Http\Controllers\Mentor\StatisticsController as MentorStatisticsControll
 
 // Import Controller Booking untuk sisi Member
 use App\Http\Controllers\Member\BookingController as MemberBookingController;
+use App\Http\Controllers\Member\MealLogController;
 
 // ─── Public Landing Routes ───────────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [HomeController::class, 'showLoginSelection'])->name('login');
 Route::get('/register', [HomeController::class, 'showRegisterSelection'])->name('register');
 Route::get('/programs-preview', [App\Http\Controllers\Member\ProgramController::class, 'guestIndex'])->name('programs.preview');
-Route::get('/log-nutrisi', fn() => view('member.log-nutrisi'))->name('log-nutrisi');
+Route::get('/log-nutrisi', [MealLogController::class, 'index'])->name('log-nutrisi');
 Route::get('/konsultasi-preview', fn() => view('member.konsultasi'))->name('konsultasi.preview');
 // Unified Google OAuth Callback (Handles both roles via session)
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleUnifiedCallback'])->name('auth.google.callback');
@@ -58,6 +59,10 @@ Route::prefix('member')->name('member.')->group(function () {
 
         // Rute Program Latihan Akses Penuh untuk Member
         Route::get('/programs', [App\Http\Controllers\Member\ProgramController::class, 'index'])->name('programs.index');
+
+        // ─── Log Nutrisi (tambah & hapus entri) ─────────────────────────────
+        Route::post('/log-nutrisi', [MealLogController::class, 'store'])->name('log-nutrisi.store');
+        Route::delete('/log-nutrisi/{mealLog}', [MealLogController::class, 'destroy'])->name('log-nutrisi.destroy');
     });
 });
 
