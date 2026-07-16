@@ -53,5 +53,8 @@ class AppServiceProvider extends ServiceProvider
         // MealLog::observe(MealLogObserver::class);
         // ActivityLog::observe(ActivityLogObserver::class);
         // MemberProgram::observe(MemberProgramObserver::class);
+      if (config('app.env') === 'production' || config('app.env') === 'local') {
+        URL::forceScheme('https');
+    }
     }
 }
