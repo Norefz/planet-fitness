@@ -51,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
         Booking::observe(BookingObserver::class);
         Mentor::observe(MentorObserver::class);
         Member::observe(MemberObserver::class);
-        // MealLog::observe(MealLogObserver::class);
+        MealLog::observe(MealLogObserver::class);
         // ActivityLog::observe(ActivityLogObserver::class);
         // MemberProgram::observe(MemberProgramObserver::class);
 
