@@ -15,9 +15,10 @@ class BookingController extends Controller
     // ── Tampilkan halaman konsultasi member ───────────────────────────────
     public function index(): View
     {
-        $mentors = Mentor::where('is_verified', true)
-            ->with('user')
-            ->get();
+        // $mentors = Mentor::where('is_verified', true)
+        //     ->with('user')
+        //     ->get();
+        $mentors = Mentor::with('user')->get();
 
         $member = Auth::user()->member;
 
@@ -58,9 +59,9 @@ class BookingController extends Controller
         $mentor = Mentor::findOrFail($validated['mentor_id']);
 
         // Cek: mentor harus sudah terverifikasi
-        if (! $mentor->is_verified) {
-            return back()->with('error', 'Mentor ini belum terverifikasi.');
-        }
+        // if (! $mentor->is_verified) {
+        //     return back()->with('error', 'Mentor ini belum terverifikasi.');
+        // }
 
         // Cek: member tidak boleh punya booking pending/confirmed di waktu yang sama
         $conflict = $member->bookings()
