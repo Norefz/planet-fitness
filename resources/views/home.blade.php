@@ -10,7 +10,7 @@
 @section('content')
 
 {{-- =====================================================================
-     HERO WRAPPER  — dark background + foto gym
+     HERO WRAPPER  — dark background + foto widhj
      ===================================================================== --}}
 <div class="relative overflow-hidden bg-[#0a1a14]">
 
