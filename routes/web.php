@@ -59,6 +59,8 @@ Route::prefix('member')->name('member.')->group(function () {
 
         // Rute Program Latihan Akses Penuh untuk Member
         Route::get('/programs', [App\Http\Controllers\Member\ProgramController::class, 'index'])->name('programs.index');
+        Route::post('/programs/{program}/enroll', [App\Http\Controllers\Member\ProgramController::class, 'enroll'])->name('programs.enroll');
+        Route::patch('/programs/{program}/progress', [App\Http\Controllers\Member\ProgramController::class, 'updateProgress'])->name('programs.progress');
 
         // ─── Log Nutrisi (tambah & hapus entri) ─────────────────────────────
         Route::post('/log-nutrisi', [MealLogController::class, 'store'])->name('log-nutrisi.store');

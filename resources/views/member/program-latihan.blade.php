@@ -53,6 +53,7 @@
                     })->values();
 
                     $programPayload = [
+                        'id'          => $program->id,
                         'title'       => $program->title,
                         'description' => $program->description,
                         'mentor'      => $program->mentor->full_name,
@@ -175,9 +176,41 @@
     const finishLabel    = document.getElementById('finish-session-label');
     const progressLabel  = document.getElementById('session-progress-label');
 
+    // URL template (id program diganti saat dipakai) — hanya ada untuk user yang
+    // sudah login, karena guest tidak boleh membuat baris progres di database.
+    const enrollUrlTemplate   = @auth "{{ route('member.programs.enroll', ['program' => 'PROGRAM_ID']) }}" @else null @endauth;
+    const progressUrlTemplate = @auth "{{ route('member.programs.progress', ['program' => 'PROGRAM_ID']) }}" @else null @endauth;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
     // Daftar latihan (sesi) untuk program yang sedang dibuka + index sesi yang aktif.
-    let currentExercises    = [];
+    let currentExercises     = [];
     let currentExerciseIndex = -1;
+    let currentProgramId     = null;
+
+    // Catat bahwa member "mengambil" program ini (dipanggil sekali saat kartu
+    // program diklik/dibuka) — inilah yang membuat program muncul di daftar
+    // "Progres Member" pada halaman mentor.
+    function enrollInProgram(programId) {
+        if (!enrollUrlTemplate || !programId) return;
+        fetch(enrollUrlTemplate.replace('PROGRAM_ID', programId), {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+        }).catch(() => {}); // panggilan latar belakang — kegagalan tidak boleh mengganggu UI
+    }
+
+    // Kirim persentase progres terbaru ke server (dipanggil setiap sesi ditandai selesai).
+    function syncProgressToServer(programId, progressPct) {
+        if (!progressUrlTemplate || !programId) return;
+        fetch(progressUrlTemplate.replace('PROGRAM_ID', programId), {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ progress_pct: progressPct }),
+        }).catch(() => {});
+    }
 
     function showVideoState(state) {
         // state: 'placeholder' | 'empty' | 'playing'
@@ -285,6 +318,12 @@
         document.getElementById('active-desc').innerHTML = (data.description ?? '') +
             `<br><br><small class="text-emerald-700 font-bold">Dipandu oleh: ${data.mentor}</small>`;
 
+        currentProgramId = data.id ?? null;
+
+        // Member membuka program ini → catat sebagai "mengambil program" di sisi
+        // mentor (isi/perbarui baris workout_enrollments). Tidak berlaku untuk guest.
+        enrollInProgram(currentProgramId);
+
         // Bangun daftar chip latihan (tiap latihan punya videonya sendiri).
         // Setiap latihan disimpan sebagai satu "sesi" dengan status selesai/belum sendiri.
         currentExercises = (data.exercises ?? []).map(exercise => ({ ...exercise, completed: false }));
@@ -339,6 +378,10 @@
             if (currentExerciseIndex < 0 || !currentExercises.length) return;
 
             currentExercises[currentExerciseIndex].completed = true;
+
+            const doneCount    = currentExercises.filter(ex => ex.completed).length;
+            const progressPct  = Math.round((doneCount / currentExercises.length) * 100);
+            syncProgressToServer(currentProgramId, progressPct);
 
             const nextIndex = currentExerciseIndex + 1;
             if (nextIndex < currentExercises.length) {
