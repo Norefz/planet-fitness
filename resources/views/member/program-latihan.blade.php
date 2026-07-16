@@ -193,15 +193,29 @@
     // "Progres Member" pada halaman mentor.
     function enrollInProgram(programId) {
         if (!enrollUrlTemplate || !programId) return;
+        if (!csrfToken) {
+            console.error('[program-latihan] Meta tag csrf-token tidak ditemukan — enroll ke server dibatalkan. Pastikan layouts/app.blade.php sudah terbaru.');
+            return;
+        }
         fetch(enrollUrlTemplate.replace('PROGRAM_ID', programId), {
             method: 'POST',
             headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-        }).catch(() => {}); // panggilan latar belakang — kegagalan tidak boleh mengganggu UI
+        })
+            .then(res => {
+                if (!res.ok) {
+                    console.error('[program-latihan] Gagal enroll ke program (HTTP ' + res.status + '). Progres tidak akan tersimpan ke database.');
+                }
+            })
+            .catch(err => console.error('[program-latihan] Gagal menghubungi server saat enroll:', err));
     }
 
     // Kirim persentase progres terbaru ke server (dipanggil setiap sesi ditandai selesai).
     function syncProgressToServer(programId, progressPct) {
         if (!progressUrlTemplate || !programId) return;
+        if (!csrfToken) {
+            console.error('[program-latihan] Meta tag csrf-token tidak ditemukan — progres tidak dikirim ke server. Pastikan layouts/app.blade.php sudah terbaru.');
+            return;
+        }
         fetch(progressUrlTemplate.replace('PROGRAM_ID', programId), {
             method: 'PATCH',
             headers: {
@@ -210,7 +224,13 @@
                 'Accept': 'application/json',
             },
             body: JSON.stringify({ progress_pct: progressPct }),
-        }).catch(() => {});
+        })
+            .then(res => {
+                if (!res.ok) {
+                    console.error('[program-latihan] Gagal menyimpan progres ke database (HTTP ' + res.status + '). Sesi akan tampak selesai di layar sekarang, tapi akan hilang saat refresh karena tidak tersimpan.');
+                }
+            })
+            .catch(err => console.error('[program-latihan] Gagal menghubungi server saat menyimpan progres:', err));
     }
 
     function showVideoState(state) {
