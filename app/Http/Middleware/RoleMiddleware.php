@@ -9,31 +9,29 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    /**
-     * Pastikan user yang login memiliki role yang sesuai.
-     * Sudah diperbaiki agar tidak memblokir halaman Guest seperti Login/Register.
-     */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        // 1. Jika rute yang diakses adalah halaman khusus Guest (Login / Register), langsung loloskan!
-        if ($request->routeIs('mentor.login') || $request->routeIs('mentor.register') ||
-            $request->routeIs('member.login') || $request->routeIs('member.register')) {
+        // 1. Lewatkan halaman guest (login/register) tanpa cek apapun
+        if ($request->routeIs('mentor.login', 'mentor.register', 'member.login', 'member.register')) {
             return $next($request);
         }
 
-        // 2. Jika user belum login sama sekali dan mencoba masuk ke halaman steril/terproteksi
+        // 2. Belum login → redirect ke halaman login yang sesuai
+        //    TANPA intended() agar tidak masuk redirect loop
         if (! Auth::check()) {
-            // Deteksi apakah dia sedang mencoba masuk ke area mentor atau member
             if ($request->is('mentor/*')) {
                 return redirect()->route('mentor.login');
             }
+            // Default: arahkan ke login member
+            // Tidak pakai intended() karena bisa menyebabkan loop di cloud
             return redirect()->route('member.login');
         }
 
         $user = Auth::user();
 
-        // 3. Jika user sudah login tapi rolenya tidak sesuai dengan rute yang diminta
+        // 3. Sudah login tapi role tidak cocok dengan route yang diminta
         if (! in_array($user->role, $roles)) {
+            // Redirect ke dashboard role yang sebenarnya
             return match ($user->role) {
                 'member'      => redirect()->route('member.dashboard'),
                 'mentor'      => redirect()->route('mentor.dashboard'),
