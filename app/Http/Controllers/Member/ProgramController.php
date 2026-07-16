@@ -11,7 +11,7 @@ class ProgramController extends Controller
     // 1. UNTUK GUEST (Belum Login) — Batasi hanya muncul 3 program teratas
     public function guestIndex(Request $request)
     {
-        $query = WorkoutProgram::where('status', 'published')->with('mentor');
+        $query = WorkoutProgram::where('status', 'published')->with(['mentor', 'exercises']);
 
         if ($request->filled('category')) {
             $query->where('category', $request->category);
@@ -27,7 +27,10 @@ class ProgramController extends Controller
     // 2. UNTUK MEMBER (Sudah Login) — Tampilkan semua program tanpa batas
     public function index(Request $request)
     {
-    $query = WorkoutProgram::where('status', 'published')->with('mentor');
+        // Eager-load 'exercises' juga — tanpa ini, video yang diunggah mentor
+        // (disimpan per-exercise, bukan per-program) tidak pernah ikut terkirim
+        // ke view, sehingga player di sisi member selalu kosong.
+        $query = WorkoutProgram::where('status', 'published')->with(['mentor', 'exercises']);
 
         if ($request->filled('category')) {
             $query->where('category', $request->category);

@@ -37,8 +37,31 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @forelse($programs as $program)
-                <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col transition duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-                     onclick="loadVideo('{{ $program->title }}', '{!! addslashes(e($program->description)) !!}', '{{ $program->sets ?? 0 }}', '{{ $program->reps ?? 0 }}', '{{ $program->mentor->full_name }}')">
+                @php
+                    // Video latihan tersimpan per-exercise (bukan per-program), jadi kita
+                    // kirimkan seluruh daftar exercise sebagai JSON ke tiap kartu supaya
+                    // JS bisa menampilkan & memutar video yang benar saat kartu diklik.
+                    $exercisesPayload = $program->exercises->map(function ($exercise) {
+                        return [
+                            'id'    => $exercise->id,
+                            'name'  => $exercise->name,
+                            'video' => $exercise->video_url,
+                            'sets'  => $exercise->sets,
+                            'reps'  => $exercise->reps,
+                            'summary' => $exercise->summaryLabel(),
+                        ];
+                    })->values();
+
+                    $programPayload = [
+                        'title'       => $program->title,
+                        'description' => $program->description,
+                        'mentor'      => $program->mentor->full_name,
+                        'exercises'   => $exercisesPayload,
+                    ];
+                @endphp
+                <div class="program-card bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col transition duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+                     data-program='@json($programPayload)'
+                     onclick="loadProgram(this)">
 
                     <div class="h-36 flex items-center justify-center relative bg-gradient-to-br from-emerald-500 to-emerald-700">
                         <i class="ti ti-barbell text-4xl text-white"></i>
@@ -71,11 +94,25 @@
 
         <div class="mt-14 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div class="lg:col-span-2">
-                <div class="bg-slate-900 rounded-2xl aspect-video flex items-center justify-center relative overflow-hidden shadow-lg before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_30%_30%,rgba(16,185,129,0.2),transparent_60%)]">
-                    <div class="w-16 h-16 rounded-full bg-white/95 flex items-center justify-center cursor-pointer relative z-10 transition duration-300 hover:scale-108 shadow-md">
-                        <i class="ti ti-player-play-filled text-2xl text-emerald-700 ml-1"></i>
+                <div class="bg-slate-900 rounded-2xl aspect-video relative overflow-hidden shadow-lg">
+                    <video id="active-video" class="w-full h-full object-contain bg-black hidden" controls playsinline></video>
+
+                    <div id="video-placeholder" class="absolute inset-0 flex items-center justify-center before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_30%_30%,rgba(16,185,129,0.2),transparent_60%)]">
+                        <div class="w-16 h-16 rounded-full bg-white/95 flex items-center justify-center relative z-10 shadow-md">
+                            <i class="ti ti-player-play-filled text-2xl text-emerald-700 ml-1"></i>
+                        </div>
+                    </div>
+
+                    <div id="video-empty-state" class="absolute inset-0 hidden items-center justify-center text-center px-6">
+                        <div>
+                            <i class="ti ti-video-off text-3xl text-slate-500"></i>
+                            <p class="text-sm text-slate-400 mt-2">Mentor belum mengunggah video untuk latihan ini.</p>
+                        </div>
                     </div>
                 </div>
+
+                <div id="exercise-list" class="hidden flex-wrap gap-2 mt-4"></div>
+
                 <div class="pt-5">
                     <h2 id="active-title" class="text-xl font-bold text-slate-900 mb-2">Pilih salah satu program</h2>
                     <p id="active-desc" class="text-sm text-slate-500 leading-relaxed">
@@ -125,18 +162,83 @@
 @include('partials.footer')
 
 <script>
-    function loadVideo(title, desc, sets, reps, mentor) {
-        document.getElementById('active-title').innerText = title;
-        document.getElementById('active-desc').innerHTML = desc + `<br><br><small class="text-emerald-700 font-bold">Dipandu oleh: ${mentor}</small>`;
-        document.getElementById('active-sets-target').innerText = sets + ' Total Sets';
-        document.getElementById('active-reps-target').innerText = reps + ' Repetisi Per Set';
+    const videoEl        = document.getElementById('active-video');
+    const placeholderEl  = document.getElementById('video-placeholder');
+    const emptyStateEl   = document.getElementById('video-empty-state');
+    const exerciseListEl = document.getElementById('exercise-list');
 
-        // Reset check box setiap pindah kartu
+    function showVideoState(state) {
+        // state: 'placeholder' | 'empty' | 'playing'
+        videoEl.classList.toggle('hidden', state !== 'playing');
+        placeholderEl.classList.toggle('hidden', state !== 'placeholder');
+        emptyStateEl.classList.toggle('hidden', state !== 'empty');
+        emptyStateEl.classList.toggle('flex', state === 'empty');
+    }
+
+    function playExercise(exercise, buttonEl) {
+        if (exercise.video) {
+            videoEl.src = exercise.video;
+            videoEl.load();
+            showVideoState('playing');
+        } else {
+            videoEl.pause();
+            videoEl.removeAttribute('src');
+            showVideoState('empty');
+        }
+
+        document.getElementById('active-sets-target').innerText = (exercise.sets ?? 0) + ' Total Sets';
+        document.getElementById('active-reps-target').innerText = (exercise.reps ?? 0) + ' Repetisi Per Set';
+
+        // Tandai chip latihan yang sedang aktif
+        exerciseListEl.querySelectorAll('button').forEach(btn => {
+            btn.classList.remove('bg-emerald-600', 'text-white', 'border-transparent');
+            btn.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+        });
+        if (buttonEl) {
+            buttonEl.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+            buttonEl.classList.add('bg-emerald-600', 'text-white', 'border-transparent');
+        }
+
+        // Reset checkbox setiap pindah latihan
         const chk = document.getElementById('set-checkbox-btn');
-        if(chk) {
+        if (chk) {
             chk.classList.remove('bg-emerald-600', 'border-transparent');
             chk.classList.add('border-slate-300');
             chk.innerHTML = '';
+        }
+    }
+
+    function loadProgram(cardEl) {
+        const data = JSON.parse(cardEl.dataset.program);
+
+        document.getElementById('active-title').innerText = data.title;
+        document.getElementById('active-desc').innerHTML = (data.description ?? '') +
+            `<br><br><small class="text-emerald-700 font-bold">Dipandu oleh: ${data.mentor}</small>`;
+
+        // Bangun daftar chip latihan (tiap latihan punya videonya sendiri)
+        exerciseListEl.innerHTML = '';
+        if (data.exercises && data.exercises.length > 0) {
+            exerciseListEl.classList.remove('hidden');
+            exerciseListEl.classList.add('flex');
+
+            data.exercises.forEach((exercise, index) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'text-xs font-semibold px-3.5 py-1.5 rounded-full border transition duration-200 bg-white text-slate-600 border-slate-200 hover:bg-slate-100';
+                btn.innerText = exercise.name + (exercise.summary ? ' · ' + exercise.summary : '');
+                btn.addEventListener('click', () => playExercise(exercise, btn));
+                exerciseListEl.appendChild(btn);
+
+                if (index === 0) {
+                    playExercise(exercise, btn);
+                }
+            });
+        } else {
+            exerciseListEl.classList.add('hidden');
+            exerciseListEl.classList.remove('flex');
+            showVideoState('empty');
+            document.getElementById('active-sets-target').innerText = '0 Total Sets';
+            document.getElementById('active-reps-target').innerText = '0 Repetisi Per Set';
         }
     }
 
