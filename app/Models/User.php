@@ -57,6 +57,24 @@ class User extends Authenticatable
     public function isSuperAdmin(): bool  { return $this->role === 'super_admin'; }
     public function isGoogleUser(): bool  { return ! is_null($this->google_id); }
 
+    public function mentorProfile(): Mentor
+    {
+        $mentor = $this->mentor()->first();
+
+        if ($mentor) {
+            return $mentor;
+        }
+
+        return $this->mentor()->create([
+            'user_id'        => $this->id,
+            'full_name'      => $this->name ?: ($this->email ? explode('@', $this->email)[0] : 'Mentor'),
+            'bio'            => null,
+            'certification'  => null,
+            'specialization' => null,
+            'is_verified'    => false,
+        ]);
+    }
+
     public function dashboardRoute(): string
     {
         return match ($this->role) {

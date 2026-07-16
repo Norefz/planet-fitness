@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Mentor;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\WorkoutExercise;
 use App\Models\WorkoutProgram;
 use App\Services\CloudinaryService;
@@ -135,7 +136,9 @@ class WorkoutExerciseController extends Controller
 
     private function authorizeOwner(WorkoutProgram $program): void
     {
-        abort_unless($program->mentor_id === Auth::user()->mentor->id, 403, 'Kamu tidak memiliki akses ke program ini.');
+        /** @var User $user */
+        $user = Auth::user();
+        abort_unless($program->mentor_id === $user->mentorProfile()->id, 403, 'Kamu tidak memiliki akses ke program ini.');
     }
 
     private function authorizeExercise(WorkoutProgram $program, WorkoutExercise $exercise): void

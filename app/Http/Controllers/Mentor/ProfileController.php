@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Mentor;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,10 +12,11 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     // ─── METHOD BARU: Menampilkan Form Onboarding Google ─────────────────────
-    public function showOnboarding(): View
+    public function showOnboarding(): View|RedirectResponse
     {
+        /** @var User $user */
         $user = Auth::user();
-        $mentor = $user->mentor;
+        $mentor = $user->mentorProfile();
 
         // Jika mentor ternyata sudah melengkapi datanya, langsung alihkan ke dashboard
         if (!empty($mentor->bio) && !empty($mentor->specialization)) {
@@ -28,8 +30,9 @@ class ProfileController extends Controller
     // ─── METHOD BARU: Memproses Submit Form Onboarding Google ─────────────────
     public function submitOnboarding(Request $request): RedirectResponse
     {
+        /** @var User $user */
         $user = Auth::user();
-        $mentor = $user->mentor;
+        $mentor = $user->mentorProfile();
 
         // Validasi input form wajib onboarding
         $validated = $request->validate([
@@ -54,8 +57,9 @@ class ProfileController extends Controller
     // ─── Fitur Edit Profil Biasa (Bawaanmu) ───────────────────────────────────
     public function edit(): View
     {
+        /** @var User $user */
         $user = Auth::user();
-        $mentor = $user->mentor;
+        $mentor = $user->mentorProfile();
 
         return view('mentor.profile.edit', compact('user', 'mentor'));
     }
@@ -63,8 +67,9 @@ class ProfileController extends Controller
     // ─── Fitur Update Profil Biasa (Bawaanmu) ─────────────────────────────────
     public function update(Request $request): RedirectResponse
     {
+        /** @var User $user */
         $user = Auth::user();
-        $mentor = $user->mentor;
+        $mentor = $user->mentorProfile();
 
         $validated = $request->validate([
             'name'            => ['required', 'string', 'max:255'],

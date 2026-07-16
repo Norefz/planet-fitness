@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Mentor;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\WorkoutProgram;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,9 @@ class WorkoutProgramController extends Controller
      */
     public function index(Request $request): View
     {
-        $mentor = Auth::user()->mentor;
+        /** @var User $user */
+        $user = Auth::user();
+        $mentor = $user->mentorProfile();
 
         $query = $mentor->workoutPrograms()->withCount(['enrollments', 'exercises'])->with('enrollments:id,workout_program_id,progress_pct,status')->latest();
 
@@ -96,7 +99,9 @@ class WorkoutProgramController extends Controller
         $isPublish = $request->input('action') === 'publish';
         $validated['status'] = $isPublish ? 'published' : 'draft';
         $validated['published_at'] = $isPublish ? now() : null;
-        $validated['mentor_id'] = Auth::user()->mentor->id;
+        /** @var User $user */
+        $user = Auth::user();
+        $validated['mentor_id'] = $user->mentorProfile()->id;
 
         $program = WorkoutProgram::create($validated);
 
@@ -190,6 +195,8 @@ class WorkoutProgramController extends Controller
 
     private function authorizeOwner(WorkoutProgram $program): void
     {
-        abort_unless($program->mentor_id === Auth::user()->mentor->id, 403, 'Kamu tidak memiliki akses ke program ini.');
+        /** @var User $user */
+        $user = Auth::user();
+        abort_unless($program->mentor_id === $user->mentorProfile()->id, 403, 'Kamu tidak memiliki akses ke program ini.');
     }
 }

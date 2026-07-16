@@ -10,10 +10,21 @@
     </label>
 
     @if ($exercise->video_url)
-      <div class="flex items-center gap-2 text-xs text-slate-500 mb-0.5">
-        <x-mentor.icon name="video" class="w-3.5 h-3.5 text-primary-500 shrink-0" />
-        Video sudah ada —
-        <a href="{{ $exercise->video_url }}" target="_blank" rel="noopener" class="text-primary-600 font-semibold hover:underline">lihat video saat ini</a>
+      <div class="rounded-xl border border-primary-100 bg-primary-50/60 p-3 mb-2">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-xs font-semibold text-slate-700">Video saat ini</p>
+            <a href="{{ $exercise->video_url }}" target="_blank" rel="noopener" class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-primary-600 hover:underline">
+              <x-mentor.icon name="video" class="w-3.5 h-3.5 shrink-0" />
+              Lihat video yang diunggah
+            </a>
+            @php $videoName = basename(parse_url($exercise->video_url, PHP_URL_PATH)); @endphp
+            @if ($videoName && $videoName !== '/')
+              <p class="mt-1 text-[11px] text-slate-500 truncate">{{ urldecode($videoName) }}</p>
+            @endif
+          </div>
+        </div>
+        <video controls preload="metadata" src="{{ $exercise->video_url }}" class="mt-3 w-full rounded-lg max-h-40 bg-slate-900"></video>
       </div>
     @endif
 

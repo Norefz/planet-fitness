@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,22 +21,15 @@ class EnsureMentorProfileComplete
             return $next($request);
         }
 
+        /** @var User $user */
         $user = Auth::user();
 
         // 2. Periksa apakah user yang sedang masuk adalah Mentor
         if ($user->role === 'mentor') {
-            $mentor = $user->mentor;
+            $mentor = $user->mentor()->first();
 
-            // 3. INDIKATOR KUNCI: Jika data profil mentor (bio atau spesialisasi) masih kosong
-            if (!$mentor || empty($mentor->bio) || empty($mentor->specialization)) {
-
-                // Cek agar tidak terjadi looping error (infinite redirect) saat mengakses halaman form onboarding itu sendiri
-                if (!$request->routeIs('mentor.complete-profile') && !$request->routeIs('mentor.complete-profile.submit')) {
-
-                    // Lempar paksa ke halaman pengisian profil mentor
-                    return redirect()->route('mentor.complete-profile')
-                        ->with('warning', 'Anda wajib melengkapi sertifikasi, spesialisasi, dan bio sebelum melanjutkan.');
-                }
+            if (!$mentor) {
+                $user->mentorProfile();
             }
         }
 

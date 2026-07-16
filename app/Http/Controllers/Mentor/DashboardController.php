@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Mentor;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $mentor = Auth::user()->mentor;
+        /** @var User $user */
+        $user = Auth::user();
+        $mentor = $user->mentorProfile();
 
         $programs = $mentor->workoutPrograms();
         $bookings = $mentor->bookings();
