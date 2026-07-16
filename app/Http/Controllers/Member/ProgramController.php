@@ -27,7 +27,7 @@ class ProgramController extends Controller
     // 2. UNTUK MEMBER (Sudah Login) — Tampilkan semua program tanpa batas
     public function index(Request $request)
     {
-     $query = WorkoutProgram::where('is_published', true)->with('mentor');
+    $query = WorkoutProgram::where('status', 'published')->with('mentor');
 
         if ($request->filled('category')) {
             $query->where('category', $request->category);
