@@ -25,31 +25,17 @@ class ProgramController extends Controller
 
 
     // 2. UNTUK MEMBER (Sudah Login) — Tampilkan semua program tanpa batas
-    // public function index(Request $request)
-    // {
-    //  $query = WorkoutProgram::where('is_published', true)->with('mentor');
-    //
-    //     if ($request->filled('category')) {
-    //         $query->where('category', $request->category);
-    //     }
-    //
-    //     $programs = $query->latest()->get();
-    //
-    //     return view('member.program-latihan', compact('programs'));
-    // }
     public function index(Request $request)
-{
-    $query = WorkoutProgram::where('status', 'published')->with('mentor');
+    {
+     $query = WorkoutProgram::where('is_published', true)->with('mentor');
 
-    if ($request->filled('category')) {
-        $query->where('category', $request->category);
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        $programs = $query->latest()->get();
+
+        return view('member.program-latihan', compact('programs'));
     }
 
-    $programs = $query->latest()->get();
-
-    // DEBUG SEMENTARA — hapus setelah ketemu masalahnya
-    dd($programs->count(), $programs->pluck('title'));
-
-    return view('member.program-latihan', compact('programs'));
-}
 }
