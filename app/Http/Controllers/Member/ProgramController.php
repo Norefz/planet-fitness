@@ -41,6 +41,20 @@ class ProgramController extends Controller
 
         $programs = $query->latest()->get();
 
+        // Tempelkan progres tersimpan milik member yang login ke tiap program,
+        // supaya centang sesi yang sudah selesai tidak hilang saat halaman
+        // di-refresh (sebelumnya progres hanya hidup di memori JS browser).
+        $member = Auth::user()->member;
+        if ($member) {
+            $progressByProgram = WorkoutEnrollment::where('member_id', $member->id)
+                ->whereIn('workout_program_id', $programs->pluck('id'))
+                ->pluck('progress_pct', 'workout_program_id');
+
+            $programs->each(function ($program) use ($progressByProgram) {
+                $program->my_progress_pct = $progressByProgram->get($program->id);
+            });
+        }
+
         return view('member.program-latihan', compact('programs'));
     }
 

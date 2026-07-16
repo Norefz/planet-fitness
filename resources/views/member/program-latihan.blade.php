@@ -58,6 +58,7 @@
                         'description' => $program->description,
                         'mentor'      => $program->mentor->full_name,
                         'exercises'   => $exercisesPayload,
+                        'progressPct' => $program->my_progress_pct ?? null,
                     ];
                 @endphp
                 <div class="program-card bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col transition duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
@@ -330,6 +331,21 @@
         currentExerciseIndex = -1;
         exerciseListEl.innerHTML = '';
 
+        // Pulihkan sesi yang sudah pernah ditandai selesai sebelumnya (tersimpan di
+        // server sebagai progress_pct) supaya centangnya tidak hilang saat halaman
+        // di-refresh. Progres disimpan sebagai persentase agregat, jadi kita tandai
+        // N sesi pertama sebagai selesai — sesuai urutan sesi selalu diselesaikan
+        // berurutan lewat tombol "Selesai Latihan Sesi Ini".
+        const total = currentExercises.length;
+        let resumeIndex = 0;
+        if (total > 0 && typeof data.progressPct === 'number') {
+            const doneCount = Math.min(total, Math.round((data.progressPct / 100) * total));
+            for (let i = 0; i < doneCount; i++) {
+                currentExercises[i].completed = true;
+            }
+            resumeIndex = doneCount < total ? doneCount : total - 1;
+        }
+
         if (currentExercises.length > 0) {
             exerciseListEl.classList.remove('hidden');
             exerciseListEl.classList.add('flex');
@@ -344,7 +360,7 @@
                 exerciseListEl.appendChild(btn);
             });
 
-            playExercise(0);
+            playExercise(resumeIndex);
         } else {
             exerciseListEl.classList.add('hidden');
             exerciseListEl.classList.remove('flex');
