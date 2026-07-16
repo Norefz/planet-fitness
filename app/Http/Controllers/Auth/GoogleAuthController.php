@@ -14,27 +14,45 @@ class GoogleAuthController extends Controller
     // ─── Member Redirect ──────────────────────────────────────────────────────
     public function redirectMember()
     {
-        session(['oauth_role' => 'member']);
-
+        // Kirim role lewat 'state' parameter Google OAuth
+        // State dikembalikan Google saat callback — tidak bergantung session sama sekali
         return Socialite::driver('google')
-            ->with(['prompt' => 'select_account'])
+            ->with([
+                'prompt' => 'select_account',
+                'state'  => base64_encode(json_encode(['role' => 'member'])),
+            ])
             ->redirect();
     }
 
     // ─── Mentor Redirect ──────────────────────────────────────────────────────
     public function redirectMentor()
     {
-        session(['oauth_role' => 'mentor']);
-
         return Socialite::driver('google')
-            ->with(['prompt' => 'select_account'])
+            ->with([
+                'prompt' => 'select_account',
+                'state'  => base64_encode(json_encode(['role' => 'mentor'])),
+            ])
             ->redirect();
     }
 
-    // ─── Unified Callback (dipanggil dari route /auth/google/callback) ────────
+    // ─── Unified Callback ─────────────────────────────────────────────────────
     public function handleUnifiedCallback()
     {
-        $role = session('oauth_role', 'member');
+        // Baca role dari state yang dikembalikan Google
+        // Tidak bergantung session — aman di Railway/cloud
+        $role = 'member'; // default fallback
+
+        try {
+            $rawState = request()->input('state');
+            if ($rawState) {
+                $decoded = json_decode(base64_decode($rawState), true);
+                if (isset($decoded['role']) && in_array($decoded['role'], ['member', 'mentor'])) {
+                    $role = $decoded['role'];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Pakai default 'member'
+        }
 
         return $this->handleCallback($role);
     }
@@ -43,34 +61,31 @@ class GoogleAuthController extends Controller
     private function handleCallback(string $role)
     {
         try {
-            // PERBAIKAN: Menggunakan stateless() agar token OAuth dari Google
-            // bisa divalidasi dengan aman di server cloud (Railway) tanpa konflik session state
+            // stateless() aman karena kita tidak bergantung session untuk validasi state
             $googleUser = Socialite::driver('google')->stateless()->user();
         } catch (\Exception $e) {
             return redirect()->route($role . '.login')
                 ->withErrors(['google' => 'Login Google gagal. Silakan coba lagi.']);
         }
 
-        // Cek apakah user sudah terdaftar berdasarkan email
+        // Cek apakah user sudah terdaftar
         $user = User::where('email', $googleUser->getEmail())->first();
 
-        // Penanda jika ini adalah mentor yang baru pertama kali login/buat akun
         $isNewMentor = false;
 
         if ($user) {
-            // Jika user sudah ada tetapi rolenya tidak cocok dengan pilihan login saat ini
+            // User ada tapi role berbeda → tolak
             if ($user->role !== $role) {
                 return redirect()->route($role . '.login')
-                    ->withErrors(['google' => "Email Anda sudah terdaftar sebagai {$user->role}, tidak bisa login sebagai {$role}."]);
+                    ->withErrors(['google' => "Email ini sudah terdaftar sebagai {$user->role}. Silakan login di halaman yang sesuai."]);
             }
         } else {
-            // Jika mentor baru terdaftar, tandai agar nanti diarahkan ke halaman lengkapi profil
             if ($role === 'mentor') {
                 $isNewMentor = true;
             }
         }
 
-        // Update atau buat user baru di tabel users
+        // Upsert user
         $user = User::updateOrCreate(
             ['email' => $googleUser->getEmail()],
             [
@@ -91,7 +106,7 @@ class GoogleAuthController extends Controller
             ]);
         }
 
-        // Buat profil mentor jika belum ada (kosong dulu, diisi lewat onboarding)
+        // Buat profil mentor jika belum ada (onboarding nanti)
         if ($role === 'mentor' && !$user->mentor) {
             Mentor::create([
                 'user_id'        => $user->id,
@@ -103,10 +118,9 @@ class GoogleAuthController extends Controller
         }
 
         Auth::login($user);
-        session()->forget('oauth_role');
         session()->regenerate();
 
-        // Mentor baru → arahkan ke halaman lengkapi profil dulu
+        // Mentor baru → arahkan ke onboarding
         if ($role === 'mentor' && $isNewMentor) {
             return redirect()->route('mentor.complete-profile')
                 ->with('info', 'Silakan lengkapi profil mentor Anda terlebih dahulu.');
