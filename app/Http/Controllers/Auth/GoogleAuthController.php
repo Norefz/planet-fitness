@@ -43,29 +43,34 @@ class GoogleAuthController extends Controller
     private function handleCallback(string $role)
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            // PERBAIKAN: Menggunakan stateless() agar token OAuth dari Google
+            // bisa divalidasi dengan aman di server cloud (Railway) tanpa konflik session state
+            $googleUser = Socialite::driver('google')->stateless()->user();
         } catch (\Exception $e) {
             return redirect()->route($role . '.login')
                 ->withErrors(['google' => 'Login Google gagal. Silakan coba lagi.']);
         }
 
-        // Cek apakah email sudah terdaftar dengan role berbeda
-        $existing = User::where('email', $googleUser->getEmail())->first();
+        // Cek apakah user sudah terdaftar berdasarkan email
+        $user = User::where('email', $googleUser->getEmail())->first();
 
-        if ($existing && $existing->role !== $role) {
-            return redirect()->route($role . '.login')
-                ->withErrors(['google' => 'Email ini sudah terdaftar sebagai ' . $existing->role . '. Silakan gunakan halaman yang sesuai.']);
-        }
-
-        // Cek apakah ini mentor baru yang perlu onboarding
+        // Penanda jika ini adalah mentor yang baru pertama kali login/buat akun
         $isNewMentor = false;
-        if ($role === 'mentor') {
-            if (!$existing || !$existing->mentor) {
+
+        if ($user) {
+            // Jika user sudah ada tetapi rolenya tidak cocok dengan pilihan login saat ini
+            if ($user->role !== $role) {
+                return redirect()->route($role . '.login')
+                    ->withErrors(['google' => "Email Anda sudah terdaftar sebagai {$user->role}, tidak bisa login sebagai {$role}."]);
+            }
+        } else {
+            // Jika mentor baru terdaftar, tandai agar nanti diarahkan ke halaman lengkapi profil
+            if ($role === 'mentor') {
                 $isNewMentor = true;
             }
         }
 
-        // Upsert user
+        // Update atau buat user baru di tabel users
         $user = User::updateOrCreate(
             ['email' => $googleUser->getEmail()],
             [
