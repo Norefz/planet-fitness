@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\URL; // <-- INI YANG TADI HILANG!
 
 // ── Auth Events ───────────────────────────────────────────────────────────────
 use Illuminate\Auth\Events\Login;
@@ -53,8 +54,10 @@ class AppServiceProvider extends ServiceProvider
         // MealLog::observe(MealLogObserver::class);
         // ActivityLog::observe(ActivityLogObserver::class);
         // MemberProgram::observe(MemberProgramObserver::class);
-      if (config('app.env') === 'production' || config('app.env') === 'local') {
-        URL::forceScheme('https');
-    }
+
+        // ── HTTPS Force Scheme ────────────────────────────────────────────────
+        if (config('app.env') === 'production' || config('app.env') === 'local') {
+            URL::forceScheme('https');
+        }
     }
 }
