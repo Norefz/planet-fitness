@@ -52,33 +52,3 @@
   </div>
 
 </header>
-
-{{-- Flash messages --}}
-@if(session('success'))
-  <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-       x-transition:leave="transition ease-in duration-300"
-       x-transition:leave-start="opacity-100 translate-y-0"
-       x-transition:leave-end="opacity-0 -translate-y-2"
-       class="fixed top-4 right-4 z-[200] flex items-center gap-3 bg-white border border-green-200
-              text-green-800 px-4 py-3 rounded-xl shadow-lg text-sm font-medium"
-       style="display:none;">
-    <svg class="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5"
-         stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-      <polyline points="20 6 9 17 4 12"/>
-    </svg>
-    {{ session('success') }}
-  </div>
-@endif
-
-@if(session('error'))
-  <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-       class="fixed top-4 right-4 z-[200] flex items-center gap-3 bg-white border border-red-200
-              text-red-700 px-4 py-3 rounded-xl shadow-lg text-sm font-medium"
-       style="display:none;">
-    <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5"
-         stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
-    </svg>
-    {{ session('error') }}
-  </div>
-@endif

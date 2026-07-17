@@ -18,6 +18,14 @@
     <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80&auto=format&fit=crop')]
                 bg-cover bg-[center_30%] opacity-[0.22] z-0 pointer-events-none"></div>
 
+    {{-- Animated gradient orbs — subtle motion behind the hero content --}}
+    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div class="absolute -top-24 -left-16 w-[420px] h-[420px] rounded-full blur-[110px] opacity-30
+                    bg-primary animate-gradient-slow"></div>
+        <div class="absolute top-1/3 -right-24 w-[380px] h-[380px] rounded-full blur-[110px] opacity-20
+                    bg-[#4ade9e] animate-gradient-slow" style="animation-delay:-4s"></div>
+    </div>
+
     {{-- Navbar (di dalam wrapper agar warnanya sesuai) --}}
     @include('partials.navbar')
 
@@ -26,7 +34,7 @@
 
         {{-- Badge --}}
         <div class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full mb-6
-                    bg-white/12 border border-white/20 text-[#a7f3d0] text-[13px] font-semibold
+                    bg-white/15 border border-white/25 text-[#a7f3d0] text-[13px] font-semibold
                     backdrop-blur-md">
             <svg class="w-3.5 h-3.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -334,10 +342,11 @@
             ];
             @endphp
 
-            @foreach($whyCards as $card)
+            @foreach($whyCards as $i => $card)
             <div class="relative bg-white border border-slate-200 rounded-xl2 pt-8 px-6 pb-6 overflow-hidden
                         hover:-translate-y-1.5 hover:shadow-lg hover:border-primary-light
-                        transition-all duration-300 cursor-default">
+                        transition-all duration-300 cursor-default reveal-on-scroll"
+                 style="transition-delay: {{ $i * 80 }}ms">
                 {{-- Top accent line --}}
                 <div class="absolute top-0 left-0 right-0 h-[3px] rounded-t-xl2"
                      style="background: {{ $card['accent'] }}"></div>
@@ -374,6 +383,80 @@
     </section>
 </div>
 {{-- /why wrapper --}}
+
+
+{{-- =====================================================================
+     TESTIMONIALS — social proof dari member & mentor
+     ===================================================================== --}}
+<section class="max-w-[1200px] mx-auto px-[5%] py-16">
+
+    <div class="text-center max-w-xl mx-auto mb-12 reveal-on-scroll">
+        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full mb-4
+                     bg-primary-light text-primary-dark text-xs font-bold uppercase tracking-wide">
+            Kata Mereka
+        </span>
+        <h2 class="text-3xl font-bold -tracking-[0.5px] mb-3">Dipercaya ribuan orang</h2>
+        <p class="text-slate-500 text-[15px] leading-7">
+            Cerita nyata dari member dan mentor yang sudah merasakan hasilnya.
+        </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+        @php
+            $testimonials = [
+                [
+                    'name' => 'Dinda Ayu Ramadhani',
+                    'role' => 'Member sejak 2024',
+                    'initials' => 'DR',
+                    'color' => '#1D9E75',
+                    'quote' => 'Log nutrisinya gampang banget dipakai tiap hari. Berat badan turun 6kg dalam 3 bulan tanpa harus mikir keras soal kalori.',
+                ],
+                [
+                    'name' => 'Muhammad Fajar Nugroho',
+                    'role' => 'Member sejak 2023',
+                    'initials' => 'FN',
+                    'color' => '#2563eb',
+                    'quote' => 'Fitur konsultasi mentornya nolong banget. Bisa tanya soal program latihan langsung tanpa perlu janjian ribet ke gym.',
+                ],
+                [
+                    'name' => 'Sarah Kusuma Wardani',
+                    'role' => 'Mentor bersertifikat',
+                    'initials' => 'SW',
+                    'color' => '#db2777',
+                    'quote' => 'Dashboard mentornya rapi, gampang pantau progres semua member sekaligus. Jadwal booking juga jadi jauh lebih teratur.',
+                ],
+            ];
+        @endphp
+
+        @foreach($testimonials as $i => $t)
+        <div class="bg-white border border-slate-200 rounded-xl2 p-7 hover-lift reveal-on-scroll"
+             style="transition-delay: {{ $i * 100 }}ms">
+            {{-- Star rating --}}
+            <div class="flex items-center gap-0.5 mb-4" aria-label="Rating 5 dari 5 bintang">
+                @for ($s = 0; $s < 5; $s++)
+                    <svg class="w-4 h-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 0 0 .95.69h4.163c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 0 0-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 0 0-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.538-1.118l1.287-3.957a1 1 0 0 0-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 0 0 .95-.69l1.286-3.958z"/>
+                    </svg>
+                @endfor
+            </div>
+
+            <p class="text-sm text-slate-600 leading-7 mb-6">&ldquo;{{ $t['quote'] }}&rdquo;</p>
+
+            <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-bold text-white flex-shrink-0"
+                      style="background: {{ $t['color'] }}">
+                    {{ $t['initials'] }}
+                </span>
+                <div>
+                    <div class="text-sm font-semibold text-slate-900">{{ $t['name'] }}</div>
+                    <div class="text-xs text-slate-400">{{ $t['role'] }}</div>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</section>
+{{-- /testimonials --}}
 
 
 {{-- =====================================================================

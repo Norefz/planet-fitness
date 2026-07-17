@@ -14,7 +14,7 @@
         'muted'   => 'text-slate-400',
     ];
 @endphp
-<div {{ $attributes->merge(['class' => 'bg-white border border-slate-200 rounded-2xl p-5']) }}>
+<div {{ $attributes->merge(['class' => 'bg-white border border-slate-200 rounded-2xl p-5 hover-lift']) }}>
     <div class="flex items-center justify-between mb-2.5">
         <div class="text-xs font-medium text-slate-500">{{ $label }}</div>
         @if ($icon)

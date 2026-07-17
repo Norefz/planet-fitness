@@ -10,26 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
-          colors: {
-            primary: {
-              50: '#ecfdf5', 100: '#d1f5e8', 200: '#a7ebd4', 300: '#6ddcbc',
-              400: '#3ac49f', 500: '#1d9e75', DEFAULT: '#1d9e75', 600: '#168262',
-              700: '#0f6e56', dark: '#0f6e56', light: '#e1f5ee', 800: '#0b5745', 900: '#084537',
-            },
-          },
-          boxShadow: {
-            dropdown: '0 16px 40px -8px rgb(15 23 42 / 0.14), 0 4px 12px -4px rgb(15 23 42 / 0.06)',
-          },
-          borderRadius: { xl: '0.85rem', '2xl': '1.1rem' },
-        },
-      },
-    };
-  </script>
+  @include('partials.design-tokens')
+  @include('partials.global-styles')
 
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
@@ -37,7 +19,6 @@
     .scrollbar-thin::-webkit-scrollbar { height: 4px; }
     .scrollbar-thin::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 9999px; }
     .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-    [x-cloak] { display: none !important; }
   </style>
 
   @stack('styles')
@@ -141,36 +122,7 @@
       </div>
     </nav>
 
-    <div
-      x-data="{
-        toasts: [],
-        push(type, message) {
-          const id = Date.now() + Math.random();
-          this.toasts.push({ id, type, message });
-          setTimeout(() => this.dismiss(id), 5000);
-        },
-        dismiss(id) {
-          this.toasts = this.toasts.filter(t => t.id !== id);
-        },
-      }"
-      x-init="@if (session('success')) push('success', @json(session('success'))) @endif"
-      class="fixed top-20 right-4 z-[100] flex flex-col gap-2.5 w-[calc(100%-2rem)] max-w-sm"
-    >
-      <template x-for="toast in toasts" :key="toast.id">
-        <div x-show="true"
-             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-6" x-transition:enter-end="opacity-100 translate-x-0"
-             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0 translate-x-2"
-             class="flex items-start gap-3 rounded-2xl border border-primary-200 bg-white shadow-dropdown p-4">
-          <div class="w-7 h-7 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
-            <x-mentor.icon name="check" class="w-3.5 h-3.5" />
-          </div>
-          <p class="text-sm font-medium text-slate-700 flex-1 pt-0.5" x-text="toast.message"></p>
-          <button @click="dismiss(toast.id)" class="text-slate-300 hover:text-slate-500 transition-colors shrink-0">
-            <x-mentor.icon name="x" class="w-4 h-4" />
-          </button>
-        </div>
-      </template>
-    </div>
+    @include('partials.toast-container')
 
     @if ($errors->any())
       <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-6">

@@ -6,22 +6,13 @@
     <title>Konsultasi Mentor - Planet Fitness</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#059669',
-                        'primary-dark': '#047857'
-                    }
-                }
-            }
-        }
-    </script>
+    @include('partials.design-tokens')
+    @include('partials.global-styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col justify-between">
+    @include('partials.toast-container')
 
     <div>
         @include('partials.navbar')
@@ -205,43 +196,57 @@
 
                             @if(isset($myHistory))
                                 @foreach($myHistory as $historySession)
-                                    <div class="border border-slate-200 bg-slate-50/40 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 opacity-75">
-                                        <div class="flex items-center space-x-4">
-                                            <div class="w-12 h-12 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold">
-                                                {{ strtoupper(substr($historySession->mentor->user->name ?? 'M', 0, 2)) }}
-                                            </div>
-                                            <div>
-                                                <h4 class="font-bold text-slate-700 text-sm">
-                                                    {{ $historySession->mentor->user->name ?? 'Mentor' }} · {{ $historySession->topic ?? 'Konsultasi Selesai' }}
-                                                </h4>
-                                                <p class="text-xs text-slate-400 mt-1">
-                                                    <i class="fa-regular fa-calendar mr-1"></i>
-                                                    {{ \Carbon\Carbon::parse($historySession->scheduled_at)->isoFormat('D MMMM YYYY · HH:mm') }} WIB
-                                                </p>
+                                    <div class="border border-slate-200 bg-slate-50/40 rounded-2xl p-6 opacity-75" x-data="{ noteOpen: false }">
+                                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="w-12 h-12 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold">
+                                                    {{ strtoupper(substr($historySession->mentor->user->name ?? 'M', 0, 2)) }}
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-bold text-slate-700 text-sm">
+                                                        {{ $historySession->mentor->user->name ?? 'Mentor' }} · {{ $historySession->topic ?? 'Konsultasi Selesai' }}
+                                                    </h4>
+                                                    <p class="text-xs text-slate-400 mt-1">
+                                                        <i class="fa-regular fa-calendar mr-1"></i>
+                                                        {{ \Carbon\Carbon::parse($historySession->scheduled_at)->isoFormat('D MMMM YYYY · HH:mm') }} WIB
+                                                    </p>
 
-                                                @if($historySession->status === 'completed')
-                                                    <span class="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                                                        <i class="fa-solid fa-check mr-1"></i> Selesai
-                                                    </span>
-                                                @else
-                                                    <span class="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                                        <i class="fa-solid fa-xmark mr-1"></i> Dibatalkan
-                                                    </span>
-                                                    {{-- PERBAIKAN: Menampilkan alasan pembatalan agar member bisa melihatnya langsung --}}
-                                                    @if($historySession->cancellation_reason)
-                                                        <p class="text-xs text-rose-600 font-medium mt-1.5 bg-rose-50 border border-rose-100 rounded-lg px-2.5 py-1 block">
-                                                            <strong>Alasan Batal:</strong> "{{ $historySession->cancellation_reason }}"
-                                                        </p>
+                                                    @if($historySession->status === 'completed')
+                                                        <span class="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                                            <i class="fa-solid fa-check mr-1"></i> Selesai
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                                            <i class="fa-solid fa-xmark mr-1"></i> Dibatalkan
+                                                        </span>
+                                                        {{-- PERBAIKAN: Menampilkan alasan pembatalan agar member bisa melihatnya langsung --}}
+                                                        @if($historySession->cancellation_reason)
+                                                            <p class="text-xs text-rose-600 font-medium mt-1.5 bg-rose-50 border border-rose-100 rounded-lg px-2.5 py-1 block">
+                                                                <strong>Alasan Batal:</strong> "{{ $historySession->cancellation_reason }}"
+                                                            </p>
+                                                        @endif
                                                     @endif
-                                                @endif
+                                                </div>
                                             </div>
+
+                                            @if($historySession->status === 'completed' && $historySession->mentor_notes)
+                                                <div class="w-full sm:w-auto text-right">
+                                                    <button type="button" @click="noteOpen = !noteOpen" class="px-5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition shadow-sm flex items-center gap-1.5 ml-auto">
+                                                        <i class="fa-regular fa-comment-dots"></i>
+                                                        <span x-text="noteOpen ? 'Tutup Catatan' : 'Lihat Catatan'"></span>
+                                                    </button>
+                                                </div>
+                                            @endif
                                         </div>
 
                                         @if($historySession->status === 'completed' && $historySession->mentor_notes)
-                                            <div class="w-full sm:w-auto text-right">
-                                                <button type="button" onclick="alert('Catatan Mentor:\n{{ addslashes($historySession->mentor_notes) }}')" class="px-5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition shadow-sm flex items-center gap-1.5 ml-auto">
-                                                    <i class="fa-regular fa-comment-dots"></i> Lihat Catatan
-                                                </button>
+                                            <div x-show="noteOpen" x-cloak
+                                                 x-transition:enter="transition ease-out duration-200"
+                                                 x-transition:enter-start="opacity-0 -translate-y-1"
+                                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                                 class="mt-4 pt-4 border-t border-slate-200 text-xs text-slate-600 leading-6 whitespace-pre-line">
+                                                <span class="font-bold text-slate-700">Catatan Mentor:</span><br>
+                                                {{ $historySession->mentor_notes }}
                                             </div>
                                         @endif
                                     </div>
@@ -292,6 +297,9 @@
                 placeholder="mis. Maaf saya ada urusan darurat atau jadwal kerja bentrok di jam tersebut..."
                 class="w-full px-4 py-3 text-sm text-slate-800 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition resize-none"
             ></textarea>
+            <p id="modal-textarea-error" class="hidden mt-1.5 text-xs font-semibold text-red-600">
+                Alasan pembatalan wajib diisi.
+            </p>
 
             <div class="flex justify-end gap-2.5 mt-5 text-xs font-bold">
                 <button type="button" onclick="closeCancelModal()" class="px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition">
@@ -324,7 +332,10 @@
 
         function openCancelModal(bookingId) {
             currentActiveBookingId = bookingId;
-            document.getElementById('modal-textarea-reason').value = '';
+            const textarea = document.getElementById('modal-textarea-reason');
+            textarea.value = '';
+            textarea.classList.remove('field-invalid', 'field-shake');
+            document.getElementById('modal-textarea-error').classList.add('hidden');
             document.getElementById('custom-cancel-modal').classList.remove('hidden');
         }
 
@@ -334,14 +345,25 @@
         }
 
         function submitCancelModal() {
-            let reasonText = document.getElementById('modal-textarea-reason').value;
+            let textarea = document.getElementById('modal-textarea-reason');
+            let errorMsg = document.getElementById('modal-textarea-error');
+            let reasonText = textarea.value;
             if (!reasonText || reasonText.trim() === "") {
-                alert("Alasan pembatalan wajib diisi!");
+                textarea.classList.add('field-invalid', 'field-shake');
+                errorMsg.classList.remove('hidden');
+                textarea.focus();
+                setTimeout(() => textarea.classList.remove('field-shake'), 500);
+                if (typeof pfToast === 'function') pfToast('error', 'Alasan pembatalan wajib diisi.');
                 return;
             }
             document.getElementById('reason-' + currentActiveBookingId).value = reasonText;
             document.getElementById('cancel-form-' + currentActiveBookingId).submit();
         }
+
+        document.getElementById('modal-textarea-reason')?.addEventListener('input', function() {
+            this.classList.remove('field-invalid');
+            document.getElementById('modal-textarea-error').classList.add('hidden');
+        });
     </script>
 </body>
 </html>

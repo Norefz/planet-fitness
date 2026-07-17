@@ -8,6 +8,7 @@
      ===================================================================== --}}
 <nav
     id="pf-navbar"
+    x-data="{ mobileOpen: false }"
     class="flex items-center justify-between px-[5%] py-4 sticky top-0 z-50
            border-b border-white/10 bg-[rgba(10,26,20,0.6)] backdrop-blur-xl
            transition-all duration-300"
@@ -206,5 +207,44 @@
             </div>
         @endguest
 
+    </div>
+
+    {{-- Hamburger toggle — mobile only --}}
+    <button
+        @click="mobileOpen = !mobileOpen"
+        class="md:hidden ml-2 flex items-center justify-center w-9 h-9 rounded-lg
+               bg-white/10 border border-white/20 text-white hover:bg-white/20
+               transition-colors duration-200 flex-shrink-0"
+        aria-label="Buka menu navigasi"
+        :aria-expanded="mobileOpen"
+    >
+        <svg x-show="!mobileOpen" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        <svg x-show="mobileOpen" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+    </button>
+
+    {{-- Mobile nav panel --}}
+    <div
+        x-show="mobileOpen"
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 -translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-2"
+        @click.outside="mobileOpen = false"
+        class="md:hidden absolute top-full left-0 right-0 bg-[#0a1a14] border-b border-white/10
+               shadow-dropdown flex flex-col px-[5%] py-3 gap-1"
+    >
+        <a href="{{ route('home') }}" class="px-2 py-3 text-sm font-medium text-white/80 hover:text-[#4ade9e] rounded-lg no-underline">Fitur Utama</a>
+        <a href="{{ Auth::check() ? route('member.programs.index') : route('programs.preview') }}" class="px-2 py-3 text-sm font-medium text-white/80 hover:text-[#4ade9e] rounded-lg no-underline">Program Latihan</a>
+        <a href="{{ route('log-nutrisi') }}" class="px-2 py-3 text-sm font-medium text-white/80 hover:text-[#4ade9e] rounded-lg no-underline">Log Nutrisi</a>
+        <a href="{{ Auth::check() ? route('member.konsultasi') : route('konsultasi.preview') }}" class="px-2 py-3 text-sm font-medium text-white/80 hover:text-[#4ade9e] rounded-lg no-underline">Konsultasi Mentor</a>
     </div>
 </nav>

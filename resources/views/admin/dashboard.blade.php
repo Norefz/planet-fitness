@@ -39,7 +39,7 @@
 
   {{-- Total Member --}}
   <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col gap-3.5
-              shadow-[0_1px_3px_rgb(0_0_0/.08)] relative overflow-hidden stat-bar"
+              shadow-[0_1px_3px_rgb(0_0_0/.08)] relative overflow-hidden stat-bar hover-lift"
        style="--bar-color:#1d9e75;">
     <div class="flex items-start justify-between">
       <div class="w-10 h-10 rounded-[10px] bg-primary-light flex items-center justify-center">
@@ -71,7 +71,7 @@
 
   {{-- Total Mentor --}}
   <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col gap-3.5
-              shadow-[0_1px_3px_rgb(0_0_0/.08)] relative overflow-hidden stat-bar"
+              shadow-[0_1px_3px_rgb(0_0_0/.08)] relative overflow-hidden stat-bar hover-lift"
        style="--bar-color:#3b82f6;">
     <div class="flex items-start justify-between">
       <div class="w-10 h-10 rounded-[10px] bg-blue-50 flex items-center justify-center">
@@ -108,7 +108,7 @@
 
   {{-- Program Aktif --}}
   <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col gap-3.5
-              shadow-[0_1px_3px_rgb(0_0_0/.08)] relative overflow-hidden stat-bar"
+              shadow-[0_1px_3px_rgb(0_0_0/.08)] relative overflow-hidden stat-bar hover-lift"
        style="--bar-color:#8b5cf6;">
     <div class="flex items-start justify-between">
       <div class="w-10 h-10 rounded-[10px] bg-violet-50 flex items-center justify-center">
@@ -138,7 +138,7 @@
 
   {{-- Booking Minggu Ini --}}
   <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col gap-3.5
-              shadow-[0_1px_3px_rgb(0_0_0/.08)] relative overflow-hidden stat-bar"
+              shadow-[0_1px_3px_rgb(0_0_0/.08)] relative overflow-hidden stat-bar hover-lift"
        style="--bar-color:#f59e0b;">
     <div class="flex items-start justify-between">
       <div class="w-10 h-10 rounded-[10px] bg-amber-50 flex items-center justify-center">

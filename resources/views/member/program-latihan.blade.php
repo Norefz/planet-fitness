@@ -53,12 +53,10 @@
                     })->values();
 
                     $programPayload = [
-                        'id'          => $program->id,
                         'title'       => $program->title,
                         'description' => $program->description,
                         'mentor'      => $program->mentor->full_name,
                         'exercises'   => $exercisesPayload,
-                        'progressPct' => $program->my_progress_pct ?? null,
                     ];
                 @endphp
                 <div class="program-card bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col transition duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
@@ -137,13 +135,9 @@
 
                 {{-- HANYA MUNCUL JIKA USER SUDAH LOGIN --}}
                 @auth
-                    <div class="mt-5">
-                        <div id="session-progress-label" class="text-[11px] font-semibold text-slate-400 mb-2 hidden"></div>
-                        <button id="finish-session-btn" type="button" class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-sm transition duration-200 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
-                            <i id="finish-session-icon" class="ti ti-circle-check"></i>
-                            <span id="finish-session-label">Selesai Latihan Sesi Ini</span>
-                        </button>
-                    </div>
+                    <button id="mark-day-complete-btn" class="w-full mt-5 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-sm transition duration-200 border-none cursor-pointer">
+                        <i class="ti ti-circle-check"></i> <span>Selesai Latihan Hari Ini</span>
+                    </button>
                 @endauth
 
                 {{-- HANYA MUNCUL JIKA USER ADALAH GUEST (BELUM LOGIN) --}}
@@ -172,66 +166,6 @@
     const placeholderEl  = document.getElementById('video-placeholder');
     const emptyStateEl   = document.getElementById('video-empty-state');
     const exerciseListEl = document.getElementById('exercise-list');
-    const finishBtn      = document.getElementById('finish-session-btn');
-    const finishIcon     = document.getElementById('finish-session-icon');
-    const finishLabel    = document.getElementById('finish-session-label');
-    const progressLabel  = document.getElementById('session-progress-label');
-
-    // URL template (id program diganti saat dipakai) — hanya ada untuk user yang
-    // sudah login, karena guest tidak boleh membuat baris progres di database.
-    const enrollUrlTemplate   = @auth "{{ route('member.programs.enroll', ['program' => 'PROGRAM_ID']) }}" @else null @endauth;
-    const progressUrlTemplate = @auth "{{ route('member.programs.progress', ['program' => 'PROGRAM_ID']) }}" @else null @endauth;
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-    // Daftar latihan (sesi) untuk program yang sedang dibuka + index sesi yang aktif.
-    let currentExercises     = [];
-    let currentExerciseIndex = -1;
-    let currentProgramId     = null;
-
-    // Catat bahwa member "mengambil" program ini (dipanggil sekali saat kartu
-    // program diklik/dibuka) — inilah yang membuat program muncul di daftar
-    // "Progres Member" pada halaman mentor.
-    function enrollInProgram(programId) {
-        if (!enrollUrlTemplate || !programId) return;
-        if (!csrfToken) {
-            console.error('[program-latihan] Meta tag csrf-token tidak ditemukan — enroll ke server dibatalkan. Pastikan layouts/app.blade.php sudah terbaru.');
-            return;
-        }
-        fetch(enrollUrlTemplate.replace('PROGRAM_ID', programId), {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-        })
-            .then(res => {
-                if (!res.ok) {
-                    console.error('[program-latihan] Gagal enroll ke program (HTTP ' + res.status + '). Progres tidak akan tersimpan ke database.');
-                }
-            })
-            .catch(err => console.error('[program-latihan] Gagal menghubungi server saat enroll:', err));
-    }
-
-    // Kirim persentase progres terbaru ke server (dipanggil setiap sesi ditandai selesai).
-    function syncProgressToServer(programId, progressPct) {
-        if (!progressUrlTemplate || !programId) return;
-        if (!csrfToken) {
-            console.error('[program-latihan] Meta tag csrf-token tidak ditemukan — progres tidak dikirim ke server. Pastikan layouts/app.blade.php sudah terbaru.');
-            return;
-        }
-        fetch(progressUrlTemplate.replace('PROGRAM_ID', programId), {
-            method: 'PATCH',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ progress_pct: progressPct }),
-        })
-            .then(res => {
-                if (!res.ok) {
-                    console.error('[program-latihan] Gagal menyimpan progres ke database (HTTP ' + res.status + '). Sesi akan tampak selesai di layar sekarang, tapi akan hilang saat refresh karena tidak tersimpan.');
-                }
-            })
-            .catch(err => console.error('[program-latihan] Gagal menghubungi server saat menyimpan progres:', err));
-    }
 
     function showVideoState(state) {
         // state: 'placeholder' | 'empty' | 'playing'
@@ -241,71 +175,7 @@
         emptyStateEl.classList.toggle('flex', state === 'empty');
     }
 
-    // Render ulang tampilan seluruh chip sesi: sesi aktif disorot hijau solid,
-    // sesi yang sudah ditandai selesai mendapat centang, sisanya tampilan default.
-    function renderExerciseChips() {
-        exerciseListEl.querySelectorAll('button').forEach((btn, index) => {
-            const exercise = currentExercises[index];
-            const isActive = index === currentExerciseIndex;
-
-            btn.classList.remove(
-                'bg-emerald-600', 'text-white', 'border-transparent',
-                'bg-emerald-50', 'text-emerald-700', 'border-emerald-300',
-                'bg-white', 'text-slate-600', 'border-slate-200'
-            );
-
-            if (isActive) {
-                btn.classList.add('bg-emerald-600', 'text-white', 'border-transparent');
-            } else if (exercise.completed) {
-                btn.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-300');
-            } else {
-                btn.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
-            }
-
-            const checkIcon = btn.querySelector('.chip-check-icon');
-            if (checkIcon) {
-                checkIcon.classList.toggle('hidden', !exercise.completed);
-            }
-        });
-    }
-
-    // Perbarui label progres ("Sesi 2 dari 4 · 1 selesai") dan status tombol.
-    // progressLabel/finishBtn hanya ada di DOM untuk user yang sudah login,
-    // jadi selalu dicek dulu supaya tidak error di halaman preview guest.
-    function updateSessionProgressUI() {
-        if (!progressLabel || !finishBtn) return;
-
-        if (!currentExercises.length) {
-            progressLabel.classList.add('hidden');
-            return;
-        }
-
-        const total     = currentExercises.length;
-        const doneCount = currentExercises.filter(ex => ex.completed).length;
-        const allDone   = doneCount === total;
-
-        progressLabel.classList.remove('hidden');
-        progressLabel.innerText = allDone
-            ? `Semua ${total} sesi latihan selesai`
-            : `Sesi ${currentExerciseIndex + 1} dari ${total} · ${doneCount} selesai`;
-
-        if (allDone) {
-            finishBtn.disabled = true;
-            finishIcon.className = 'ti ti-confetti';
-            finishLabel.innerText = 'Program Latihan Selesai';
-        } else {
-            finishBtn.disabled = false;
-            finishIcon.className = 'ti ti-circle-check';
-            finishLabel.innerText = 'Selesai Latihan Sesi Ini';
-        }
-    }
-
-    function playExercise(index) {
-        const exercise = currentExercises[index];
-        if (!exercise) return;
-
-        currentExerciseIndex = index;
-
+    function playExercise(exercise, buttonEl) {
         if (exercise.video) {
             videoEl.src = exercise.video;
             videoEl.load();
@@ -319,16 +189,22 @@
         document.getElementById('active-sets-target').innerText = (exercise.sets ?? 0) + ' Total Sets';
         document.getElementById('active-reps-target').innerText = (exercise.reps ?? 0) + ' Repetisi Per Set';
 
-        renderExerciseChips();
-        updateSessionProgressUI();
+        // Tandai chip latihan yang sedang aktif
+        exerciseListEl.querySelectorAll('button').forEach(btn => {
+            btn.classList.remove('bg-emerald-600', 'text-white', 'border-transparent');
+            btn.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+        });
+        if (buttonEl) {
+            buttonEl.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+            buttonEl.classList.add('bg-emerald-600', 'text-white', 'border-transparent');
+        }
 
-        // Checkbox target sets mengikuti status selesai/belum dari sesi yang aktif.
+        // Reset checkbox setiap pindah latihan
         const chk = document.getElementById('set-checkbox-btn');
         if (chk) {
-            chk.classList.toggle('bg-emerald-600', !!exercise.completed);
-            chk.classList.toggle('border-transparent', !!exercise.completed);
-            chk.classList.toggle('border-slate-300', !exercise.completed);
-            chk.innerHTML = exercise.completed ? '<i class="ti ti-check text-white text-[10px]"></i>' : '';
+            chk.classList.remove('bg-emerald-600', 'border-transparent');
+            chk.classList.add('border-slate-300');
+            chk.innerHTML = '';
         }
     }
 
@@ -339,93 +215,74 @@
         document.getElementById('active-desc').innerHTML = (data.description ?? '') +
             `<br><br><small class="text-emerald-700 font-bold">Dipandu oleh: ${data.mentor}</small>`;
 
-        currentProgramId = data.id ?? null;
-
-        // Member membuka program ini → catat sebagai "mengambil program" di sisi
-        // mentor (isi/perbarui baris workout_enrollments). Tidak berlaku untuk guest.
-        enrollInProgram(currentProgramId);
-
-        // Bangun daftar chip latihan (tiap latihan punya videonya sendiri).
-        // Setiap latihan disimpan sebagai satu "sesi" dengan status selesai/belum sendiri.
-        currentExercises = (data.exercises ?? []).map(exercise => ({ ...exercise, completed: false }));
-        currentExerciseIndex = -1;
+        // Bangun daftar chip latihan (tiap latihan punya videonya sendiri)
         exerciseListEl.innerHTML = '';
-
-        // Pulihkan sesi yang sudah pernah ditandai selesai sebelumnya (tersimpan di
-        // server sebagai progress_pct) supaya centangnya tidak hilang saat halaman
-        // di-refresh. Progres disimpan sebagai persentase agregat, jadi kita tandai
-        // N sesi pertama sebagai selesai — sesuai urutan sesi selalu diselesaikan
-        // berurutan lewat tombol "Selesai Latihan Sesi Ini".
-        const total = currentExercises.length;
-        let resumeIndex = 0;
-        if (total > 0 && typeof data.progressPct === 'number') {
-            const doneCount = Math.min(total, Math.round((data.progressPct / 100) * total));
-            for (let i = 0; i < doneCount; i++) {
-                currentExercises[i].completed = true;
-            }
-            resumeIndex = doneCount < total ? doneCount : total - 1;
-        }
-
-        if (currentExercises.length > 0) {
+        if (data.exercises && data.exercises.length > 0) {
             exerciseListEl.classList.remove('hidden');
             exerciseListEl.classList.add('flex');
 
-            currentExercises.forEach((exercise, index) => {
+            data.exercises.forEach((exercise, index) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'text-xs font-semibold px-3.5 py-1.5 rounded-full border transition duration-200 hover:bg-slate-100 inline-flex items-center gap-1.5';
-                btn.innerHTML = `<i class="ti ti-circle-check-filled text-[13px] chip-check-icon hidden"></i>` +
-                    `<span>${exercise.name}${exercise.summary ? ' · ' + exercise.summary : ''}</span>`;
-                btn.addEventListener('click', () => playExercise(index));
+                btn.className = 'text-xs font-semibold px-3.5 py-1.5 rounded-full border transition duration-200 bg-white text-slate-600 border-slate-200 hover:bg-slate-100';
+                btn.innerText = exercise.name + (exercise.summary ? ' · ' + exercise.summary : '');
+                btn.addEventListener('click', () => playExercise(exercise, btn));
                 exerciseListEl.appendChild(btn);
-            });
 
-            playExercise(resumeIndex);
+                if (index === 0) {
+                    playExercise(exercise, btn);
+                }
+            });
         } else {
             exerciseListEl.classList.add('hidden');
             exerciseListEl.classList.remove('flex');
             showVideoState('empty');
             document.getElementById('active-sets-target').innerText = '0 Total Sets';
             document.getElementById('active-reps-target').innerText = '0 Repetisi Per Set';
-            if (progressLabel) progressLabel.classList.add('hidden');
         }
+    }
+
+    // Tombol "Selesai Latihan Hari Ini" — beri feedback visual & toast yang jelas
+    const dayCompleteBtn = document.getElementById('mark-day-complete-btn');
+    if (dayCompleteBtn) {
+        dayCompleteBtn.addEventListener('click', function() {
+            const label = this.querySelector('span');
+            const icon = this.querySelector('i');
+            const isDone = this.classList.toggle('bg-slate-100');
+            this.classList.toggle('bg-emerald-600', !isDone);
+            this.classList.toggle('hover:bg-emerald-700', !isDone);
+            this.classList.toggle('text-slate-500', isDone);
+            this.classList.toggle('text-white', !isDone);
+            if (label) label.innerText = isDone ? 'Sudah Ditandai Selesai' : 'Selesai Latihan Hari Ini';
+            if (icon) icon.className = isDone ? 'ti ti-check' : 'ti ti-circle-check';
+            if (typeof pfToast === 'function') {
+                pfToast(isDone ? 'success' : 'warning', isDone ? 'Latihan hari ini ditandai selesai. Kerja bagus!' : 'Tanda selesai dibatalkan.');
+            }
+        });
     }
 
     // Event interaktif klik centang target (hanya berfungsi jika elemen ada / tidak tertutup disabled)
     const checkboxBtn = document.getElementById('set-checkbox-btn');
-    if (checkboxBtn) {
+    if(checkboxBtn) {
         checkboxBtn.addEventListener('click', function() {
             @auth
                 this.classList.toggle('bg-emerald-600');
                 this.classList.toggle('border-transparent');
                 this.classList.toggle('border-slate-300');
                 this.innerHTML = this.classList.contains('bg-emerald-600') ? '<i class="ti ti-check text-white text-[10px]"></i>' : '';
+                if (typeof pfToast === 'function') {
+                    pfToast(
+                        this.classList.contains('bg-emerald-600') ? 'success' : 'warning',
+                        this.classList.contains('bg-emerald-600') ? 'Set ditandai selesai!' : 'Tanda selesai dibatalkan'
+                    );
+                }
             @else
-                alert('Silakan daftar atau login terlebih dahulu untuk menandai latihan!');
+                if (typeof pfToast === 'function') {
+                    pfToast('warning', 'Silakan daftar atau login terlebih dahulu untuk menandai latihan!');
+                } else {
+                    alert('Silakan daftar atau login terlebih dahulu untuk menandai latihan!');
+                }
             @endauth
-        });
-    }
-
-    // Tombol "Selesai Latihan Sesi Ini": menandai SESI yang sedang aktif sebagai
-    // selesai (bukan seluruh hari latihan), lalu otomatis melanjutkan ke sesi
-    // berikutnya. Jika sesi ini adalah yang terakhir, tampilkan status program selesai.
-    if (finishBtn) {
-        finishBtn.addEventListener('click', function() {
-            if (currentExerciseIndex < 0 || !currentExercises.length) return;
-
-            currentExercises[currentExerciseIndex].completed = true;
-
-            const doneCount    = currentExercises.filter(ex => ex.completed).length;
-            const progressPct  = Math.round((doneCount / currentExercises.length) * 100);
-            syncProgressToServer(currentProgramId, progressPct);
-
-            const nextIndex = currentExerciseIndex + 1;
-            if (nextIndex < currentExercises.length) {
-                playExercise(nextIndex);
-            } else {
-                renderExerciseChips();
-                updateSessionProgressUI();
-            }
         });
     }
 </script>

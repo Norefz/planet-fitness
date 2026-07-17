@@ -13,26 +13,17 @@
 
   {{-- Tailwind CDN (ganti dengan vite build untuk production) --}}
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
-          colors: {
-            primary:   { DEFAULT: '#1d9e75', dark: '#0f6e56', light: '#e1f5ee', mid: '#d0f0e4' },
-            navy:      { DEFAULT: '#0a1628', mid: '#112240', soft: '#1a3a5c' },
-          },
-        }
-      }
-    }
-  </script>
+  @include('partials.design-tokens')
+  @include('partials.global-styles')
+
+  {{-- Alpine.js — sebelumnya TIDAK dimuat di layout ini, sehingga notifikasi
+       flash (x-data/x-show di header) tidak pernah tampil sama sekali. --}}
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
   <style>
-    /* Sidebar active state & custom scrollbar */
+    /* Sidebar active state */
     .nav-item-active { background: rgba(29,158,117,.22); color: white; font-weight: 600; }
     .nav-item-active svg { color: #1d9e75; }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9px; }
     /* Stat card top bar */
     .stat-bar::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0;
@@ -46,6 +37,10 @@
   @stack('styles')
 </head>
 <body class="h-full font-sans bg-slate-100 text-slate-900 flex">
+
+  {{-- Notifikasi toast terpusat (menggantikan flash block lama yang gagal
+       tampil karena Alpine belum termuat) --}}
+  @include('partials.toast-container')
 
 {{-- ═══════════════════════════════════════════════ SIDEBAR --}}
 @include('admin.partials.sidebar')
