@@ -17,7 +17,21 @@
     <div>
         @include('partials.navbar')
 
-        <main class="max-w-7xl mx-auto px-[5%] py-10 space-y-10">
+        {{-- ═══════════ Hero gelap ala Apple ═══════════ --}}
+        <div class="relative mesh-dark noise-overlay overflow-hidden">
+            <div class="absolute -top-16 right-[10%] w-72 h-72 orb animate-orb-float-slow"></div>
+            <div class="absolute bottom-[-4rem] left-[8%] w-48 h-48 orb-mini opacity-40 animate-float-y"></div>
+
+            <div class="relative z-10 max-w-7xl mx-auto px-[5%] pt-20 pb-16 reveal-on-scroll">
+                <span class="text-xs font-bold text-primary-300 uppercase tracking-[0.2em] block mb-3">Penjadwalan &amp; Interaksi</span>
+                <h2 class="display-heading text-4xl sm:text-5xl font-extrabold text-white max-w-2xl">Konsultasi Video Live</h2>
+                <p class="text-white/60 text-[15px] mt-4 max-w-2xl leading-relaxed">
+                    Booking sesi video konsultasi langsung dengan mentor bersertifikat kami — otomatis dibuatkan link Zoom setelah disetujui oleh mentor pilihan Anda.
+                </p>
+            </div>
+        </div>
+
+        <main class="max-w-7xl mx-auto px-[5%] py-12 space-y-10 -mt-6">
 
             {{-- Alert Berhasil / Gagal --}}
             @if(session('success'))
@@ -33,24 +47,16 @@
                 </div>
             @endif
 
-            <div class="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm">
-                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest block mb-1">Penjadwalan & Interaksi</span>
-                <h2 class="text-3xl font-black text-slate-950">Konsultasi Video Live</h2>
-                <p class="text-slate-500 text-sm mt-2 max-w-2xl leading-relaxed">
-                    Booking sesi video konsultasi langsung dengan mentor bersertifikat kami — otomatis dibuatkan link Zoom setelah disetujui oleh mentor pilihan Anda.
-                </p>
-            </div>
-
             <div class="space-y-4">
                 <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <span class="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-50 text-emerald-700 text-sm font-black">1</span>
+                    <span class="flex items-center justify-center w-7 h-7 rounded-full bg-ink-900 text-white text-sm font-black">1</span>
                     Pilih Mentor
                 </h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     @if(isset($mentors) && $mentors->count() > 0)
                         @foreach($mentors as $mentor)
-                            <div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between hover:border-emerald-500/50 hover:shadow-xl transition duration-300">
+                            <div class="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col justify-between hover:shadow-elevated transition-shadow duration-300" data-tilt data-tilt-strength="5">
                                 <div>
                                     <div class="flex items-center space-x-4 mb-4">
                                         <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-black text-lg">
@@ -67,31 +73,31 @@
                                 </div>
 
                                 @guest
-                                    <a href="{{ route('login') }}" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider text-center transition block no-underline">
+                                    <a href="{{ route('login') }}" class="w-full py-3 bg-ink-900 hover:bg-black text-white font-bold rounded-2xl text-xs uppercase tracking-wider text-center transition block no-underline">
                                         Login untuk Booking
                                     </a>
                                 @else
-                                    <button type="button" onclick="selectMentor('{{ $mentor->id }}', '{{ $mentor->user->name }}')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition">
+                                    <button type="button" onclick="selectMentor('{{ $mentor->id }}', '{{ $mentor->user->name }}')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-xs uppercase tracking-wider transition">
                                         Booking {{ explode(' ', $mentor->user->name)[0] }}
                                     </button>
                                 @endguest
                             </div>
                         @endforeach
                     @else
-                        <div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between">
+                        <div class="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col justify-between" data-tilt data-tilt-strength="5">
                             <div class="flex items-center space-x-4 mb-4">
                                 <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-black text-lg">RA</div>
                                 <div><h4 class="font-bold text-slate-900">Rini Andini</h4><p class="text-xs text-slate-500">Pelatih Kebugaran</p></div>
                             </div>
-                            <a href="{{ route('login') }}" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs text-center block no-underline">Login untuk Booking</a>
+                            <a href="{{ route('login') }}" class="w-full py-3 bg-ink-900 text-white font-bold rounded-2xl text-xs text-center block no-underline">Login untuk Booking</a>
                         </div>
                     @endif
                 </div>
             </div>
 
-            <div id="booking-section" class="bg-white rounded-2xl border border-slate-200 p-8 space-y-6 shadow-sm relative overflow-hidden">
+            <div id="booking-section" class="bg-white rounded-3xl border border-slate-200 p-8 space-y-6 shadow-sm relative overflow-hidden">
                 <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <span class="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-50 text-emerald-700 text-sm font-black">2</span>
+                    <span class="flex items-center justify-center w-7 h-7 rounded-full bg-ink-900 text-white text-sm font-black">2</span>
                     Atur Jadwal Konsultasi — <span id="selectedMentorName" class="text-emerald-600 font-black">Pilih mentor di atas</span>
                 </h3>
 
@@ -101,21 +107,21 @@
 
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Topik Konsultasi</label>
-                        <input type="text" name="topic" placeholder="Misal: Konsultasi Penurunan Berat Badan" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-emerald-500" {{ Auth::guest() ? 'disabled' : '' }}>
+                        <input type="text" name="topic" placeholder="Misal: Konsultasi Penurunan Berat Badan" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm focus:outline-emerald-500" {{ Auth::guest() ? 'disabled' : '' }}>
                     </div>
 
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Pilih Waktu & Tanggal Sesi</label>
-                        <input type="datetime-local" name="scheduled_at" required class="px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-emerald-500" {{ Auth::guest() ? 'disabled' : '' }}>
+                        <input type="datetime-local" name="scheduled_at" required class="px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm text-slate-700 focus:outline-emerald-500" {{ Auth::guest() ? 'disabled' : '' }}>
                         <p class="text-[11px] text-slate-400 mt-1">* Waktu konsultasi menggunakan zona waktu WIB.</p>
                     </div>
 
                     @guest
-                        <a href="{{ route('login') }}" class="w-full py-4 bg-slate-800 hover:bg-slate-950 text-white font-black rounded-xl text-sm transition tracking-wider uppercase flex items-center justify-center gap-2 no-underline">
+                        <a href="{{ route('login') }}" class="w-full py-4 bg-ink-900 hover:bg-black text-white font-black rounded-2xl text-sm transition tracking-wider uppercase flex items-center justify-center gap-2 no-underline">
                             <i class="fa-solid fa-lock"></i> Login untuk Membuat Jadwal
                         </a>
                     @else
-                        <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-sm transition tracking-wider uppercase flex items-center justify-center gap-2 shadow-md shadow-emerald-700/10">
+                        <button type="submit" data-magnetic data-magnetic-strength="5" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-sm transition tracking-wider uppercase flex items-center justify-center gap-2 shadow-elevated">
                             <i class="fa-solid fa-paper-plane"></i> Ajukan Permintaan Booking
                         </button>
                     @endguest
@@ -126,7 +132,7 @@
                 @endguest
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-200 p-8 space-y-6 shadow-sm">
+            <div class="bg-white rounded-3xl border border-slate-200 p-8 space-y-6 shadow-sm">
                 <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
                     <i class="fa-solid fa-calendar-check text-emerald-600"></i>
                     Sesi Konsultasimu
@@ -287,7 +293,7 @@
 
     <div id="custom-cancel-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeCancelModal()"></div>
-        <div class="bg-white rounded-2xl border border-slate-200 w-full max-w-md p-6 relative z-10 shadow-xl animate-[fadeIn_0.2s_ease-out]">
+        <div class="bg-white rounded-3xl border border-slate-200 w-full max-w-md p-6 relative z-10 shadow-elevated-lg animate-[fadeIn_0.2s_ease-out]">
             <h4 class="text-base font-black text-slate-950 mb-1">Alasan Pembatalan Sesi</h4>
             <p class="text-xs text-slate-500 mb-4">Berikan alasan mengapa Anda membatalkan permintaan konsultasi ini agar mentor mengetahui kendala Anda.</p>
 

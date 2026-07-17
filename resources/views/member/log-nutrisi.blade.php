@@ -28,7 +28,18 @@
         categoriesToday: {{ \Illuminate\Support\Js::from($logs->pluck('category')->values()) }},
     })"
 >
-    <div class="mx-auto max-w-7xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 lg:px-8">
+    {{-- ═══════════ Hero gelap ala Apple ═══════════ --}}
+    <div class="relative mesh-dark noise-overlay overflow-hidden">
+        <div class="absolute -top-16 right-[8%] w-72 h-72 orb animate-orb-float-slow"></div>
+        <div class="absolute bottom-[-4rem] left-[6%] w-48 h-48 orb-mini opacity-40 animate-float-y"></div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-14 reveal-on-scroll">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary-300">Nutrisi Harian</p>
+            <h1 class="display-heading mt-2 text-4xl sm:text-5xl font-extrabold text-white">Log Nutrisi</h1>
+            <p class="mt-3 max-w-md text-[15px] text-white/60">Catat makananmu, pantau kalori &amp; makronutrisi, dan tetap di jalur target harianmu.</p>
+        </div>
+    </div>
+
+    <div class="mx-auto max-w-7xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 lg:px-8 -mt-6">
 
         {{-- ─── Toasts ──────────────────────────────────────────────────────── --}}
         <div class="pointer-events-none fixed inset-x-0 top-4 z-[70] flex flex-col items-center gap-2 px-4 sm:top-6 sm:items-end sm:px-6" aria-live="polite" aria-atomic="true">
@@ -57,14 +68,8 @@
             </template>
         </div>
 
-        {{-- ─── Header ──────────────────────────────────────────────────────── --}}
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-widest text-emerald-600">Nutrisi Harian</p>
-                <h1 class="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">Log Nutrisi</h1>
-                <p class="mt-1.5 max-w-md text-sm text-slate-500">Catat makananmu, pantau kalori &amp; makronutrisi, dan tetap di jalur target harianmu.</p>
-            </div>
-
+        {{-- ─── Header: navigasi tanggal ──────────────────────────────────────── --}}
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
             <div class="flex items-center gap-1 self-start rounded-full border border-slate-200 bg-white p-1 shadow-sm sm:self-auto" role="group" aria-label="Navigasi tanggal">
                 <a
                     href="{{ route('log-nutrisi', ['date' => $prevDate]) }}"
@@ -120,7 +125,7 @@
             <div class="space-y-6 lg:sticky lg:top-24 lg:col-span-1 lg:self-start">
 
                 {{-- Calorie ring card --}}
-                <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-card-3d" data-tilt data-tilt-strength="4">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xs font-bold uppercase tracking-wide text-slate-400">Kalori {{ $isToday ? 'Hari Ini' : $dateLabel }}</h2>
                         @if ($streak > 0)
@@ -168,7 +173,7 @@
                 </div>
 
                 {{-- Macro bars card --}}
-                <div class="space-y-5 rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                <div class="space-y-5 rounded-3xl border border-slate-100 bg-white p-6 shadow-card-3d">
                     <h2 class="text-xs font-bold uppercase tracking-wide text-slate-400">Makronutrisi</h2>
                     <x-member.macro-bar label="Karbohidrat" :consumed="$totals['carbs_g']" :target="$target['carbs_g']" color="amber" />
                     <x-member.macro-bar label="Protein" :consumed="$totals['protein_g']" :target="$target['protein_g']" color="blue" />
@@ -196,7 +201,7 @@
 
             {{-- RIGHT: meal list column --}}
             <div class="lg:col-span-2">
-                <div class="rounded-3xl border border-slate-100 bg-white shadow-sm">
+                <div class="rounded-3xl border border-slate-100 bg-white shadow-card-3d">
 
                     {{-- Filter tabs + add button --}}
                     <div class="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">

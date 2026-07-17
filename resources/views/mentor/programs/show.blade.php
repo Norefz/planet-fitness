@@ -105,89 +105,39 @@
       :description="request('filter') ? 'Coba ubah filter di atas.' : 'Statistik progres akan muncul otomatis begitu member mulai menjalani program ini.'"
     />
   @else
-    {{-- md+ : a single real <table> so header and body columns are always locked to the same widths --}}
-    <x-mentor.card padding="p-0" class="overflow-hidden hidden md:block">
-      <table class="w-full border-collapse table-fixed">
-        <colgroup>
-          <col style="width:32%">
-          <col style="width:30%">
-          <col style="width:18%">
-          <col style="width:20%">
-        </colgroup>
-        <thead>
-          <tr class="bg-slate-50/70 text-[11px] font-bold text-slate-400 uppercase tracking-wide">
-            <th class="text-left font-bold px-6 py-3">Member</th>
-            <th class="text-left font-bold px-4 py-3">Progres</th>
-            <th class="text-left font-bold px-4 py-3">Status</th>
-            <th class="text-left font-bold px-4 py-3">Aktivitas Terakhir</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach ($enrollments as $enrollment)
-            <tr class="border-t border-slate-100">
-              <td class="px-6 py-4 align-middle">
-                <div class="flex items-center gap-3 min-w-0">
-                  <x-mentor.avatar :name="$enrollment->member->full_name ?? 'Member'" tone="neutral" />
-                  <div class="min-w-0">
-                    <div class="text-sm font-semibold truncate text-slate-900">{{ $enrollment->member->full_name ?? 'Member' }}</div>
-                    <div class="text-xs text-slate-400 mt-0.5">Sejak {{ $enrollment->started_at->translatedFormat('d M Y') }}</div>
-                  </div>
-                </div>
-              </td>
+    <x-mentor.card padding="p-0" class="overflow-hidden">
+      <div class="hidden md:grid grid-cols-[2fr_2fr_1fr_auto] gap-4 px-6 py-3 bg-slate-50/70 text-[11px] font-bold text-slate-400 uppercase tracking-wide">
+        <div>Member</div><div>Progres</div><div>Status</div><div>Aktivitas Terakhir</div>
+      </div>
 
-              <td class="px-4 py-4 align-middle">
-                <x-mentor.progress-bar :value="$enrollment->progress_pct" show-label />
-              </td>
-
-              <td class="px-4 py-4 align-middle">
-                @if ($enrollment->isCompleted())
-                  <x-mentor.badge variant="success">Selesai</x-mentor.badge>
-                @elseif ($enrollment->needsAttention())
-                  <x-mentor.badge variant="warning">Perlu Perhatian</x-mentor.badge>
-                @else
-                  <x-mentor.badge variant="info">Aktif</x-mentor.badge>
-                @endif
-              </td>
-
-              <td class="px-4 py-4 align-middle text-xs text-slate-500">
-                {{ $enrollment->last_activity_at?->diffForHumans() ?? 'Belum pernah aktif' }}
-              </td>
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
-    </x-mentor.card>
-
-    {{-- Mobile: stacked cards --}}
-    <div class="md:hidden space-y-3">
       @foreach ($enrollments as $enrollment)
-        <x-mentor.card padding="p-4">
-          <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-              <x-mentor.avatar :name="$enrollment->member->full_name ?? 'Member'" tone="neutral" />
-              <div class="min-w-0">
-                <div class="text-sm font-semibold truncate text-slate-900">{{ $enrollment->member->full_name ?? 'Member' }}</div>
-                <div class="text-xs text-slate-400 mt-0.5">Sejak {{ $enrollment->started_at->translatedFormat('d M Y') }}</div>
-              </div>
+        <div class="grid md:grid-cols-[2fr_2fr_1fr_auto] gap-3 md:gap-4 items-center px-6 py-4 border-t border-slate-100">
+          <div class="flex items-center gap-3 min-w-0">
+            <x-mentor.avatar :name="$enrollment->member->full_name ?? 'Member'" tone="neutral" />
+            <div class="min-w-0">
+              <div class="text-sm font-semibold truncate text-slate-900">{{ $enrollment->member->full_name ?? 'Member' }}</div>
+              <div class="text-xs text-slate-400 mt-0.5">Sejak {{ $enrollment->started_at->translatedFormat('d M Y') }}</div>
             </div>
+          </div>
+
+          <x-mentor.progress-bar :value="$enrollment->progress_pct" show-label />
+
+          <div>
             @if ($enrollment->isCompleted())
-              <x-mentor.badge variant="success" class="shrink-0">Selesai</x-mentor.badge>
+              <x-mentor.badge variant="success">Selesai</x-mentor.badge>
             @elseif ($enrollment->needsAttention())
-              <x-mentor.badge variant="warning" class="shrink-0">Perlu Perhatian</x-mentor.badge>
+              <x-mentor.badge variant="warning">Perlu Perhatian</x-mentor.badge>
             @else
-              <x-mentor.badge variant="info" class="shrink-0">Aktif</x-mentor.badge>
+              <x-mentor.badge variant="info">Aktif</x-mentor.badge>
             @endif
           </div>
 
-          <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
-            <div class="flex-1"><x-mentor.progress-bar :value="$enrollment->progress_pct" show-label /></div>
-          </div>
-          <div class="text-xs text-slate-500 mt-2">
+          <div class="text-xs text-slate-500">
             {{ $enrollment->last_activity_at?->diffForHumans() ?? 'Belum pernah aktif' }}
           </div>
-        </x-mentor.card>
+        </div>
       @endforeach
-    </div>
+    </x-mentor.card>
 
     <div class="mt-6">{{ $enrollments->links() }}</div>
   @endif
