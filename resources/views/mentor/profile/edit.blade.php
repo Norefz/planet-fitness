@@ -4,16 +4,23 @@
 @section('content')
 
   <div class="mb-8">
-    <div class="text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">Pengaturan Akun</div>
-    <h1 class="text-[28px] sm:text-3xl font-bold tracking-tight text-slate-900">Profil & Sertifikasi</h1>
+    <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-primary-500"></span> Pengaturan Akun
+    </div>
+    <h1 class="display-heading text-[28px] sm:text-3xl font-extrabold text-slate-900">Profil & <span class="text-gradient">Sertifikasi</span></h1>
     <p class="text-sm text-slate-500 mt-1.5">Informasi ini ditampilkan pada halaman pencarian mentor dan dilihat oleh calon member.</p>
   </div>
 
   <div class="grid lg:grid-cols-3 gap-6">
 
-    <x-mentor.card class="h-fit">
-      <div class="flex flex-col items-center text-center">
-        <x-mentor.avatar :name="$mentor->full_name" size="xl" class="mb-4" />
+    <x-mentor.card padding="p-0" class="h-fit overflow-hidden">
+      {{-- Gradient banner, Apple-ID-card style --}}
+      <div class="relative h-20 bg-gradient-to-br from-ink-900 via-ink-900 to-primary-900 overflow-hidden">
+        <div class="absolute -top-6 -right-4 w-28 h-28 orb-mini animate-orb-float opacity-60"></div>
+        <div class="absolute inset-0 noise-overlay"></div>
+      </div>
+      <div class="flex flex-col items-center text-center px-6 pb-6">
+        <x-mentor.avatar :name="$mentor->full_name" size="xl" ring class="-mt-10 mb-4" />
         <h3 class="text-base font-bold text-slate-900">{{ $mentor->full_name }}</h3>
         <p class="text-xs text-slate-500 mt-1">{{ $mentor->specialization ?: 'Belum ada spesialisasi' }}</p>
 
@@ -25,12 +32,12 @@
 
         <div class="mt-4">
           @if ($mentor->is_verified)
-            <x-mentor.badge variant="success">
-              <x-mentor.icon name="check" class="w-3.5 h-3.5" /> Terverifikasi
+            <x-mentor.badge variant="success" :dot="true">
+              Terverifikasi
             </x-mentor.badge>
           @else
-            <x-mentor.badge variant="warning">
-              <x-mentor.icon name="clock" class="w-3.5 h-3.5" /> Menunggu Verifikasi Admin
+            <x-mentor.badge variant="warning" :dot="true">
+              Menunggu Verifikasi Admin
             </x-mentor.badge>
           @endif
         </div>

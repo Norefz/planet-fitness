@@ -23,15 +23,19 @@
 
   @stack('styles')
 </head>
-<body class="font-sans bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col">
+<body class="font-sans bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col relative">
+
+  {{-- Faint decorative mesh sitting behind the entire app, Apple-keynote style --}}
+  <div class="fixed inset-0 -z-10 mesh-light pointer-events-none"></div>
 
   <div x-data="{ mobileOpen: false, userMenuOpen: false }" @keydown.escape="mobileOpen = false; userMenuOpen = false">
 
-    <nav class="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200/80">
+    <nav class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/70 relative">
+      <div class="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary-400/40 to-transparent"></div>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
 
         <a href="{{ route('mentor.dashboard') }}" class="flex items-center gap-2.5 shrink-0 no-underline group">
-          <div class="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center shadow-sm shadow-primary-500/30 transition-transform duration-150 group-hover:scale-105">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-[0_1px_0_0_rgba(255,255,255,0.3)_inset,0_4px_10px_-2px_rgba(29,158,117,0.5)] transition-transform duration-200 ease-out group-hover:scale-105 group-hover:-rotate-3">
             <x-mentor.icon name="dumbbell" class="w-4 h-4 text-white" />
           </div>
           <span class="text-[15px] font-bold tracking-tight hidden sm:inline">Planet Fitness</span>
@@ -50,10 +54,13 @@
           @foreach ($navItems as $item)
             @php $isActive = request()->routeIs($item['route'] . '*'); @endphp
             <a href="{{ route($item['route']) }}"
-               class="relative flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-all duration-150
+               class="relative flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ease-out
                       {{ $isActive ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800' }}">
               <x-mentor.icon :name="$item['icon']" class="w-3.5 h-3.5 {{ $isActive ? 'text-primary-600' : '' }}" />
               {{ $item['label'] }}
+              @if ($isActive)
+                <span class="absolute left-1/2 -bottom-[3px] -translate-x-1/2 w-4 h-[3px] rounded-full bg-gradient-to-r from-primary-400 to-primary-600"></span>
+              @endif
             </a>
           @endforeach
         </div>
@@ -145,7 +152,7 @@
     <footer class="border-t border-slate-200 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between flex-wrap gap-3">
         <div class="flex items-center gap-2 text-[13px] font-bold text-slate-700">
-          <div class="w-5 h-5 rounded-md bg-primary-500 flex items-center justify-center">
+          <div class="w-5 h-5 rounded-md bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
             <x-mentor.icon name="dumbbell" class="w-3 h-3 text-white" />
           </div>
           Planet Fitness

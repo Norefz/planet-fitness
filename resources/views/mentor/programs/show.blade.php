@@ -12,13 +12,13 @@
 
     <div class="flex items-start justify-between flex-wrap gap-4">
       <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, {{ $theme['from'] }}, {{ $theme['to'] }});">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-elevated transition-transform duration-300 hover:scale-105 hover:-rotate-3" style="background: linear-gradient(135deg, {{ $theme['from'] }}, {{ $theme['to'] }});">
           <x-mentor.icon :name="$theme['icon']" class="w-6 h-6 text-white" />
         </div>
         <div>
           <div class="flex items-center gap-2.5 flex-wrap">
-            <h1 class="text-2xl sm:text-[28px] font-bold tracking-tight text-slate-900">{{ $program->title }}</h1>
-            <x-mentor.badge :variant="$program->isPublished() ? 'success' : 'neutral'">
+            <h1 class="display-heading text-2xl sm:text-[28px] font-extrabold text-slate-900">{{ $program->title }}</h1>
+            <x-mentor.badge :variant="$program->isPublished() ? 'success' : 'neutral'" :dot="true">
               {{ $program->isPublished() ? 'Dipublikasikan' : 'Draf' }}
             </x-mentor.badge>
           </div>
@@ -111,7 +111,7 @@
       </div>
 
       @foreach ($enrollments as $enrollment)
-        <div class="grid md:grid-cols-[2fr_2fr_1fr_auto] gap-3 md:gap-4 items-center px-6 py-4 border-t border-slate-100">
+        <div class="grid md:grid-cols-[2fr_2fr_1fr_auto] gap-3 md:gap-4 items-center px-6 py-4 border-t border-slate-100 hover:bg-slate-50/60 transition-colors duration-200">
           <div class="flex items-center gap-3 min-w-0">
             <x-mentor.avatar :name="$enrollment->member->full_name ?? 'Member'" tone="neutral" />
             <div class="min-w-0">
@@ -124,11 +124,11 @@
 
           <div>
             @if ($enrollment->isCompleted())
-              <x-mentor.badge variant="success">Selesai</x-mentor.badge>
+              <x-mentor.badge variant="success" :dot="true">Selesai</x-mentor.badge>
             @elseif ($enrollment->needsAttention())
-              <x-mentor.badge variant="warning">Perlu Perhatian</x-mentor.badge>
+              <x-mentor.badge variant="warning" :dot="true">Perlu Perhatian</x-mentor.badge>
             @else
-              <x-mentor.badge variant="info">Aktif</x-mentor.badge>
+              <x-mentor.badge variant="info" :dot="true">Aktif</x-mentor.badge>
             @endif
           </div>
 

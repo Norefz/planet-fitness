@@ -4,8 +4,10 @@
 @section('content')
 
   <div class="mb-8">
-    <div class="text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">Penjadwalan & Interaksi</div>
-    <h1 class="text-[28px] sm:text-3xl font-bold tracking-tight text-slate-900">Konsultasi Mentor</h1>
+    <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-primary-500"></span> Penjadwalan & Interaksi
+    </div>
+    <h1 class="display-heading text-[28px] sm:text-3xl font-extrabold text-slate-900">Konsultasi <span class="text-gradient">Mentor</span></h1>
     <p class="text-sm text-slate-500 mt-1.5 max-w-lg">Tinjau permintaan booking yang masuk dan kelola jadwal sesi konsultasimu dengan member.</p>
   </div>
 

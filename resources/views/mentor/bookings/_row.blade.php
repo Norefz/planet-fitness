@@ -12,9 +12,9 @@
     };
 @endphp
 
-<x-mentor.card padding="p-5" class="flex items-center gap-4 flex-wrap">
+<x-mentor.card padding="p-5" hover class="flex items-center gap-4 flex-wrap">
 
-  <x-mentor.avatar :name="$booking->member->full_name ?? 'Member'" :tone="$avatarTone" size="lg" />
+  <x-mentor.avatar :name="$booking->member->full_name ?? 'Member'" :tone="$avatarTone" size="lg" ring />
 
   <div class="flex-1 min-w-[200px]">
     <div class="text-sm font-bold text-slate-900">{{ $booking->member->full_name ?? 'Member' }}</div>
@@ -25,7 +25,7 @@
         <span class="text-slate-300">·</span> {{ $booking->topic }}
       @endif
     </div>
-    <x-mentor.badge :variant="$statusVariant" class="mt-2.5">{{ $booking->statusLabel() }}</x-mentor.badge>
+    <x-mentor.badge :variant="$statusVariant" :dot="true" class="mt-2.5">{{ $booking->statusLabel() }}</x-mentor.badge>
   </div>
 
   <div class="flex items-center gap-2 flex-wrap">

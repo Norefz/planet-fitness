@@ -5,11 +5,13 @@
 
   <div class="flex items-end justify-between flex-wrap gap-4 mb-8">
     <div>
-      <div class="text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">Manajemen Latihan</div>
-      <h1 class="text-[28px] sm:text-3xl font-bold tracking-tight text-slate-900">Program Latihan</h1>
+      <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-500"></span> Manajemen Latihan
+      </div>
+      <h1 class="display-heading text-[28px] sm:text-3xl font-extrabold text-slate-900">Program <span class="text-gradient">Latihan</span></h1>
       <p class="text-sm text-slate-500 mt-1.5 max-w-md">Kelola program latihan, publikasikan video panduan baru, dan pantau progres member.</p>
     </div>
-    <x-mentor.button :href="route('mentor.programs.create')">
+    <x-mentor.button :href="route('mentor.programs.create')" size="lg" magnetic>
       <x-mentor.icon name="plus" class="w-4 h-4" /> Buat Program Baru
     </x-mentor.button>
   </div>
@@ -26,13 +28,13 @@
         <x-mentor.icon name="search" class="w-4 h-4" />
       </div>
       <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama program..."
-             class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm placeholder-slate-400 bg-white focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-400 transition-all duration-150" />
+             class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm placeholder-slate-400 bg-white shadow-sm hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-primary-500/12 focus:border-primary-400 transition-all duration-200" />
     </div>
 
     <div class="flex items-center gap-1 bg-slate-100/70 rounded-xl p-1">
       @foreach (['' => 'Semua', 'published' => 'Live', 'draft' => 'Draf'] as $val => $label)
         <a href="{{ route('mentor.programs.index', array_filter(['q' => request('q'), 'status' => $val])) }}"
-           class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 {{ request('status', '') === $val ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800' }}">
+           class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 {{ request('status', '') === $val ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800' }}">
           {{ $label }}
         </a>
       @endforeach
@@ -61,10 +63,10 @@
 
       @foreach ($programs as $program)
         @php $theme = $program->themeColor(); $avg = $program->averageProgress(); $count = $program->enrolledCount(); @endphp
-        <div class="grid lg:grid-cols-[2fr_1fr_1.3fr_1fr_auto] gap-3 lg:gap-4 items-center px-6 py-4 border-t border-slate-100 hover:bg-slate-50/60 transition-colors">
+        <div class="group grid lg:grid-cols-[2fr_1fr_1.3fr_1fr_auto] gap-3 lg:gap-4 items-center px-6 py-4 border-t border-slate-100 hover:bg-slate-50/60 transition-colors duration-200">
 
           <a href="{{ route('mentor.programs.show', $program) }}" class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, {{ $theme['from'] }}, {{ $theme['to'] }});">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-transform duration-200 group-hover:scale-105 group-hover:-rotate-2" style="background: linear-gradient(135deg, {{ $theme['from'] }}, {{ $theme['to'] }});">
               <x-mentor.icon :name="$theme['icon']" class="w-4.5 h-4.5 text-white" />
             </div>
             <div class="min-w-0">

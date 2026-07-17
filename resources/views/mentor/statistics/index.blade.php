@@ -4,8 +4,10 @@
 @section('content')
 
   <div class="mb-8">
-    <div class="text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">Analitik</div>
-    <h1 class="text-[28px] sm:text-3xl font-bold tracking-tight text-slate-900">Statistik Progres Member</h1>
+    <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-primary-500"></span> Analitik
+    </div>
+    <h1 class="display-heading text-[28px] sm:text-3xl font-extrabold text-slate-900">Statistik <span class="text-gradient">Progres Member</span></h1>
     <p class="text-sm text-slate-500 mt-1.5 max-w-lg">Rata-rata penyelesaian member secara keseluruhan, dan perbandingan performa di setiap program latihan.</p>
   </div>
 
@@ -46,9 +48,9 @@
         <div class="flex flex-col gap-3">
           @foreach ($programs as $program)
             @php $theme = $program->themeColor(); $avg = $program->averageProgress(); $count = $program->enrolled_count ?? $program->enrolledCount(); @endphp
-            <a href="{{ route('mentor.programs.show', $program) }}" class="block bg-white border border-slate-200 rounded-2xl p-5 transition-all duration-150 hover:shadow-md hover:border-slate-300">
+            <a href="{{ route('mentor.programs.show', $program) }}" class="group block bg-white border border-slate-200/80 rounded-2xl p-5 shadow-card-3d transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-elevated hover:border-slate-300/80">
               <div class="flex items-center gap-3.5 mb-3.5">
-                <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, {{ $theme['from'] }}, {{ $theme['to'] }});">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 shadow-sm transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-3" style="background: linear-gradient(135deg, {{ $theme['from'] }}, {{ $theme['to'] }});">
                   <x-mentor.icon :name="$theme['icon']" class="w-4 h-4 text-white" />
                 </div>
                 <div class="flex-1 min-w-0">

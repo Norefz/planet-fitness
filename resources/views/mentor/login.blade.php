@@ -2,44 +2,42 @@
 @section('title', 'Masuk Mentor')
 
 @section('content')
-<div class="w-full max-w-md">
+<div class="w-full max-w-md animate-fade-in-up">
 
-  <div class="bg-white border border-slate-200 rounded-2xl shadow-md p-8 sm:p-10">
+  <div class="spotlight-card bg-white/90 backdrop-blur-xl border border-slate-200/70 rounded-3xl shadow-elevated p-8 sm:p-10">
 
     {{-- Logo --}}
-    <a href="{{ url('/') }}" class="flex items-center justify-center gap-2.5 mb-6 no-underline">
-      <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center shadow-sm">
-        <svg class="w-[18px] h-[18px] text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-          <path d="M6 5v14M18 5v14M6 8H2M6 16H2M22 8h-4M22 16h-4M6 12h12"/>
-        </svg>
+    <a href="{{ url('/') }}" class="flex items-center justify-center gap-2.5 mb-6 no-underline group">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-[0_1px_0_0_rgba(255,255,255,0.3)_inset,0_6px_16px_-4px_rgba(29,158,117,0.5)] transition-transform duration-200 group-hover:scale-105">
+        <x-mentor.icon name="dumbbell" class="w-[18px] h-[18px] text-white" />
       </div>
-      <span class="text-xl font-bold text-slate-900">Planet Fitness</span>
+      <span class="text-xl font-bold text-slate-900 tracking-tight">Planet Fitness</span>
     </a>
 
     {{-- Role badge --}}
     <div class="flex justify-center mb-6">
       <span class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold px-3 py-1 rounded-full">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+        <x-mentor.icon name="star" class="w-3.5 h-3.5" />
         Portal Mentor
       </span>
     </div>
 
     <div class="text-center mb-8">
-      <h1 class="text-2xl font-bold tracking-tight mb-1.5">Masuk sebagai Mentor</h1>
+      <h1 class="display-heading text-2xl font-extrabold mb-1.5">Masuk sebagai Mentor</h1>
       <p class="text-sm text-slate-500">Kelola program latihan dan jadwal konsultasimu.</p>
     </div>
 
     {{-- Flash success (setelah register) --}}
     @if (session('success'))
       <div class="mb-4 flex items-start gap-2.5 bg-primary-light border border-primary text-primary-dark rounded-xl px-4 py-3 text-sm font-medium">
-        <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 12 11 14 15 10"/><circle cx="12" cy="12" r="10"/></svg>
+        <x-mentor.icon name="check-circle" class="w-4 h-4 mt-0.5 shrink-0" />
         {{ session('success') }}
       </div>
     @endif
 
     {{-- Google Login --}}
     <a href="{{ route('mentor.auth.google') }}"
-       class="flex items-center justify-center gap-3 w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition mb-5">
+       class="flex items-center justify-center gap-3 w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200 mb-5">
       <svg class="w-5 h-5" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -58,7 +56,7 @@
     {{-- Errors --}}
     @if ($errors->any())
       <div class="mb-4 flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
-        <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <x-mentor.icon name="alert-circle" class="w-4 h-4 mt-0.5 shrink-0" />
         <div>@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
       </div>
     @endif
@@ -67,38 +65,26 @@
     <form method="POST" action="{{ route('mentor.login') }}" class="space-y-4">
       @csrf
 
-      <div class="flex flex-col gap-1.5">
-        <label for="email" class="text-xs font-semibold text-slate-700">Alamat Email</label>
-        <input type="email" id="email" name="email" value="{{ old('email') }}" required autocomplete="email"
-               placeholder="mentor@email.com"
-               class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" />
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label for="password" class="text-xs font-semibold text-slate-700">Kata Sandi</label>
-        <input type="password" id="password" name="password" required autocomplete="current-password"
-               placeholder="••••••••"
-               class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" />
-      </div>
+      <x-mentor.input name="email" label="Alamat Email" type="email" :value="old('email')" required autocomplete="email" placeholder="mentor@email.com" icon="user" />
+      <x-mentor.input name="password" label="Kata Sandi" type="password" required autocomplete="current-password" placeholder="••••••••" />
 
       <div class="flex items-center justify-between text-sm">
         <label class="flex items-center gap-2 cursor-pointer text-slate-500 font-medium">
-          <input type="checkbox" name="remember" class="accent-primary w-4 h-4 cursor-pointer" />
+          <input type="checkbox" name="remember" class="accent-primary-500 w-4 h-4 cursor-pointer rounded" />
           Ingat saya
         </label>
-        <a href="#" class="text-primary font-semibold hover:text-primary-dark hover:underline transition">Lupa sandi?</a>
+        <a href="#" class="text-primary-600 font-semibold hover:text-primary-700 hover:underline transition">Lupa sandi?</a>
       </div>
 
-      <button type="submit"
-              class="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary-dark text-white font-semibold text-sm py-3 rounded-xl shadow-sm hover:-translate-y-px transition-all mt-2">
+      <x-mentor.button type="submit" size="lg" magnetic class="w-full mt-2">
         Masuk sebagai Mentor
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </button>
+        <x-mentor.icon name="chevron-right" class="w-4 h-4" />
+      </x-mentor.button>
     </form>
 
     <p class="mt-6 text-center text-sm text-slate-500">
       Belum terdaftar sebagai mentor?
-      <a href="{{ route('mentor.register') }}" class="text-primary font-semibold hover:text-primary-dark hover:underline transition">Daftar di sini</a>
+      <a href="{{ route('mentor.register') }}" class="text-primary-600 font-semibold hover:text-primary-700 hover:underline transition">Daftar di sini</a>
     </p>
     <p class="mt-2 text-center text-xs text-slate-400">
       Kamu member biasa?

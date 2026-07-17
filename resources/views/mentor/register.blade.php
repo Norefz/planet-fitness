@@ -2,42 +2,40 @@
 @section('title', 'Daftar Mentor')
 
 @section('content')
-<div class="w-full max-w-lg">
+<div class="w-full max-w-lg animate-fade-in-up">
 
-  <div class="bg-white border border-slate-200 rounded-2xl shadow-md p-8 sm:p-10">
+  <div class="spotlight-card bg-white/90 backdrop-blur-xl border border-slate-200/70 rounded-3xl shadow-elevated p-8 sm:p-10">
 
     {{-- Logo --}}
-    <a href="{{ url('/') }}" class="flex items-center justify-center gap-2.5 mb-6 no-underline">
-      <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center shadow-sm">
-        <svg class="w-[18px] h-[18px] text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-          <path d="M6 5v14M18 5v14M6 8H2M6 16H2M22 8h-4M22 16h-4M6 12h12"/>
-        </svg>
+    <a href="{{ url('/') }}" class="flex items-center justify-center gap-2.5 mb-6 no-underline group">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-[0_1px_0_0_rgba(255,255,255,0.3)_inset,0_6px_16px_-4px_rgba(29,158,117,0.5)] transition-transform duration-200 group-hover:scale-105">
+        <x-mentor.icon name="dumbbell" class="w-[18px] h-[18px] text-white" />
       </div>
-      <span class="text-xl font-bold text-slate-900">Planet Fitness</span>
+      <span class="text-xl font-bold text-slate-900 tracking-tight">Planet Fitness</span>
     </a>
 
     {{-- Role badge --}}
     <div class="flex justify-center mb-6">
       <span class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold px-3 py-1 rounded-full">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+        <x-mentor.icon name="star" class="w-3.5 h-3.5" />
         Daftar sebagai Mentor
       </span>
     </div>
 
     <div class="text-center mb-6">
-      <h1 class="text-2xl font-bold tracking-tight mb-1.5">Bergabung sebagai Mentor</h1>
+      <h1 class="display-heading text-2xl font-extrabold mb-1.5">Bergabung sebagai Mentor</h1>
       <p class="text-sm text-slate-500">Bagikan keahlianmu kepada ribuan member Planet Fitness.</p>
     </div>
 
     {{-- Info verifikasi --}}
     <div class="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6 text-sm text-amber-800">
-      <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <x-mentor.icon name="alert-circle" class="w-4 h-4 mt-0.5 shrink-0" />
       <span>Akun mentor memerlukan <strong>verifikasi admin</strong> sebelum bisa digunakan. Proses verifikasi biasanya 1–2 hari kerja.</span>
     </div>
 
     {{-- Google Register --}}
     <a href="{{ route('mentor.auth.google') }}"
-       class="flex items-center justify-center gap-3 w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition mb-5">
+       class="flex items-center justify-center gap-3 w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200 mb-5">
       <svg class="w-5 h-5" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -56,7 +54,7 @@
     {{-- Errors --}}
     @if ($errors->any())
       <div class="mb-4 flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
-        <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <x-mentor.icon name="alert-circle" class="w-4 h-4 mt-0.5 shrink-0" />
         <div>@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
       </div>
     @endif
@@ -68,77 +66,41 @@
       {{-- Data Akun --}}
       <p class="text-xs font-bold text-slate-400 uppercase tracking-wider pt-1">Data Akun</p>
 
-      <div class="flex flex-col gap-1.5">
-        <label for="name" class="text-xs font-semibold text-slate-700">Nama Lengkap</label>
-        <input type="text" id="name" name="name" value="{{ old('name') }}" required
-               placeholder="Nama sesuai sertifikat"
-               class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" />
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label for="email" class="text-xs font-semibold text-slate-700">Alamat Email</label>
-        <input type="email" id="email" name="email" value="{{ old('email') }}" required
-               placeholder="email@kamu.com"
-               class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" />
-      </div>
+      <x-mentor.input name="name" label="Nama Lengkap" :value="old('name')" required placeholder="Nama sesuai sertifikat" />
+      <x-mentor.input name="email" label="Alamat Email" type="email" :value="old('email')" required placeholder="email@kamu.com" />
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="flex flex-col gap-1.5">
-          <label for="password" class="text-xs font-semibold text-slate-700">Kata Sandi</label>
-          <input type="password" id="password" name="password" required
-                 placeholder="Min. 8 karakter"
-                 class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label for="password_confirmation" class="text-xs font-semibold text-slate-700">Konfirmasi Sandi</label>
-          <input type="password" id="password_confirmation" name="password_confirmation" required
-                 placeholder="Ulangi sandi"
-                 class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" />
-        </div>
+        <x-mentor.input name="password" label="Kata Sandi" type="password" required placeholder="Min. 8 karakter" />
+        <x-mentor.input name="password_confirmation" label="Konfirmasi Sandi" type="password" required placeholder="Ulangi sandi" />
       </div>
 
       {{-- Data Mentor --}}
       <p class="text-xs font-bold text-slate-400 uppercase tracking-wider pt-3">Profil Mentor</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="flex flex-col gap-1.5">
-          <label for="certification" class="text-xs font-semibold text-slate-700">Sertifikasi <span class="text-slate-400 font-normal">(opsional)</span></label>
-          <input type="text" id="certification" name="certification" value="{{ old('certification') }}"
-                 placeholder="Misal: ACE, NSCA, ISSA"
-                 class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label for="specialization" class="text-xs font-semibold text-slate-700">Spesialisasi <span class="text-slate-400 font-normal">(opsional)</span></label>
-          <input type="text" id="specialization" name="specialization" value="{{ old('specialization') }}"
-                 placeholder="Misal: Strength, Yoga, Gizi"
-                 class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" />
-        </div>
+        <x-mentor.input name="certification" label="Sertifikasi" hint="Opsional" :value="old('certification')" placeholder="Misal: ACE, NSCA, ISSA" />
+        <x-mentor.input name="specialization" label="Spesialisasi" hint="Opsional" :value="old('specialization')" placeholder="Misal: Strength, Yoga, Gizi" />
       </div>
 
-      <div class="flex flex-col gap-1.5">
-        <label for="bio" class="text-xs font-semibold text-slate-700">Bio Singkat <span class="text-slate-400 font-normal">(opsional)</span></label>
-        <textarea id="bio" name="bio" rows="3" placeholder="Ceritakan pengalaman dan keahlianmu..."
-                  class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition resize-none">{{ old('bio') }}</textarea>
-      </div>
+      <x-mentor.textarea name="bio" label="Bio Singkat" :rows="3" placeholder="Ceritakan pengalaman dan keahlianmu...">{{ old('bio') }}</x-mentor.textarea>
 
       <div class="flex items-start gap-2.5 text-sm text-slate-500 pt-1">
-        <input type="checkbox" id="terms" name="terms" required class="accent-primary w-4 h-4 mt-0.5 shrink-0 cursor-pointer" />
+        <input type="checkbox" id="terms" name="terms" required class="accent-primary-500 w-4 h-4 mt-0.5 shrink-0 cursor-pointer rounded" />
         <label for="terms" class="cursor-pointer leading-relaxed">
           Saya setuju dengan
-          <a href="#" class="text-primary font-semibold hover:underline">Syarat &amp; Ketentuan</a>
+          <a href="#" class="text-primary-600 font-semibold hover:underline">Syarat &amp; Ketentuan</a>
           dan menyatakan bahwa informasi yang saya berikan adalah benar.
         </label>
       </div>
 
-      <button type="submit"
-              class="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary-dark text-white font-semibold text-sm py-3 rounded-xl shadow-sm hover:-translate-y-px transition-all mt-2">
+      <x-mentor.button type="submit" size="lg" magnetic class="w-full mt-2">
         Kirim Pendaftaran
-      </button>
+      </x-mentor.button>
     </form>
 
     <p class="mt-6 text-center text-sm text-slate-500">
       Sudah punya akun mentor?
-      <a href="{{ route('mentor.login') }}" class="text-primary font-semibold hover:underline">Masuk di sini</a>
+      <a href="{{ route('mentor.login') }}" class="text-primary-600 font-semibold hover:underline">Masuk di sini</a>
     </p>
     <p class="mt-2 text-center text-xs text-slate-400">
       Ingin daftar sebagai member?

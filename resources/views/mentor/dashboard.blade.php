@@ -3,15 +3,24 @@
 
 @section('content')
 
-  <div class="flex items-end justify-between flex-wrap gap-4 mb-8">
-    <div>
-      <div class="text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">Ringkasan</div>
-      <h1 class="text-[28px] sm:text-3xl font-bold tracking-tight text-slate-900">Halo, {{ $mentor->full_name }} 👋</h1>
-      <p class="text-sm text-slate-500 mt-1.5">Ini yang terjadi di programmu hari ini.</p>
+  {{-- Hero greeting --}}
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-ink-900 via-ink-900 to-primary-900 px-6 sm:px-10 py-9 sm:py-11 mb-10 shadow-elevated animate-fade-in-up">
+    <div class="absolute -top-16 -right-10 w-72 h-72 orb animate-orb-float-slow opacity-70"></div>
+    <div class="absolute -bottom-24 left-1/4 w-64 h-64 orb-mini animate-orb-float opacity-40" style="animation-delay:-4s"></div>
+    <div class="absolute inset-0 noise-overlay"></div>
+
+    <div class="relative flex items-end justify-between flex-wrap gap-6">
+      <div>
+        <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary-300/90 tracking-widest uppercase mb-3">
+          <x-mentor.icon name="sparkles" class="w-3.5 h-3.5" /> Ringkasan
+        </div>
+        <h1 class="display-heading text-[28px] sm:text-4xl font-extrabold text-white">Halo, {{ $mentor->full_name }} 👋</h1>
+        <p class="text-[15px] text-white/60 mt-2.5 max-w-md">Ini yang terjadi di programmu hari ini.</p>
+      </div>
+      <x-mentor.button :href="route('mentor.programs.create')" size="lg" magnetic>
+        <x-mentor.icon name="plus" class="w-4 h-4" /> Buat Program Baru
+      </x-mentor.button>
     </div>
-    <x-mentor.button :href="route('mentor.programs.create')">
-      <x-mentor.icon name="plus" class="w-4 h-4" /> Buat Program Baru
-    </x-mentor.button>
   </div>
 
   {{-- Stat cards --}}
@@ -34,8 +43,8 @@
     <div>
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-base font-bold text-slate-900">Program Terbaru</h3>
-        <a href="{{ route('mentor.programs.index') }}" class="text-[13px] font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1">
-          Lihat semua <x-mentor.icon name="chevron-right" class="w-3.5 h-3.5" />
+        <a href="{{ route('mentor.programs.index') }}" class="text-[13px] font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1 group">
+          Lihat semua <x-mentor.icon name="chevron-right" class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
         </a>
       </div>
 
@@ -49,8 +58,9 @@
         <x-mentor.card padding="p-0" class="overflow-hidden divide-y divide-slate-100">
           @foreach ($recentPrograms as $program)
             @php $theme = $program->themeColor(); $avg = $program->averageProgress(); @endphp
-            <a href="{{ route('mentor.programs.show', $program) }}" class="flex items-center gap-3.5 px-5 py-4 hover:bg-slate-50 transition-colors">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, {{ $theme['from'] }}, {{ $theme['to'] }});">
+            <a href="{{ route('mentor.programs.show', $program) }}" class="group flex items-center gap-3.5 px-5 py-4 hover:bg-slate-50 transition-colors relative">
+              <span class="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary-400 to-primary-600 scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-transform duration-200 group-hover:scale-105" style="background: linear-gradient(135deg, {{ $theme['from'] }}, {{ $theme['to'] }});">
                 <x-mentor.icon :name="$theme['icon']" class="w-4.5 h-4.5 text-white" />
               </div>
               <div class="flex-1 min-w-0">
@@ -62,7 +72,7 @@
                   <x-mentor.progress-bar :value="$avg" />
                 </div>
               @endif
-              <x-mentor.badge :variant="$program->isPublished() ? 'success' : 'neutral'" class="shrink-0">
+              <x-mentor.badge :variant="$program->isPublished() ? 'success' : 'neutral'" :dot="true" class="shrink-0">
                 {{ $program->isPublished() ? 'Live' : 'Draf' }}
               </x-mentor.badge>
             </a>
@@ -75,8 +85,8 @@
     <div>
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-base font-bold text-slate-900">Permintaan Booking Masuk</h3>
-        <a href="{{ route('mentor.bookings.index') }}" class="text-[13px] font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1">
-          Lihat semua <x-mentor.icon name="chevron-right" class="w-3.5 h-3.5" />
+        <a href="{{ route('mentor.bookings.index') }}" class="text-[13px] font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1 group">
+          Lihat semua <x-mentor.icon name="chevron-right" class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
         </a>
       </div>
 
@@ -85,13 +95,13 @@
       @else
         <x-mentor.card padding="p-0" class="overflow-hidden divide-y divide-slate-100">
           @foreach ($pendingBookings as $booking)
-            <div class="flex items-center gap-3.5 px-5 py-4">
+            <div class="flex items-center gap-3.5 px-5 py-4 hover:bg-slate-50/70 transition-colors">
               <x-mentor.avatar :name="$booking->member->full_name ?? 'Member'" tone="amber" />
               <div class="flex-1 min-w-0">
                 <div class="text-sm font-semibold truncate text-slate-900">{{ $booking->member->full_name ?? 'Member' }}</div>
                 <div class="text-xs text-slate-500 mt-0.5">{{ $booking->scheduled_at->translatedFormat('d M Y · H:i') }} WIB</div>
               </div>
-              <x-mentor.badge variant="warning">Pending</x-mentor.badge>
+              <x-mentor.badge variant="warning" :dot="true">Pending</x-mentor.badge>
             </div>
           @endforeach
         </x-mentor.card>
@@ -108,8 +118,8 @@
           <x-mentor.badge variant="warning">{{ $attentionList->count() }}</x-mentor.badge>
         @endif
       </h3>
-      <a href="{{ route('mentor.statistics.index') }}" class="text-[13px] font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1">
-        Lihat statistik <x-mentor.icon name="chevron-right" class="w-3.5 h-3.5" />
+      <a href="{{ route('mentor.statistics.index') }}" class="text-[13px] font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1 group">
+        Lihat statistik <x-mentor.icon name="chevron-right" class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
       </a>
     </div>
 
@@ -118,7 +128,7 @@
     @else
       <div class="grid sm:grid-cols-2 gap-3">
         @foreach ($attentionList as $enrollment)
-          <x-mentor.card padding="p-4" class="flex items-center gap-3.5">
+          <x-mentor.card padding="p-4" hover class="flex items-center gap-3.5">
             <x-mentor.avatar :name="$enrollment->member->full_name ?? 'Member'" tone="neutral" />
             <div class="flex-1 min-w-0">
               <div class="text-sm font-semibold truncate text-slate-900">{{ $enrollment->member->full_name ?? 'Member' }}</div>

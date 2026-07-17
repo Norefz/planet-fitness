@@ -161,6 +161,35 @@
         line-height: 1.03;
     }
 
+    /* Button shine sweep — used on primary CTAs */
+    .btn-shine::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -60%;
+        width: 40%; height: 100%;
+        background: linear-gradient(115deg, transparent, rgba(255,255,255,.4), transparent);
+        transform: skewX(-20deg);
+        transition: left .65s cubic-bezier(.16,1,.3,1);
+        pointer-events: none;
+    }
+    .btn-shine:hover::after { left: 130%; }
+
+    /* Subtle light mesh — decorative backdrop for content pages (not hero panels) */
+    .mesh-light {
+        background:
+            radial-gradient(50% 40% at 8% 0%, rgba(29,158,117,0.06), transparent 60%),
+            radial-gradient(40% 35% at 100% 0%, rgba(58,196,159,0.05), transparent 60%);
+    }
+
+    /* Faint dot-grid texture, Apple-keynote style */
+    .dot-grid {
+        background-image: radial-gradient(rgba(15,23,42,0.06) 1px, transparent 1px);
+        background-size: 18px 18px;
+    }
+
+    /* Soft inner ring used on premium panels/avatars */
+    .ring-glass { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4); }
+
     /* Respect reduced-motion preference */
     @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {

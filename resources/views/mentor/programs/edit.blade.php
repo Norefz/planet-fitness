@@ -9,10 +9,12 @@
     </a>
     <div class="flex items-center gap-3 flex-wrap">
       <div>
-        <div class="text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">Edit Program</div>
-        <h1 class="text-[28px] sm:text-3xl font-bold tracking-tight text-slate-900">{{ $program->title }}</h1>
+        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary-600 tracking-widest uppercase mb-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary-500"></span> Edit Program
+        </div>
+        <h1 class="display-heading text-[28px] sm:text-3xl font-extrabold text-slate-900">{{ $program->title }}</h1>
       </div>
-      <x-mentor.badge :variant="$program->isPublished() ? 'success' : 'neutral'">
+      <x-mentor.badge :variant="$program->isPublished() ? 'success' : 'neutral'" :dot="true">
         {{ $program->isPublished() ? 'Dipublikasikan' : 'Draf' }}
       </x-mentor.badge>
     </div>
