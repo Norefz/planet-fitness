@@ -23,12 +23,12 @@
 
   @stack('styles')
 </head>
-<body class="font-sans bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col relative">
+<body class="font-sans bg-slate-50 text-slate-900 antialiased min-h-screen relative">
 
   {{-- Faint decorative mesh sitting behind the entire app, Apple-keynote style --}}
   <div class="fixed inset-0 -z-10 mesh-light pointer-events-none"></div>
 
-  <div x-data="{ mobileOpen: false, userMenuOpen: false }" @keydown.escape="mobileOpen = false; userMenuOpen = false">
+  <div x-data="{ mobileOpen: false, userMenuOpen: false }" @keydown.escape="mobileOpen = false; userMenuOpen = false" class="min-h-screen flex flex-col">
 
     <nav class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/70 relative">
       <div class="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary-400/40 to-transparent"></div>
