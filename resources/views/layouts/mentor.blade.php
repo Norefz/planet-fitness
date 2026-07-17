@@ -25,7 +25,8 @@
 </head>
 <body class="font-sans bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col">
 
-  <div x-data="{ mobileOpen: false, userMenuOpen: false }" @keydown.escape="mobileOpen = false; userMenuOpen = false">
+  <div x-data="{ mobileOpen: false, userMenuOpen: false }" @keydown.escape="mobileOpen = false; userMenuOpen = false"
+       class="min-h-screen flex flex-col">
 
     <nav class="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200/80">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
