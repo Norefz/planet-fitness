@@ -26,10 +26,16 @@ class EnsureMentorProfileComplete
 
         // 2. Periksa apakah user yang sedang masuk adalah Mentor
         if ($user->role === 'mentor') {
-            $mentor = $user->mentor()->first();
+            // mentorProfile() akan membuat baris Mentor kosong jika belum ada
+            $mentor = $user->mentorProfile();
 
-            if (!$mentor) {
-                $user->mentorProfile();
+            // 3. Kalau profil belum lengkap (bio/spesialisasi kosong), paksa ke
+            //    form onboarding — kecuali request ini memang menuju form itu
+            //    sendiri, supaya tidak terjadi redirect loop.
+            $isProfileComplete = !empty($mentor->bio) && !empty($mentor->specialization);
+
+            if (!$isProfileComplete && !$request->routeIs('mentor.complete-profile', 'mentor.complete-profile.submit', 'mentor.logout')) {
+                return redirect()->route('mentor.complete-profile');
             }
         }
 

@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
         // MemberProgram::observe(MemberProgramObserver::class);
 
         // ── HTTPS Force Scheme ────────────────────────────────────────────────
-        if (config('app.env') === 'production' || config('app.env') === 'local') {
+        if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
     }
