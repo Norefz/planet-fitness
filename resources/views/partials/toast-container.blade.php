@@ -22,11 +22,11 @@
         },
         dismiss(id) { this.toasts = this.toasts.filter(t => t.id !== id); },
     }"
-    x-init="
-        @if (session('success')) push('success', @json(session('success'))); @endif
-        @if (session('error'))   push('error',   @json(session('error')));   @endif
-        window.addEventListener('pf-toast', (e) => push(e.detail.type ?? 'success', e.detail.message));
-    "
+    x-init='
+        @if (session('success')) push("success", @json(session('success'))); @endif
+        @if (session('error'))   push("error",   @json(session('error')));   @endif
+        window.addEventListener("pf-toast", (e) => push(e.detail.type ?? "success", e.detail.message));
+    '
     class="pointer-events-none fixed inset-x-0 top-4 z-[200] flex flex-col items-center gap-2 px-4 sm:top-6 sm:items-end sm:px-6"
     aria-live="polite"
     aria-atomic="true"
