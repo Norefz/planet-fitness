@@ -117,10 +117,15 @@
   <div class="flex flex-col">
     @foreach($pendingMentors as $mentor)
       <div class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-b-0">
-        <div class="w-[38px] h-[38px] rounded-full flex items-center justify-center text-[13px] font-bold text-white flex-shrink-0"
-             style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
-          {{ $mentor->initials() }}
-        </div>
+        @if($mentor->profile_photo_url)
+          <img src="{{ $mentor->profile_photo_url }}" alt="{{ $mentor->full_name }}"
+               class="w-[38px] h-[38px] rounded-full object-cover flex-shrink-0" />
+        @else
+          <div class="w-[38px] h-[38px] rounded-full flex items-center justify-center text-[13px] font-bold text-white flex-shrink-0"
+               style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
+            {{ $mentor->initials() }}
+          </div>
+        @endif
         <div class="flex-1 min-w-0">
           <a href="{{ route('admin.mentors.show', $mentor) }}" class="text-[13px] font-semibold text-slate-900 truncate hover:underline no-underline">
             {{ $mentor->full_name }}
@@ -204,10 +209,15 @@
         <tr class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition-colors">
           <td class="px-4 py-3">
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                   style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
-                {{ $mentor->initials() }}
-              </div>
+              @if($mentor->profile_photo_url)
+                <img src="{{ $mentor->profile_photo_url }}" alt="{{ $mentor->full_name }}"
+                     class="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+              @else
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                     style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
+                  {{ $mentor->initials() }}
+                </div>
+              @endif
               <div class="min-w-0">
                 <a href="{{ route('admin.mentors.show', $mentor) }}" class="text-[13px] font-semibold text-slate-900 truncate hover:underline no-underline block">
                   {{ $mentor->full_name }}

@@ -130,10 +130,15 @@
         <tr class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition-colors">
           <td class="px-4 py-3">
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                   style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
-                {{ $member->initials() }}
-              </div>
+              @if($member->profile_photo_url)
+                <img src="{{ $member->profile_photo_url }}" alt="{{ $member->full_name }}"
+                     class="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+              @else
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                     style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
+                  {{ $member->initials() }}
+                </div>
+              @endif
               <div class="min-w-0">
                 <a href="{{ route('admin.members.show', $member) }}" class="text-[13px] font-semibold text-slate-900 truncate hover:underline no-underline block">
                   {{ $member->full_name }}

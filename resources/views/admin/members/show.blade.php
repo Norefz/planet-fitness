@@ -15,10 +15,15 @@
 
 <div class="flex items-start justify-between flex-wrap gap-4 mb-6">
   <div class="flex items-center gap-4">
-    <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-bold text-white flex-shrink-0"
-         style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
-      {{ $member->initials() }}
-    </div>
+    @if($member->profile_photo_url)
+      <img src="{{ $member->profile_photo_url }}" alt="{{ $member->full_name }}"
+           class="w-16 h-16 rounded-2xl object-cover flex-shrink-0" />
+    @else
+      <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-bold text-white flex-shrink-0"
+           style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
+        {{ $member->initials() }}
+      </div>
+    @endif
     <div>
       <div class="flex items-center gap-2.5 flex-wrap">
         <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">{{ $member->full_name }}</h1>

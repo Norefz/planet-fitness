@@ -140,9 +140,22 @@
           <a href="{{ route('admin.programs.show', $program) }}" class="text-[14px] font-bold text-slate-900 hover:underline no-underline block">
             {{ $program->title }}
           </a>
-          <p class="text-[11px] text-slate-400 mt-0.5">
-            oleh {{ $program->mentor->full_name ?? '—' }}
-            @if($program->mentor?->certification) · {{ $program->mentor->certification }} @endif
+          <p class="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1.5">
+            @if($program->mentor)
+              @if($program->mentor->profile_photo_url)
+                <img src="{{ $program->mentor->profile_photo_url }}" alt="{{ $program->mentor->full_name }}"
+                     class="w-4 h-4 rounded-full object-cover flex-shrink-0 inline-block" />
+              @else
+                <span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0 inline-flex"
+                      style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
+                  {{ $program->mentor->initials() }}
+                </span>
+              @endif
+            @endif
+            <span>
+              oleh {{ $program->mentor->full_name ?? '—' }}
+              @if($program->mentor?->certification) · {{ $program->mentor->certification }} @endif
+            </span>
           </p>
         </div>
 

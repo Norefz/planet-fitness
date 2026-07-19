@@ -27,11 +27,24 @@
           {{ $program->isPublished() ? 'Dipublikasikan' : 'Draf' }}
         </span>
       </div>
-      <p class="text-sm text-slate-500 mt-1">
-        oleh {{ $program->mentor->full_name ?? '—' }}
-        @if($program->mentor?->certification) · {{ $program->mentor->certification }} @endif
-        · {{ $program->levelLabel() }} · {{ $program->category }}
-        @if($program->duration_weeks) · {{ $program->duration_weeks }} minggu @endif
+      <p class="text-sm text-slate-500 mt-1 flex items-center gap-1.5">
+        @if($program->mentor)
+          @if($program->mentor->profile_photo_url)
+            <img src="{{ $program->mentor->profile_photo_url }}" alt="{{ $program->mentor->full_name }}"
+                 class="w-5 h-5 rounded-full object-cover flex-shrink-0 inline-block" />
+          @else
+            <span class="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0 inline-flex"
+                  style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
+              {{ $program->mentor->initials() }}
+            </span>
+          @endif
+        @endif
+        <span>
+          oleh {{ $program->mentor->full_name ?? '—' }}
+          @if($program->mentor?->certification) · {{ $program->mentor->certification }} @endif
+          · {{ $program->levelLabel() }} · {{ $program->category }}
+          @if($program->duration_weeks) · {{ $program->duration_weeks }} minggu @endif
+        </span>
       </p>
     </div>
   </div>

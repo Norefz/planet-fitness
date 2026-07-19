@@ -124,10 +124,15 @@
           <tr class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition-colors {{ $booking->status === 'pending' ? 'bg-amber-50/40' : '' }} {{ $booking->status === 'cancelled' ? 'opacity-60' : '' }}">
             <td class="px-4 py-3">
               <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
-                     style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
-                  {{ $booking->member->initials() }}
-                </div>
+                @if($booking->member->profile_photo_url)
+                  <img src="{{ $booking->member->profile_photo_url }}" alt="{{ $booking->member->full_name }}"
+                       class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                @else
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
+                       style="background: linear-gradient(135deg, #1d9e75, #0f6e56);">
+                    {{ $booking->member->initials() }}
+                  </div>
+                @endif
                 <div class="min-w-0">
                   <div class="text-[13px] font-semibold text-slate-900 truncate">{{ $booking->member->full_name }}</div>
                   <div class="text-[11px] text-slate-400 truncate">{{ $booking->member->user?->email }}</div>
@@ -136,10 +141,15 @@
             </td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-2">
-                <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
-                     style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
-                  {{ $booking->mentor->initials() }}
-                </div>
+                @if($booking->mentor->profile_photo_url)
+                  <img src="{{ $booking->mentor->profile_photo_url }}" alt="{{ $booking->mentor->full_name }}"
+                       class="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                @else
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+                       style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                    {{ $booking->mentor->initials() }}
+                  </div>
+                @endif
                 <span class="text-[12px] text-slate-700">{{ $booking->mentor->full_name }}</span>
               </div>
             </td>
