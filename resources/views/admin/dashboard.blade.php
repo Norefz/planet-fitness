@@ -316,8 +316,8 @@
           <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors duration-150 last:border-b-0">
             <td class="px-4 py-3">
               <div class="flex items-center gap-2.5">
-                @if($member->user?->avatar)
-                  <img src="{{ $member->user->avatar }}"
+                @if($member->profile_photo_url ?? $member->user?->avatar)
+                  <img src="{{ $member->profile_photo_url ?? $member->user->avatar }}"
                        class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
                 @else
                   <div class="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold

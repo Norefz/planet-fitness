@@ -15,6 +15,7 @@ use App\Http\Controllers\Mentor\StatisticsController as MentorStatisticsControll
 // Import Controller Booking untuk sisi Member
 use App\Http\Controllers\Member\BookingController as MemberBookingController;
 use App\Http\Controllers\Member\MealLogController;
+use App\Http\Controllers\Member\ProfileController as MemberProfileController;
 
 // ─── Public Landing Routes ───────────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -65,6 +66,11 @@ Route::prefix('member')->name('member.')->group(function () {
         // ─── Log Nutrisi (tambah & hapus entri) ─────────────────────────────
         Route::post('/log-nutrisi', [MealLogController::class, 'store'])->name('log-nutrisi.store');
         Route::delete('/log-nutrisi/{mealLog}', [MealLogController::class, 'destroy'])->name('log-nutrisi.destroy');
+
+        // ─── Profil Saya (biodata + foto profil via Cloudinary) ─────────────
+        Route::get('/profile', [MemberProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [MemberProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile/photo', [MemberProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
     });
 });
 

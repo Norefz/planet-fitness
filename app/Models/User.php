@@ -85,6 +85,17 @@ class User extends Authenticatable
         };
     }
 
+    // ← Tambahan: URL foto profil yang dipakai di navbar.
+    // Member yang sudah mengunggah foto profil sendiri (via Cloudinary) akan
+    // memakai foto itu; selain itu fallback ke foto Google (kolom avatar).
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return match ($this->role) {
+            'member' => $this->member?->profile_photo_url ?: $this->avatar,
+            default  => $this->avatar,
+        };
+    }
+
     // ← Tambahan: nama display yang dipakai di navbar & sidebar admin
     // Mengambil full_name dari tabel profil sesuai role,
     // fallback ke kolom name di tabel users.

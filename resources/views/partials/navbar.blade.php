@@ -85,6 +85,12 @@
                     'mentor' => route('mentor.dashboard'),
                     default  => route('member.dashboard'),
                 };
+
+                // Halaman "Profil Saya" beda rute per role
+                $profileRoute = match(auth()->user()->role) {
+                    'mentor' => route('mentor.profile.edit'),
+                    default  => route('member.profile.edit'),
+                };
             @endphp
 
             <div class="relative" x-data="{ open: false }" @click.outside="open = false">
@@ -95,9 +101,9 @@
                                bg-white/10 border border-white/20 hover:bg-white/15
                                backdrop-blur-md transition-all duration-200 cursor-pointer">
 
-                    {{-- Avatar: pakai foto Google kalau ada, fallback inisial --}}
-                    @if(auth()->user()->avatar)
-                        <img src="{{ auth()->user()->avatar }}" alt="{{ $displayName }}"
+                    {{-- Avatar: pakai foto profil member/foto Google kalau ada, fallback inisial --}}
+                    @if(auth()->user()->avatar_url)
+                        <img src="{{ auth()->user()->avatar_url }}" alt="{{ $displayName }}"
                              class="w-7 h-7 rounded-full object-cover flex-shrink-0 border border-white/20" />
                     @else
                         <span class="w-7 h-7 rounded-full bg-primary flex items-center justify-center
@@ -157,7 +163,7 @@
                             Dashboard
                         </a>
 
-                        <a href="#"
+                        <a href="{{ $profileRoute }}"
                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50
                                   transition-colors duration-150 no-underline">
                             <svg class="w-4 h-4 text-slate-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
@@ -167,18 +173,6 @@
                                 <circle cx="12" cy="7" r="4"/>
                             </svg>
                             Profil Saya
-                        </a>
-
-                        <a href="#"
-                           class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50
-                                  transition-colors duration-150 no-underline">
-                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
-                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                 stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="3"/>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1 -2.83 2.83l-.06-.06a1.65 1.65 0 0 0 -1.82-.33 1.65 1.65 0 0 0 -1 1.51V21a2 2 0 0 1 -4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0 -1.82.33l-.06.06a2 2 0 1 1 -2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0 -1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0 -.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0 -.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0 -1.51 1z"/>
-                            </svg>
-                            Pengaturan
                         </a>
                     </div>
 

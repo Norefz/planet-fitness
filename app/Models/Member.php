@@ -18,8 +18,15 @@ class Member extends Model
         'weight_kg',
         'phone',
         'profile_photo_url',
+        'profile_photo_public_id',
         'subscription_type',
         'subscription_expires_at',
+    ];
+
+    // ← Tambahan: cast agar birth_date jadi instance Carbon (dibutuhkan
+    // untuk ->format() di halaman Profil Saya), bukan string mentah dari DB.
+    protected $casts = [
+        'birth_date' => 'date',
     ];
 
     public function user()
