@@ -69,7 +69,16 @@
 
         <x-mentor.textarea name="bio" label="Bio" :rows="4" maxlength="1000" placeholder="Ceritakan pengalaman dan keahlianmu...">{{ old('bio', $mentor->bio) }}</x-mentor.textarea>
 
-        <div class="flex justify-end pt-2">
+        <div class="flex items-center justify-between pt-2">
+          @unless ($mentor->is_verified)
+            <a href="{{ route('mentor.pending-verification') }}"
+               class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 hover:text-amber-800 no-underline">
+              <x-mentor.icon name="clock" class="w-3.5 h-3.5" /> Lihat Status Verifikasi
+            </a>
+          @else
+            <span></span>
+          @endunless
+
           <x-mentor.button type="submit">
             <x-mentor.icon name="check" class="w-4 h-4" /> Simpan Perubahan
           </x-mentor.button>

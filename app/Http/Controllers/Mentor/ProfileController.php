@@ -114,6 +114,15 @@ class ProfileController extends Controller
             'specialization' => $validated['specialization'] ?? null,
         ]);
 
+        // Mentor yang belum diverifikasi admin diarahkan kembali ke halaman
+        // menunggu persetujuan setelah menyimpan, bukan ke form edit lagi —
+        // supaya jelas kalau perubahan tersimpan tapi akun masih ditinjau.
+        if (! $mentor->is_verified) {
+            return redirect()
+                ->route('mentor.pending-verification')
+                ->with('success', 'Profil berhasil diperbarui. Akun Anda masih menunggu persetujuan admin.');
+        }
+
         return redirect()
             ->route('mentor.profile.edit')
             ->with('success', 'Profil berhasil diperbarui.');
