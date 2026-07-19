@@ -20,7 +20,9 @@
         <div class="absolute inset-0 noise-overlay"></div>
       </div>
       <div class="flex flex-col items-center text-center px-6 pb-6">
-        <x-mentor.avatar :name="$mentor->full_name" size="xl" ring class="-mt-10 mb-4" />
+        {{-- 1. PERBAIKAN: Menambahkan atribut :image agar foto dari Cloudinary/Storage bisa muncul --}}
+        <x-mentor.avatar :name="$mentor->full_name" :image="$mentor->avatar" size="xl" ring class="-mt-10 mb-4" />
+
         <h3 class="text-base font-bold text-slate-900">{{ $mentor->full_name }}</h3>
         <p class="text-xs text-slate-500 mt-1">{{ $mentor->specialization ?: 'Belum ada spesialisasi' }}</p>
 
@@ -47,9 +49,18 @@
     <x-mentor.card class="lg:col-span-2">
       <h3 class="text-sm font-bold text-slate-900 mb-5">Perbarui Informasi</h3>
 
-      <form method="POST" action="{{ route('mentor.profile.update') }}" class="space-y-5">
+      {{-- 2. PERBAIKAN: Menambahkan enctype="multipart/form-data" agar form bisa mengirimkan file/foto --}}
+      <form method="POST" action="{{ route('mentor.profile.update') }}" enctype="multipart/form-data" class="space-y-5">
         @csrf
         @method('PUT')
+
+        {{-- 3. PERBAIKAN: Menambahkan input file untuk upload foto profil baru --}}
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-slate-700">Foto Profil (Avatar)</label>
+          <input type="file" name="avatar" accept="image/*"
+                 class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm file:mr-4 file:py-1.5 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer" />
+          <p class="text-xs text-slate-400">Pilih foto terbaikmu. Maksimal ukuran file 2MB (Format: JPG, PNG, WEBP).</p>
+        </div>
 
         <x-mentor.input name="name" label="Nama Lengkap" required maxlength="255" :value="old('name', $user->name)" />
 
