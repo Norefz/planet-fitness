@@ -46,11 +46,12 @@ class AuditLog extends Model
         ?string $targetTable = null,
         ?string $targetId    = null,
     ): void {
-        // Guard 'admin' langsung return SuperAdmin model (bukan User),
-        // jadi tidak perlu ->superAdmin chain lagi
-        $adminId = auth('admin')->check()
-            ? auth('admin')->id()   // langsung ambil id dari SuperAdmin
-            : null;
+        // PERBAIKAN: guard 'admin' provider-nya adalah App\Models\User (lihat
+        // config/auth.php), BUKAN SuperAdmin — jadi auth('admin')->id() itu
+        // users.id, sedangkan audit_logs.admin_id FK ke super_admins.id.
+        // Itu sebabnya insert selalu gagal (1452 foreign key constraint).
+        // Ambil SuperAdmin-nya lewat relasi, persis seperti di Admin\AuthController.
+        $adminId = auth('admin')->user()?->superAdmin?->id;
 
         static::create([
             'admin_id'     => $adminId,
