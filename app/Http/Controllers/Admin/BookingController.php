@@ -27,8 +27,22 @@ class BookingController extends Controller
         $status = $request->query('status', 'all');
         $q      = trim((string) $request->query('q', ''));
         $month  = $request->query('month'); // format Y-m, mis. "2026-07"
+        $date   = $request->query('date'); // format Y-m-d, mis. "2026-07-16" — filter dari klik kalender
 
         $calendarMonth = $month ? Carbon::createFromFormat('Y-m', $month)->startOfMonth() : now()->startOfMonth();
+
+        // Jika tanggal dipilih tapi bukan dari bulan kalender yang sedang tampil,
+        // ikuti bulan dari tanggal tsb supaya kalender & filter tetap sinkron.
+        if ($date) {
+            try {
+                $selectedDate = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+                if (! $month) {
+                    $calendarMonth = $selectedDate->copy()->startOfMonth();
+                }
+            } catch (\Throwable $e) {
+                $date = null;
+            }
+        }
 
         $query = Booking::with(['member', 'mentor']);
 
@@ -42,6 +56,10 @@ class BookingController extends Controller
                         ->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%{$q}%")))
                     ->orWhereHas('mentor', fn ($m) => $m->where('full_name', 'like', "%{$q}%"));
             });
+        }
+
+        if ($date) {
+            $query->whereDate('scheduled_at', $date);
         }
 
         $bookings = $query->latest('scheduled_at')->paginate(10)->withQueryString();
@@ -72,7 +90,7 @@ class BookingController extends Controller
             ->get();
 
         return view('admin.bookings.index', compact(
-            'bookings', 'stats', 'status', 'q', 'calendarMonth', 'bookingDates', 'todaySchedule'
+            'bookings', 'stats', 'status', 'q', 'date', 'calendarMonth', 'bookingDates', 'todaySchedule'
         ));
     }
 
