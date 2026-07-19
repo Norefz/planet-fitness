@@ -15,7 +15,7 @@
   };
 @endphp
 
-<a href="{{ route('admin.mentors.index') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-900 no-underline mb-5">
+<a href="{{ route('admin.mentors') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-900 no-underline mb-5">
   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
   Kembali ke Manajemen Mentor
 </a>

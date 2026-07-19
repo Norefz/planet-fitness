@@ -126,7 +126,7 @@ class MentorController extends Controller
             $message = "Pendaftaran mentor \"{$mentor->full_name}\" ditolak.";
         }
 
-        return redirect()->route('admin.mentors.index')->with('success', $message);
+        return redirect()->route('admin.mentors')->with('success', $message);
     }
 
     /**
