@@ -15,7 +15,7 @@
 
     <x-mentor.card padding="p-0" class="h-fit overflow-hidden">
       {{-- Gradient banner, Apple-ID-card style --}}
-      <div class="relative h-20 bg-gradient-to-br from-ink-900 via-ink-900 to-primary-900 overflow-hidden">
+      <div class="relative h-28 bg-gradient-to-br from-ink-900 via-ink-900 to-primary-900 overflow-hidden">
         <div class="absolute -top-6 -right-4 w-28 h-28 orb-mini animate-orb-float opacity-60"></div>
         <div class="absolute inset-0 noise-overlay"></div>
       </div>
