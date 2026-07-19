@@ -20,6 +20,7 @@ class EnsureMentorProfileComplete
         'mentor.pending-verification',
         'mentor.profile.edit',
         'mentor.profile.update',
+        'mentor.profile.photo.destroy',
     ];
 
     /**

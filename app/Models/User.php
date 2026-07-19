@@ -92,6 +92,7 @@ class User extends Authenticatable
     {
         return match ($this->role) {
             'member' => $this->member?->profile_photo_url ?: $this->avatar,
+            'mentor' => $this->mentor?->profile_photo_url ?: $this->avatar,
             default  => $this->avatar,
         };
     }

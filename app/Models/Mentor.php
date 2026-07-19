@@ -15,6 +15,8 @@ class Mentor extends Model
         'bio',
         'certification',
         'specialization',
+        'profile_photo_url',
+        'profile_photo_public_id',
         'rating',
         'is_verified',
     ];

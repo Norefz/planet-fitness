@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Mentor;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\CloudinaryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,10 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    public function __construct(private CloudinaryService $cloudinary)
+    {
+    }
+
     // ─── METHOD BARU: Menampilkan Form Onboarding Google ─────────────────────
     public function showOnboarding(): View|RedirectResponse
     {
@@ -103,16 +108,38 @@ class ProfileController extends Controller
             'bio'             => ['nullable', 'string', 'max:1000'],
             'certification'   => ['nullable', 'string', 'max:255'],
             'specialization'  => ['nullable', 'string', 'max:255'],
+            'photo'           => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
         ]);
 
         $user->update(['name' => $validated['name']]);
 
-        $mentor->update([
+        $mentorData = [
             'full_name'      => $validated['name'],
             'bio'            => $validated['bio'] ?? null,
             'certification'  => $validated['certification'] ?? null,
             'specialization' => $validated['specialization'] ?? null,
-        ]);
+        ];
+
+        // Unggah foto profil baru ke Cloudinary (jika ada), lalu hapus foto
+        // lama dari Cloudinary setelah foto baru berhasil tersimpan — sama
+        // seperti alur foto profil member.
+        if ($request->hasFile('photo')) {
+            $oldPublicId = $mentor->profile_photo_public_id;
+
+            $uploaded = $this->cloudinary->uploadImage($request->file('photo'), 'mentor-profile-pictures');
+            $mentorData['profile_photo_url']       = $uploaded['url'];
+            $mentorData['profile_photo_public_id'] = $uploaded['public_id'];
+
+            if ($oldPublicId) {
+                try {
+                    $this->cloudinary->deleteImage($oldPublicId);
+                } catch (\Throwable $e) {
+                    report($e);
+                }
+            }
+        }
+
+        $mentor->update($mentorData);
 
         // Mentor yang belum diverifikasi admin diarahkan kembali ke halaman
         // menunggu persetujuan setelah menyimpan, bukan ke form edit lagi —
@@ -126,5 +153,30 @@ class ProfileController extends Controller
         return redirect()
             ->route('mentor.profile.edit')
             ->with('success', 'Profil berhasil diperbarui.');
+    }
+
+    // ─── Hapus Foto Profil ─────────────────────────────────────────────────────
+    public function destroyPhoto(): RedirectResponse
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $mentor = $user->mentorProfile();
+
+        if ($mentor->profile_photo_public_id) {
+            try {
+                $this->cloudinary->deleteImage($mentor->profile_photo_public_id);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        $mentor->update([
+            'profile_photo_url'       => null,
+            'profile_photo_public_id' => null,
+        ]);
+
+        return redirect()
+            ->route('mentor.profile.edit')
+            ->with('success', 'Foto profil berhasil dihapus.');
     }
 }

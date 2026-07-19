@@ -86,7 +86,7 @@
             <button @click="userMenuOpen = !userMenuOpen" type="button"
                     class="flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 rounded-xl hover:bg-slate-100 transition-colors duration-150"
                     :class="userMenuOpen && 'bg-slate-100'">
-              <x-mentor.avatar :name="auth()->user()->mentor->full_name" size="md" />
+              <x-mentor.avatar :name="auth()->user()->mentor->full_name" :image="auth()->user()->avatar_url" size="md" />
               <div class="hidden lg:block text-left leading-tight">
                 <div class="text-[13px] font-semibold">{{ Str::limit(auth()->user()->mentor->full_name, 16) }}</div>
                 <div class="text-[11px] text-slate-400">Mentor</div>

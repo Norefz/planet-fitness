@@ -1,4 +1,4 @@
-@props(['name' => '?', 'size' => 'md', 'tone' => 'primary', 'ring' => false])
+@props(['name' => '?', 'image' => null, 'size' => 'md', 'tone' => 'primary', 'ring' => false])
 @php
     $words = preg_split('/\s+/', trim($name));
     $initials = implode('', array_map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)), array_slice($words, 0, 2))) ?: '?';
@@ -18,6 +18,11 @@
 
     $ringClass = $ring ? ' ring-4 ring-white shadow-elevated' : ' shadow-sm';
 @endphp
-<div {{ $attributes->merge(['class' => 'rounded-full flex items-center justify-center font-bold shrink-0 ' . ($sizes[$size] ?? $sizes['md']) . ' ' . ($tones[$tone] ?? $tones['primary']) . $ringClass]) }}>
-    {{ $initials }}
-</div>
+@if ($image)
+    <img src="{{ $image }}" alt="{{ $name }}"
+         {{ $attributes->merge(['class' => 'rounded-full object-cover shrink-0 ' . ($sizes[$size] ?? $sizes['md']) . $ringClass]) }} />
+@else
+    <div {{ $attributes->merge(['class' => 'rounded-full flex items-center justify-center font-bold shrink-0 ' . ($sizes[$size] ?? $sizes['md']) . ' ' . ($tones[$tone] ?? $tones['primary']) . $ringClass]) }}>
+        {{ $initials }}
+    </div>
+@endif

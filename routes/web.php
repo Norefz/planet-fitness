@@ -135,6 +135,7 @@ Route::prefix('mentor')->group(function () {
             // ─── Profil & Sertifikasi ────────────────────────────────────────────
             Route::get('/profile', [MentorProfileController::class, 'edit'])->name('profile.edit');
             Route::put('/profile', [MentorProfileController::class, 'update'])->name('profile.update');
+            Route::delete('/profile/photo', [MentorProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
         });
     });
 });
