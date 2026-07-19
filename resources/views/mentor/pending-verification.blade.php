@@ -69,6 +69,47 @@
       </form>
     </div>
 
+    {{-- Indikator polling otomatis --}}
+    <p id="auto-check-status" class="text-center text-[11px] text-slate-400 mt-5 flex items-center justify-center gap-1.5">
+      <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+      Memeriksa status persetujuan secara otomatis...
+    </p>
+
   </div>
 </div>
+
+<script>
+  // Mentor tidak perlu refresh manual — halaman ini mengecek ulang status
+  // setiap beberapa detik, dan begitu admin approve, server akan me-redirect
+  // fetch() ini ke dashboard, lalu kita ikuti redirect-nya di browser asli.
+  (function () {
+    const statusEl = document.getElementById('auto-check-status');
+    const checkUrl = "{{ route('mentor.pending-verification') }}";
+    const intervalMs = 8000;
+
+    async function checkVerification() {
+      try {
+        const res = await fetch(checkUrl, {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+        });
+
+        // Jika server me-redirect (karena mentor.pendingVerification()
+        // mendeteksi is_verified sudah true), fetch akan mengikuti redirect
+        // itu dan res.redirected bernilai true, res.url berisi URL akhirnya.
+        if (res.redirected) {
+            if (statusEl) {
+                statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Disetujui! Mengalihkan ke dashboard...';
+            }
+            window.location.href = res.url;
+        }
+      } catch (e) {
+        // Diamkan saja kalau gagal (mis. koneksi terputus sesaat) — coba lagi di interval berikutnya.
+      }
+    }
+
+    setInterval(checkVerification, intervalMs);
+  })();
+</script>
 @endsection

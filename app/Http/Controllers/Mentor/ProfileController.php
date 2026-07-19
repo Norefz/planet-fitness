@@ -63,11 +63,20 @@ class ProfileController extends Controller
     }
 
     // ─── METHOD BARU: Halaman "menunggu persetujuan admin" ───────────────────
-    public function pendingVerification(): View
+    public function pendingVerification(): View|RedirectResponse
     {
         /** @var User $user */
         $user = Auth::user();
         $mentor = $user->mentorProfile();
+
+        // Sebelumnya halaman ini selalu menampilkan layar "menunggu" tanpa
+        // pernah mengecek ulang status — jadi walau admin sudah approve,
+        // mentor harus logout/login dulu baru bisa masuk dashboard.
+        // Sekarang setiap refresh/kunjungan ke sini akan cek ulang: begitu
+        // is_verified sudah true, langsung diarahkan ke dashboard.
+        if ($mentor->is_verified) {
+            return redirect()->route('mentor.dashboard');
+        }
 
         return view('mentor.pending-verification', compact('mentor'));
     }

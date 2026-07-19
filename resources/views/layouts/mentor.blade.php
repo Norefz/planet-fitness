@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>@yield('title') · Planet Fitness Mentor</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -24,12 +23,12 @@
 
   @stack('styles')
 </head>
-<body class="font-sans bg-slate-50 text-slate-900 antialiased min-h-screen relative">
+<body class="font-sans bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col relative">
 
   {{-- Faint decorative mesh sitting behind the entire app, Apple-keynote style --}}
   <div class="fixed inset-0 -z-10 mesh-light pointer-events-none"></div>
 
-  <div x-data="{ mobileOpen: false, userMenuOpen: false }" @keydown.escape="mobileOpen = false; userMenuOpen = false" class="min-h-screen flex flex-col">
+  <div x-data="{ mobileOpen: false, userMenuOpen: false }" @keydown.escape="mobileOpen = false; userMenuOpen = false">
 
     <nav class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/70 relative">
       <div class="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary-400/40 to-transparent"></div>
@@ -43,12 +42,21 @@
         </a>
 
         @php
+          $isVerifiedMentor = (bool) (auth()->user()->mentor->is_verified ?? false);
+
           $navItems = [
             ['route' => 'mentor.dashboard',        'label' => 'Dashboard',        'icon' => 'home'],
             ['route' => 'mentor.programs.index',   'label' => 'Program Latihan',  'icon' => 'dumbbell'],
             ['route' => 'mentor.statistics.index', 'label' => 'Statistik',        'icon' => 'bar-chart'],
             ['route' => 'mentor.bookings.index',   'label' => 'Konsultasi',       'icon' => 'calendar'],
           ];
+
+          // Selama mentor belum disetujui admin, menu-menu ini disembunyikan —
+          // rute-nya memang sudah diblokir oleh EnsureMentorProfileComplete,
+          // tapi kalau menu masih tampil terlihat seperti dashboard bisa diakses penuh.
+          if (! $isVerifiedMentor) {
+            $navItems = [];
+          }
         @endphp
 
         <div class="hidden md:flex items-center gap-0.5 bg-slate-100/70 rounded-xl p-1">
@@ -65,6 +73,12 @@
             </a>
           @endforeach
         </div>
+
+        @unless ($isVerifiedMentor)
+          <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold bg-amber-100 text-amber-800">
+            <x-mentor.icon name="clock" class="w-3.5 h-3.5" /> Menunggu Verifikasi
+          </span>
+        @endunless
 
         <div class="flex items-center gap-2">
 
@@ -92,9 +106,11 @@
                 <a href="{{ route('mentor.profile.edit') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
                   <x-mentor.icon name="user" class="w-4 h-4 text-slate-400" /> Profil Saya
                 </a>
-                <a href="{{ route('mentor.statistics.index') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-                  <x-mentor.icon name="bar-chart" class="w-4 h-4 text-slate-400" /> Statistik
-                </a>
+                @if ($isVerifiedMentor)
+                  <a href="{{ route('mentor.statistics.index') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                    <x-mentor.icon name="bar-chart" class="w-4 h-4 text-slate-400" /> Statistik
+                  </a>
+                @endif
               </div>
               <div class="p-1.5 border-t border-slate-100">
                 <form method="POST" action="{{ route('mentor.logout') }}">
