@@ -1,59 +1,166 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Planet Fitness
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Planet Fitness is a Laravel-based gym management platform that connects **members**, **mentors** (personal trainers/coaches), and **admins** in one system. Members follow structured workout programs, log nutrition, and book 1-on-1 video consultations with mentors over Zoom; mentors build and manage those programs and their client roster; admins oversee the whole platform.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### For Members
+- Register/login with email or Google OAuth
+- Browse and enroll in workout programs, and track exercise-by-exercise progress
+- Log daily nutrition against personal macro targets
+- Book, view, and cancel video consultations with a mentor (Zoom meetings are created automatically)
+- Manage profile details and profile photo (stored on Cloudinary)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### For Mentors
+- Register/login with email or Google OAuth, then complete an onboarding profile
+- Onboarding requires **admin verification** before the dashboard unlocks
+- Create and manage workout programs, with reorderable exercises (with optional demo videos)
+- Publish/unpublish programs
+- Manage incoming consultation bookings
+- View statistics on member engagement and progress
+- Manage profile and certification details
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### For Admins
+- Separate authentication guard from members/mentors
+- Manage member accounts (view, activate/deactivate)
+- Review and verify mentor applications
+- Oversee all workout programs (view, publish/unpublish, delete)
+- Manage consultation bookings (confirm/cancel)
+- View reports and platform activity logs
+- System configuration settings
 
-## Learning Laravel
+## Tech Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- **Backend:** Laravel 12 (PHP 8.3+)
+- **Frontend:** Blade templates, Tailwind CSS 4, Vite
+- **Auth:** Laravel's built-in auth + [Laravel Socialite](https://laravel.com/docs/socialite) (Google OAuth)
+- **Media storage:** [Cloudinary](https://cloudinary.com/) (profile photos, exercise videos)
+- **Video consultations:** [Zoom API](https://developers.zoom.us/) (server-to-server OAuth)
+- **Database:** SQLite by default (configurable to MySQL/Postgres via `.env`)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Requirements
 
-## Laravel Sponsors
+- PHP 8.3+
+- Composer
+- Node.js & npm
+- A Zoom Server-to-Server OAuth app (for consultations)
+- A Cloudinary account (for media uploads)
+- A Google Cloud OAuth client (for social login)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Getting Started
 
-### Premium Partners
+1. **Clone and install dependencies**
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+   ```bash
+   git clone https://github.com/Norefz/planet-fitness.git
+   cd planet-fitness
+   composer install
+   npm install
+   ```
 
-## Contributing
+2. **Environment setup**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-## Code of Conduct
+   Then fill in the following in `.env`:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   ```
+   APP_NAME="Planet Fitness"
 
-## Security Vulnerabilities
+   GOOGLE_CLIENT_ID=
+   GOOGLE_CLIENT_SECRET=
+   GOOGLE_REDIRECT_URI=
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+   ZOOM_ACCOUNT_ID=
+   ZOOM_CLIENT_ID=
+   ZOOM_CLIENT_SECRET=
+
+   CLOUDINARY_CLOUD_NAME=
+   CLOUDINARY_API_KEY=
+   CLOUDINARY_API_SECRET=
+   ```
+
+3. **Database**
+
+   The app defaults to SQLite. Create the database file and run migrations:
+
+   ```bash
+   touch database/database.sqlite
+   php artisan migrate
+   ```
+
+4. **Create an admin account**
+
+   There's no public admin registration page — admins are created from the terminal:
+
+   ```bash
+   php artisan admin:create
+   ```
+
+   This walks you through setting a name, email, password, and title, then prints the admin login URL.
+
+5. **(Optional) Seed demo data**
+
+   ```bash
+   php artisan db:seed
+   ```
+
+6. **Run the app**
+
+   During development, this single command runs the PHP server, queue listener, log watcher, and Vite dev server together:
+
+   ```bash
+   composer run dev
+   ```
+
+   Or run the pieces individually:
+
+   ```bash
+   php artisan serve
+   npm run dev
+   ```
+
+## Testing
+
+```bash
+composer test
+```
+
+## Key Routes
+
+| Area   | Prefix     | Notes                                              |
+|--------|------------|-----------------------------------------------------|
+| Public | `/`        | Landing page, login/register selection              |
+| Member | `/member`  | Programs, consultations, nutrition log, profile      |
+| Mentor | `/mentor`  | Onboarding, dashboard, programs, bookings, stats     |
+| Admin  | `/admin`   | Separate guard; members, mentors, programs, reports  |
+
+## Project Structure Highlights
+
+```
+app/
+  Http/Controllers/
+    Admin/      # Admin-only controllers
+    Auth/       # Member, mentor & Google OAuth auth
+    Member/     # Programs, bookings, nutrition, profile
+    Mentor/     # Programs, exercises, bookings, statistics
+  Models/       # Member, Mentor, SuperAdmin, WorkoutProgram, Booking, MealLog, ...
+  Services/
+    CloudinaryService.php   # Media upload/delete helpers
+    ZoomService.php         # Zoom meeting creation via Server-to-Server OAuth
+  Observers/    # Activity/audit logging for key models
+resources/views/
+  admin/ mentor/ member/    # Role-specific Blade views
+  components/               # Shared Blade components
+database/migrations/        # Schema for users, members, mentors, programs, bookings, etc.
+routes/
+  web.php     # Public, member & mentor routes
+  admin.php   # Admin routes
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is built on the [Laravel](https://laravel.com) framework, which is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
