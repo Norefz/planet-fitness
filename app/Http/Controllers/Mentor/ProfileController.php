@@ -18,9 +18,10 @@ class ProfileController extends Controller
         $user = Auth::user();
         $mentor = $user->mentorProfile();
 
-        // Jika mentor ternyata sudah melengkapi datanya, langsung alihkan ke dashboard
+        // Jika mentor ternyata sudah melengkapi datanya, langsung alihkan —
+        // ke dashboard jika sudah diverifikasi admin, atau ke halaman menunggu jika belum.
         if (!empty($mentor->bio) && !empty($mentor->specialization)) {
-            return redirect()->route('mentor.dashboard');
+            return redirect()->route($mentor->is_verified ? 'mentor.dashboard' : 'mentor.pending-verification');
         }
 
         // Tampilkan halaman form onboarding yang kita buat di nomor 4
@@ -48,10 +49,27 @@ class ProfileController extends Controller
             'specialization' => $validated['specialization'],
         ]);
 
-        // Setelah sukses, lempar langsung ke Dashboard utama Mentor!
+        // Setelah sukses: mentor yang belum diverifikasi admin diarahkan ke
+        // halaman menunggu persetujuan, bukan langsung ke dashboard.
+        if (! $mentor->is_verified) {
+            return redirect()
+                ->route('mentor.pending-verification')
+                ->with('success', 'Profil mentor Anda berhasil dilengkapi dan sedang menunggu persetujuan admin.');
+        }
+
         return redirect()
             ->route('mentor.dashboard')
             ->with('success', 'Profil mentor Anda berhasil dilengkapi. Selamat datang!');
+    }
+
+    // ─── METHOD BARU: Halaman "menunggu persetujuan admin" ───────────────────
+    public function pendingVerification(): View
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $mentor = $user->mentorProfile();
+
+        return view('mentor.pending-verification', compact('mentor'));
     }
 
     // ─── Fitur Edit Profil Biasa (Bawaanmu) ───────────────────────────────────

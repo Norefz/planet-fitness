@@ -79,6 +79,12 @@ Route::prefix('mentor')->group(function () {
     Route::middleware(['auth'])->group(function () {
         Route::get('/complete-profile', [MentorProfileController::class, 'showOnboarding'])->name('mentor.complete-profile');
         Route::post('/complete-profile', [MentorProfileController::class, 'submitOnboarding'])->name('mentor.complete-profile.submit');
+
+        // Halaman "menunggu persetujuan admin" — mentor yang belum di-approve
+        // (is_verified = false) dialihkan ke sini oleh EnsureMentorProfileComplete.
+        // Sengaja hanya pakai middleware 'auth' (bukan grup yang di-gate di bawah)
+        // supaya tidak terjadi redirect loop ke halaman ini sendiri.
+        Route::get('/pending-verification', [MentorProfileController::class, 'pendingVerification'])->name('mentor.pending-verification');
     });
 
     // 2. KELOMPOK RUTE LAINNYA YANG OTOMATIS BER-NAME 'mentor.'
@@ -127,7 +133,4 @@ Route::prefix('mentor')->group(function () {
     });
 });
 
-// Note: routes/admin.php is already registered in bootstrap/app.php's routing
-// config, so it must NOT be required again here — doing so double-registers
-// every admin route.
-
+require __DIR__.'/admin.php';
