@@ -316,8 +316,8 @@
           <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors duration-150 last:border-b-0">
             <td class="px-4 py-3">
               <div class="flex items-center gap-2.5">
-                @if($member->profile_photo_url ?? $member->user?->avatar)
-                  <img src="{{ $member->profile_photo_url ?? $member->user->avatar }}"
+                @if($member->user?->avatar)
+                  <img src="{{ $member->user->avatar }}"
                        class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
                 @else
                   <div class="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold
@@ -506,9 +506,15 @@
     @forelse($recentLogs as $log)
       @php
         $dotConfig = match($log->action) {
-          'member_register', 'member_activate' => ['bg' => 'bg-primary-light', 'icon_color' => 'text-primary',
+          'member_register' => ['bg' => 'bg-primary-light', 'icon_color' => 'text-primary',
             'icon' => '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
             'badge' => 'Member', 'badge_class' => 'bg-primary-light text-primary-dark'],
+          'member_activate' => ['bg' => 'bg-primary-light', 'icon_color' => 'text-primary',
+            'icon' => '<polyline points="20 6 9 17 4 12"/>',
+            'badge' => 'Diaktifkan', 'badge_class' => 'bg-primary-light text-primary-dark'],
+          'member_suspend' => ['bg' => 'bg-red-50', 'icon_color' => 'text-red-500',
+            'icon' => '<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>',
+            'badge' => 'Dinonaktifkan', 'badge_class' => 'bg-red-50 text-red-700'],
           'mentor_verify'   => ['bg' => 'bg-blue-50',        'icon_color' => 'text-blue-500',
             'icon' => '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
             'badge' => 'Verifikasi', 'badge_class' => 'bg-blue-100 text-blue-700'],

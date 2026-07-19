@@ -18,15 +18,8 @@ class Member extends Model
         'weight_kg',
         'phone',
         'profile_photo_url',
-        'profile_photo_public_id',
         'subscription_type',
         'subscription_expires_at',
-    ];
-
-    // ← Tambahan: cast agar birth_date jadi instance Carbon (dibutuhkan
-    // untuk ->format() di halaman Profil Saya), bukan string mentah dari DB.
-    protected $casts = [
-        'birth_date' => 'date',
     ];
 
     public function user()
@@ -43,5 +36,16 @@ class Member extends Model
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    /**
+     * Inisial nama untuk avatar bulat di UI (mis. "Budi Santoso" -> "BS").
+     */
+    public function initials(): string
+    {
+        $words = preg_split('/\s+/', trim($this->full_name));
+        $letters = array_map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)), array_slice($words, 0, 2));
+
+        return implode('', $letters) ?: 'M';
     }
 }
