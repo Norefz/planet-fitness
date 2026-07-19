@@ -20,7 +20,7 @@
         <div class="absolute inset-0 noise-overlay"></div>
       </div>
       <div class="flex flex-col items-center text-center px-6 pb-6">
-        <x-mentor.avatar :name="$mentor->full_name" :image="$mentor->profile_photo_url" size="xl" ring class="-mt-10 mb-4" />
+        <x-mentor.avatar :name="$mentor->full_name" :image="$mentor->profile_photo_url" size="xl" ring class="relative -mt-10 mb-4" />
         <h3 class="text-base font-bold text-slate-900">{{ $mentor->full_name }}</h3>
         <p class="text-xs text-slate-500 mt-1">{{ $mentor->specialization ?: 'Belum ada spesialisasi' }}</p>
 
