@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\SuperAdmin;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\View\View;
 
 class LogController extends Controller
@@ -16,7 +17,7 @@ class LogController extends Controller
      * mengikuti pola AuditLog::record() yang sudah dipanggil di
      * observer / listener / controller lain di aplikasi ini.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|StreamedResponse
     {
         $query = AuditLog::with('admin')->latest('performed_at');
 
