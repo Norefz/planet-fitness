@@ -46,7 +46,7 @@ Planet Fitness is a Laravel-based gym management platform that connects **member
 - A Zoom Server-to-Server OAuth app (for consultations)
 - A Cloudinary account (for media uploads)
 - A Google Cloud OAuth client (for social login)
-
+- A Midtrans for payment gateway
 ## Getting Started
 
 1. **Clone and install dependencies**
