@@ -52,6 +52,15 @@
     };
 
     $prettyAction = fn (string $action) => ucwords(str_replace('_', ' ', $action));
+
+    // Audit log lama memakai <strong> untuk nama admin. Escape seluruh detail
+    // lebih dahulu, lalu aktifkan kembali hanya tag <strong> literal agar tetap
+    // aman dari HTML/skrip yang mungkin berasal dari input pengguna.
+    $formatDetails = static function (?string $details): string {
+        $escaped = e($details ?? '');
+
+        return preg_replace('/&lt;strong&gt;(.*?)&lt;\/strong&gt;/is', '<strong>$1</strong>', $escaped) ?? $escaped;
+    };
 @endphp
 
 {{-- ══════════════════════════════════════════
@@ -222,7 +231,7 @@
             <div class="text-[11px] text-slate-400 whitespace-nowrap flex-shrink-0">{{ $log->performed_at->diffForHumans() }}</div>
           </div>
           @if($log->details)
-            <div class="text-[12px] text-slate-500 leading-relaxed">{{ $log->details }}</div>
+            <div class="text-[12px] text-slate-500 leading-relaxed">{!! $formatDetails($log->details) !!}</div>
           @endif
           <div class="flex gap-2 mt-1.5 flex-wrap">
             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ $style['tag'] }}</span>

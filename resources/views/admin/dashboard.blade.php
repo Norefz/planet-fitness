@@ -503,6 +503,13 @@
   </div>
 
   <div class="flex flex-col">
+    @php
+      $formatLogDetails = static function (?string $details): string {
+          $escaped = e($details ?? '');
+
+          return preg_replace('/&lt;strong&gt;(.*?)&lt;\/strong&gt;/is', '<strong>$1</strong>', $escaped) ?? $escaped;
+      };
+    @endphp
     @forelse($recentLogs as $log)
       @php
         $dotConfig = match($log->action) {
@@ -552,7 +559,7 @@
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-[13px] text-slate-700 leading-snug">{!! $log->details !!}</p>
+          <p class="text-[13px] text-slate-700 leading-snug">{!! $formatLogDetails($log->details) !!}</p>
           <div class="text-[11px] text-slate-400 mt-0.5">
             {{ $log->created_at->diffForHumans() }}
             @if($log->ip_address) · {{ $log->ip_address }} @endif

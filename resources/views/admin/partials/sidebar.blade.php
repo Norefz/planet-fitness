@@ -14,7 +14,9 @@
     </div>
     <div>
       <div class="text-[15px] font-bold text-white tracking-tight">Planet Fitness</div>
-      <div class="text-[10px] font-bold text-primary uppercase tracking-[1.5px]">Super Admin</div>
+      <div class="text-[10px] font-bold text-primary uppercase tracking-[1.5px]">
+        {{ auth('admin')->user()?->superAdmin?->is_head ? 'Super Admin' : 'Regular Admin' }}
+      </div>
     </div>
   </a>
 
