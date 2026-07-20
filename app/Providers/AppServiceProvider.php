@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL; // <-- INI YANG TADI HILANG!
+use Illuminate\Support\Facades\View;
 
 // ── Auth Events ───────────────────────────────────────────────────────────────
 use Illuminate\Auth\Events\Login;
@@ -40,6 +41,38 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        View::composer('admin.partials.header', function ($view): void {
+            $pendingMentors = Mentor::where('is_verified', false)
+                ->whereHas('user', fn ($user) => $user->where('is_active', true))
+                ->latest()
+                ->limit(3)
+                ->get();
+
+            $pendingBookings = Booking::with(['member', 'mentor'])
+                ->where('status', 'pending')
+                ->orderBy('scheduled_at')
+                ->limit(3)
+                ->get();
+
+            $notifications = collect()
+                ->concat($pendingMentors->map(fn ($mentor) => [
+                    'title' => 'Mentor menunggu verifikasi',
+                    'message' => $mentor->full_name,
+                    'url' => route('admin.mentors', ['status' => 'pending']),
+                    'time' => $mentor->created_at,
+                ]))
+                ->concat($pendingBookings->map(fn ($booking) => [
+                    'title' => 'Booking menunggu konfirmasi',
+                    'message' => ($booking->member?->full_name ?? 'Member') . ' × ' . ($booking->mentor?->full_name ?? 'Mentor'),
+                    'url' => route('admin.bookings', ['status' => 'pending']),
+                    'time' => $booking->created_at,
+                ]))
+                ->sortByDesc('time')
+                ->values();
+
+            $view->with('notifications', $notifications);
+        });
+
         // ── Auth event listeners ──────────────────────────────────────────────
         Event::listen(Login::class,      LogSuccessfulLogin::class);
         Event::listen(Logout::class,     LogSuccessfulLogout::class);

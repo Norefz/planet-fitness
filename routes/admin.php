@@ -32,6 +32,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard', [DashboardController::class, 'index']);
 
+        // ── Pencarian global ─────────────────────────────────────
+        Route::get('/search', [\App\Http\Controllers\Admin\SearchController::class, 'index'])->name('search');
+
         // ── Manajemen Member ──────────────────────────────────
         Route::prefix('members')->name('members.')->group(function () {
             Route::get('/',               [\App\Http\Controllers\Admin\MemberController::class, 'index'])->name('index');
