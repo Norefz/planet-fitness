@@ -11,15 +11,27 @@ use Illuminate\View\View;
 
 class LogController extends Controller
 {
-    /**
-     * Log Aktivitas — audit trail seluruh aksi admin di sistem.
-     * Data diambil langsung dari tabel audit_logs (bukan dummy),
-     * mengikuti pola AuditLog::record() yang sudah dipanggil di
-     * observer / listener / controller lain di aplikasi ini.
-     */
     public function index(Request $request): View|StreamedResponse
     {
-        $query = AuditLog::with('admin')->latest('performed_at');
+        return $this->showLogs($request, false);
+    }
+
+    /**
+     * Audit trail tindakan yang dilakukan oleh akun admin.
+     * Route ini dilindungi oleh middleware admin.head.
+     */
+    public function adminIndex(Request $request): View|StreamedResponse
+    {
+        return $this->showLogs($request, true);
+    }
+
+    private function showLogs(Request $request, bool $isAdminLog): View|StreamedResponse
+    {
+        // Log member/mentor dibuat tanpa admin_id; tindakan dari panel admin
+        // selalu menyimpan SuperAdmin yang melakukan tindakan tersebut.
+        $query = AuditLog::with('admin')
+            ->when($isAdminLog, fn ($logs) => $logs->whereNotNull('admin_id'), fn ($logs) => $logs->whereNull('admin_id'))
+            ->latest('performed_at');
 
         // ── Filter: admin ────────────────────────────────────────────
         if ($request->filled('admin_id')) {
@@ -68,19 +80,22 @@ class LogController extends Controller
         $logs = $query->paginate(10)->withQueryString();
 
         // ── Stat cards ────────────────────────────────────────────────
-        $totalToday = AuditLog::whereDate('performed_at', today())->count();
+        $statsQuery = AuditLog::query()
+            ->when($isAdminLog, fn ($logs) => $logs->whereNotNull('admin_id'), fn ($logs) => $logs->whereNull('admin_id'));
 
-        $activeAdminsToday = AuditLog::whereDate('performed_at', today())
+        $totalToday = (clone $statsQuery)->whereDate('performed_at', today())->count();
+
+        $activeAdminsToday = (clone $statsQuery)->whereDate('performed_at', today())
             ->whereNotNull('admin_id')
             ->distinct('admin_id')
             ->count('admin_id');
 
-        $updateToday = AuditLog::whereDate('performed_at', today())
+        $updateToday = (clone $statsQuery)->whereDate('performed_at', today())
             ->where('action', 'like', '%update%')
             ->count();
         $updatePct = $totalToday > 0 ? round(($updateToday / $totalToday) * 100) : 0;
 
-        $deleteToday = AuditLog::whereDate('performed_at', today())
+        $deleteToday = (clone $statsQuery)->whereDate('performed_at', today())
             ->where(function ($sub) {
                 $sub->where('action', 'like', '%delete%')
                     ->orWhere('action', 'like', '%deleted%');
@@ -96,16 +111,16 @@ class LogController extends Controller
         ];
 
         // ── Dropdown filter: daftar admin ────────────────────────────
-        $admins = SuperAdmin::orderBy('full_name')->get();
+        $admins = $isAdminLog ? SuperAdmin::orderBy('full_name')->get() : collect();
 
         // ── Dropdown filter: daftar tabel target ─────────────────────
-        $targetTables = AuditLog::whereNotNull('target_table')
+        $targetTables = (clone $statsQuery)->whereNotNull('target_table')
             ->distinct()
             ->orderBy('target_table')
             ->pluck('target_table');
 
         return view('admin.logs.index', compact(
-            'logs', 'stats', 'admins', 'targetTables', 'period'
+            'logs', 'stats', 'admins', 'targetTables', 'period', 'isAdminLog'
         ));
     }
 

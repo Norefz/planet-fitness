@@ -35,12 +35,13 @@
       ];
       $sys = [
         ['route' => 'admin.reports',    'label' => 'Laporan & Analitik','icon' => '<path d="M18 20V10M12 20V4M6 20v-6"/>'],
+        ['route' => 'admin.logs',       'label' => 'Log Aktivitas',     'icon' => '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'],
         ['route' => 'admin.config',     'label' => 'Konfigurasi Sistem','icon' => '<circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>'],
       ];
 
       if (auth('admin')->user()?->superAdmin?->is_head) {
         array_splice($sys, 1, 0, [[
-          'route' => 'admin.logs',
+          'route' => 'admin.admin-logs',
           'label' => 'Log Admin',
           'icon' => '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
         ]]);

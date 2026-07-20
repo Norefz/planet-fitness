@@ -1,8 +1,12 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Log Aktivitas')
-@section('page_title', 'Log Aktivitas')
-@section('page_subtitle', 'Audit Trail Sistem')
+@php($logTitle = $isAdminLog ? 'Log Admin' : 'Log Aktivitas')
+@php($logSubtitle = $isAdminLog ? 'Riwayat tindakan akun admin' : 'Aktivitas Member & Mentor')
+@php($logRoute = $isAdminLog ? 'admin.admin-logs' : 'admin.logs')
+
+@section('title', $logTitle)
+@section('page_title', $logTitle)
+@section('page_subtitle', $logSubtitle)
 
 @section('content')
 
@@ -59,11 +63,13 @@
 ══════════════════════════════════════════ --}}
 <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
   <div>
-    <h1 class="text-[22px] font-extrabold tracking-tight text-slate-900">Log Aktivitas</h1>
-    <p class="text-[13px] text-slate-500 mt-0.5">Audit trail seluruh aksi admin di sistem · tersimpan permanen, tidak bisa diedit/dihapus</p>
+    <h1 class="text-[22px] font-extrabold tracking-tight text-slate-900">{{ $logTitle }}</h1>
+    <p class="text-[13px] text-slate-500 mt-0.5">
+      {{ $isAdminLog ? 'Riwayat tindakan yang dilakukan oleh akun admin.' : 'Riwayat aktivitas yang dilakukan oleh member dan mentor.' }}
+    </p>
   </div>
   <div>
-    <a href="{{ route('admin.logs', array_merge(request()->query(), ['export' => 'csv'])) }}"
+    <a href="{{ route($logRoute, array_merge(request()->query(), ['export' => 'csv'])) }}"
        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold
               bg-white border border-slate-200 text-slate-700 hover:bg-slate-50
               transition-all duration-200 cursor-pointer no-underline">
@@ -138,15 +144,17 @@
 {{-- ══════════════════════════════════════════
      FILTER BAR
 ══════════════════════════════════════════ --}}
-<form method="GET" action="{{ route('admin.logs') }}" class="flex gap-2.5 mb-5 flex-wrap items-center">
+<form method="GET" action="{{ route($logRoute) }}" class="flex gap-2.5 mb-5 flex-wrap items-center">
 
-  <select name="admin_id" onchange="this.form.submit()"
-          class="px-3.5 py-2 border border-slate-200 rounded-lg text-[13px] bg-white text-slate-700 cursor-pointer outline-none">
-    <option value="">Semua Admin</option>
-    @foreach($admins as $admin)
-      <option value="{{ $admin->id }}" @selected(request('admin_id') == $admin->id)>{{ $admin->full_name }}</option>
-    @endforeach
-  </select>
+  @if($isAdminLog)
+    <select name="admin_id" onchange="this.form.submit()"
+            class="px-3.5 py-2 border border-slate-200 rounded-lg text-[13px] bg-white text-slate-700 cursor-pointer outline-none">
+      <option value="">Semua Admin</option>
+      @foreach($admins as $admin)
+        <option value="{{ $admin->id }}" @selected(request('admin_id') == $admin->id)>{{ $admin->full_name }}</option>
+      @endforeach
+    </select>
+  @endif
 
   <select name="action_type" onchange="this.form.submit()"
           class="px-3.5 py-2 border border-slate-200 rounded-lg text-[13px] bg-white text-slate-700 cursor-pointer outline-none">
@@ -177,7 +185,7 @@
   <button type="submit" class="px-3.5 py-2 rounded-lg text-[13px] font-semibold bg-primary text-white cursor-pointer">Terapkan</button>
 
   @if(request()->anyFilled(['admin_id', 'action_type', 'target_table', 'q']) || request('period', 'today') !== 'today')
-    <a href="{{ route('admin.logs') }}" class="text-[12px] text-slate-500 hover:text-slate-700 no-underline">Reset</a>
+    <a href="{{ route($logRoute) }}" class="text-[12px] text-slate-500 hover:text-slate-700 no-underline">Reset</a>
   @endif
 
   <div class="ml-auto text-[12px] text-slate-400">

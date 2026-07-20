@@ -11,7 +11,7 @@ class AdminLogAccessTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_regular_admin_cannot_open_the_admin_log(): void
+    public function test_regular_admin_can_open_member_and_mentor_activity_logs_but_not_admin_logs(): void
     {
         $user = User::factory()->create([
             'role' => 'super_admin',
@@ -26,6 +26,10 @@ class AdminLogAccessTest extends TestCase
 
         $this->actingAs($user, 'admin')
             ->get(route('admin.logs'))
+            ->assertOk();
+
+        $this->actingAs($user, 'admin')
+            ->get(route('admin.admin-logs'))
             ->assertForbidden();
     }
 
@@ -43,8 +47,8 @@ class AdminLogAccessTest extends TestCase
         ]);
 
         $this->actingAs($user, 'admin')
-            ->get(route('admin.logs'))
+            ->get(route('admin.admin-logs'))
             ->assertOk()
-            ->assertSee('Log Aktivitas');
+            ->assertSee('Log Admin');
     }
 }

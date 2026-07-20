@@ -72,10 +72,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ── Laporan & Analitik ────────────────────────────────
         Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
 
-        // ── Log Aktivitas ─────────────────────────────────────
-        Route::get('/logs', [\App\Http\Controllers\Admin\LogController::class, 'index'])
+        // ── Log Aktivitas Member & Mentor (semua admin) ───────
+        Route::get('/logs', [\App\Http\Controllers\Admin\LogController::class, 'index'])->name('logs');
+
+        // ── Log tindakan admin (hanya Super Admin utama) ──────
+        Route::get('/logs/admin', [\App\Http\Controllers\Admin\LogController::class, 'adminIndex'])
             ->middleware('admin.head')
-            ->name('logs');
+            ->name('admin-logs');
 
         // ── Konfigurasi Sistem ────────────────────────────────
         Route::get('/config',             [\App\Http\Controllers\Admin\ConfigController::class, 'index'])->name('config');

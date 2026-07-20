@@ -96,11 +96,8 @@ class DashboardController extends Controller
             ->limit(4)
             ->get();
 
-        // Audit logs are sensitive and only visible to the primary Super Admin.
-        $canViewAdminLogs = (bool) (auth('admin')->user()?->superAdmin?->is_head);
-        $recentLogs = $canViewAdminLogs
-            ? AuditLog::latest('performed_at')->limit(5)->get()
-            : collect();
+        // Recent member and mentor activity is visible to every admin.
+        $recentLogs = AuditLog::whereNull('admin_id')->latest('performed_at')->limit(5)->get();
 
         return view('admin.dashboard', compact(
             'stats',
@@ -108,7 +105,6 @@ class DashboardController extends Controller
             'recentMembers',
             'pendingMentors', // Nama variabel ini sekarang pas dengan @forelse di dashboard.blade.php
             'recentLogs',
-            'canViewAdminLogs',
         ));
     }
 }
