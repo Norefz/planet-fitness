@@ -73,13 +73,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
 
         // ── Log Aktivitas ─────────────────────────────────────
-        Route::get('/logs',    [\App\Http\Controllers\Admin\LogController::class, 'index'])->name('logs');
+        Route::get('/logs', [\App\Http\Controllers\Admin\LogController::class, 'index'])
+            ->middleware('admin.head')
+            ->name('logs');
 
         // ── Konfigurasi Sistem ────────────────────────────────
         Route::get('/config',             [\App\Http\Controllers\Admin\ConfigController::class, 'index'])->name('config');
         Route::post('/config',            [\App\Http\Controllers\Admin\ConfigController::class, 'update'])->name('config.update');
         Route::post('/config/admins',     [\App\Http\Controllers\Admin\ConfigController::class, 'storeAdmin'])->name('config.admins.store');
-        Route::post('/config/clear-logs', [\App\Http\Controllers\Admin\ConfigController::class, 'clearLogs'])->name('config.clear-logs');
+        Route::post('/config/clear-logs', [\App\Http\Controllers\Admin\ConfigController::class, 'clearLogs'])
+            ->middleware('admin.head')
+            ->name('config.clear-logs');
         Route::post('/config/reset',      [\App\Http\Controllers\Admin\ConfigController::class, 'resetDefaults'])->name('config.reset');
 
     });

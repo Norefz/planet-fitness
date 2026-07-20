@@ -96,9 +96,11 @@ class DashboardController extends Controller
             ->limit(4)
             ->get();
 
-        // ── Recent audit logs (5 terbaru) ──────────────────────────
-        // ERD: audit_logs pakai kolom "performed_at", bukan "created_at"
-        $recentLogs = AuditLog::latest("performed_at")->limit(5)->get();
+        // Audit logs are sensitive and only visible to the primary Super Admin.
+        $canViewAdminLogs = (bool) (auth('admin')->user()?->superAdmin?->is_head);
+        $recentLogs = $canViewAdminLogs
+            ? AuditLog::latest('performed_at')->limit(5)->get()
+            : collect();
 
         return view('admin.dashboard', compact(
             'stats',
@@ -106,6 +108,7 @@ class DashboardController extends Controller
             'recentMembers',
             'pendingMentors', // Nama variabel ini sekarang pas dengan @forelse di dashboard.blade.php
             'recentLogs',
+            'canViewAdminLogs',
         ));
     }
 }

@@ -32,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             // Tambahan baru untuk admin guard
             'admin'                   => \App\Http\Middleware\EnsureIsAdmin::class,
+            'admin.head'              => \App\Http\Middleware\EnsureIsHeadAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

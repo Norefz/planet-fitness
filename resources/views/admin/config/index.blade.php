@@ -350,10 +350,12 @@
             <span class="text-slate-400">Migrasi Terakhir</span>
             <span class="font-bold text-slate-700">{{ $systemInfo['last_update'] }}</span>
           </div>
-          <div class="flex items-center justify-between text-[12px]">
-            <span class="text-slate-400">Total Log Aktivitas</span>
-            <span class="font-bold text-slate-700">{{ number_format($systemInfo['total_logs']) }}</span>
-          </div>
+          @if($isHeadAdmin)
+            <div class="flex items-center justify-between text-[12px]">
+              <span class="text-slate-400">Total Log Aktivitas</span>
+              <span class="font-bold text-slate-700">{{ number_format($systemInfo['total_logs']) }}</span>
+            </div>
+          @endif
           <div class="flex items-center justify-between text-[12px]">
             <span class="text-slate-400">Status Server</span>
             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-light text-primary-dark">
@@ -383,16 +385,18 @@
     Tindakan di bawah ini bersifat permanen dan tidak dapat dibatalkan. Pastikan kamu benar-benar yakin sebelum melanjutkan.
   </div>
   <div class="flex gap-2.5 flex-wrap">
-    <form method="POST" action="{{ route('admin.config.clear-logs') }}"
-          onsubmit="return confirm('Hapus SEMUA log aktivitas secara permanen? Tindakan ini tidak bisa dibatalkan.');">
-      @csrf
-      <button type="submit"
-              class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold
-                     bg-white border border-red-300 text-red-700 hover:bg-red-100 transition-all duration-200 cursor-pointer">
-        <svg class="w-[15px] h-[15px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-        Hapus Semua Log Aktivitas
-      </button>
-    </form>
+    @if($isHeadAdmin)
+      <form method="POST" action="{{ route('admin.config.clear-logs') }}"
+            onsubmit="return confirm('Hapus SEMUA log aktivitas secara permanen? Tindakan ini tidak bisa dibatalkan.');">
+        @csrf
+        <button type="submit"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold
+                       bg-white border border-red-300 text-red-700 hover:bg-red-100 transition-all duration-200 cursor-pointer">
+          <svg class="w-[15px] h-[15px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Hapus Semua Log Aktivitas
+        </button>
+      </form>
+    @endif
     <form method="POST" action="{{ route('admin.config.reset') }}"
           onsubmit="return confirm('Kembalikan seluruh konfigurasi ke nilai default?');">
       @csrf

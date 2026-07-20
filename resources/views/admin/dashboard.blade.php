@@ -477,6 +477,7 @@
 {{-- ══════════════════════════════════════════
      ROW 4: Activity Log
 ══════════════════════════════════════════ --}}
+@if($canViewAdminLogs)
 <div class="bg-white border border-slate-200 rounded-xl shadow-[0_1px_3px_rgb(0_0_0/.08)] overflow-hidden">
   <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
     <div class="flex items-center gap-2.5">
@@ -570,5 +571,6 @@
     @endforelse
   </div>
 </div>
+@endif
 
 @endsection
