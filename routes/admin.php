@@ -78,6 +78,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ── Konfigurasi Sistem ────────────────────────────────
         Route::get('/config',             [\App\Http\Controllers\Admin\ConfigController::class, 'index'])->name('config');
         Route::post('/config',            [\App\Http\Controllers\Admin\ConfigController::class, 'update'])->name('config.update');
+        Route::post('/config/admins',     [\App\Http\Controllers\Admin\ConfigController::class, 'storeAdmin'])->name('config.admins.store');
         Route::post('/config/clear-logs', [\App\Http\Controllers\Admin\ConfigController::class, 'clearLogs'])->name('config.clear-logs');
         Route::post('/config/reset',      [\App\Http\Controllers\Admin\ConfigController::class, 'resetDefaults'])->name('config.reset');
 

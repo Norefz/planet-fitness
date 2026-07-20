@@ -14,6 +14,8 @@
     ];
 @endphp
 
+<div x-data="{ showAddAdminModal: @js($errors->any() && (old('email') || old('full_name'))) }">
+
 <form method="POST" action="{{ route('admin.config.update') }}">
   @csrf
 
@@ -303,12 +305,22 @@
             <div class="px-5 py-6 text-center text-[13px] text-slate-400">Belum ada akun admin.</div>
           @endforelse
           <div class="px-5 py-3.5">
-            <button type="button" disabled title="Fitur tambah admin belum tersedia"
-                    class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold
-                           bg-white border border-slate-200 text-slate-300 cursor-not-allowed">
-              <svg class="w-[14px] h-[14px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Tambah Admin
-            </button>
+            @if($isHeadAdmin)
+              <button type="button" @click="showAddAdminModal = true"
+                      class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold
+                             bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300
+                             transition-all duration-200 cursor-pointer">
+                <svg class="w-[14px] h-[14px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Tambah Admin
+              </button>
+            @else
+              <button type="button" disabled title="Hanya Super Admin utama yang dapat menambah akun admin"
+                      class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold
+                             bg-white border border-slate-200 text-slate-300 cursor-not-allowed">
+                <svg class="w-[14px] h-[14px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Tambah Admin
+              </button>
+            @endif
           </div>
         </div>
       </div>
@@ -393,5 +405,96 @@
     </form>
   </div>
 </div>
+
+{{-- ══════════════════════════════════════════
+     MODAL: TAMBAH ADMIN
+     (di luar form utama supaya tidak nested <form>)
+══════════════════════════════════════════ --}}
+<div x-show="showAddAdminModal" x-cloak
+     class="fixed inset-0 z-[100] flex items-center justify-center px-4"
+     style="display:none;">
+  <div class="absolute inset-0 bg-slate-900/40" @click="showAddAdminModal = false"></div>
+
+  <div class="relative bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+    <form method="POST" action="{{ route('admin.config.admins.store') }}">
+      @csrf
+
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <div class="text-[15px] font-bold text-slate-900">Tambah Admin</div>
+        <button type="button" @click="showAddAdminModal = false"
+                class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="px-5 py-4 flex flex-col gap-3.5 max-h-[70vh] overflow-y-auto">
+        <p class="text-[12px] text-slate-500 leading-relaxed">
+          Akun baru akan dibuat sebagai <strong>Admin</strong> (bukan Super Admin utama) dan langsung bisa
+          digunakan untuk masuk ke panel admin.
+        </p>
+
+        <div>
+          <label class="block text-[12px] font-semibold text-slate-600 mb-1">Nama Lengkap</label>
+          <input name="full_name" type="text" value="{{ old('full_name') }}" required
+                 class="w-full px-3 py-2 rounded-lg border text-[13px] outline-none transition-all
+                        {{ $errors->has('full_name') ? 'border-red-400 bg-red-50' : 'border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/15' }}" />
+          @error('full_name')<div class="text-[11px] text-red-600 mt-1">{{ $message }}</div>@enderror
+        </div>
+
+        <div>
+          <label class="block text-[12px] font-semibold text-slate-600 mb-1">Email</label>
+          <input name="email" type="email" value="{{ old('email') }}" required
+                 class="w-full px-3 py-2 rounded-lg border text-[13px] outline-none transition-all
+                        {{ $errors->has('email') ? 'border-red-400 bg-red-50' : 'border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/15' }}" />
+          @error('email')<div class="text-[11px] text-red-600 mt-1">{{ $message }}</div>@enderror
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[12px] font-semibold text-slate-600 mb-1">Kata Sandi</label>
+            <input name="password" type="password" minlength="8" required
+                   class="w-full px-3 py-2 rounded-lg border text-[13px] outline-none transition-all
+                          {{ $errors->has('password') ? 'border-red-400 bg-red-50' : 'border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/15' }}" />
+            @error('password')<div class="text-[11px] text-red-600 mt-1">{{ $message }}</div>@enderror
+          </div>
+          <div>
+            <label class="block text-[12px] font-semibold text-slate-600 mb-1">Konfirmasi Sandi</label>
+            <input name="password_confirmation" type="password" minlength="8" required
+                   class="w-full px-3 py-2 rounded-lg border border-slate-200 text-[13px] outline-none transition-all
+                          focus:border-primary focus:ring-2 focus:ring-primary/15" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[12px] font-semibold text-slate-600 mb-1">Jabatan</label>
+            <input name="title" type="text" value="{{ old('title') }}" placeholder="Admin"
+                   class="w-full px-3 py-2 rounded-lg border border-slate-200 text-[13px] outline-none transition-all
+                          focus:border-primary focus:ring-2 focus:ring-primary/15" />
+          </div>
+          <div>
+            <label class="block text-[12px] font-semibold text-slate-600 mb-1">ID Karyawan</label>
+            <input name="employee_id" type="text" value="{{ old('employee_id') }}"
+                   class="w-full px-3 py-2 rounded-lg border border-slate-200 text-[13px] outline-none transition-all
+                          focus:border-primary focus:ring-2 focus:ring-primary/15" />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 px-5 py-4 border-t border-slate-100 bg-slate-50">
+        <button type="button" @click="showAddAdminModal = false"
+                class="px-4 py-2 rounded-lg text-[13px] font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer">
+          Batal
+        </button>
+        <button type="submit"
+                class="px-4 py-2 rounded-lg text-[13px] font-semibold bg-primary text-white shadow-sm hover:bg-primary-dark cursor-pointer">
+          Simpan Admin
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</div>{{-- /x-data wrapper --}}
 
 @endsection

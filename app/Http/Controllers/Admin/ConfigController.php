@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\SuperAdmin;
 use App\Models\SystemSetting;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
@@ -25,6 +27,9 @@ class ConfigController extends Controller
 
         $admins = SuperAdmin::with('user')->orderByDesc('is_head')->orderBy('full_name')->get();
 
+        // Hanya Super Admin utama (is_head) yang boleh menambah admin baru.
+        $isHeadAdmin = (bool) (auth('admin')->user()?->superAdmin?->is_head);
+
         $systemInfo = [
             'app_version' => config('app.version', 'v1.0.0'),
             'framework'   => 'Laravel ' . app()->version(),
@@ -33,7 +38,51 @@ class ConfigController extends Controller
             'total_logs'  => AuditLog::count(),
         ];
 
-        return view('admin.config.index', compact('settings', 'admins', 'systemInfo'));
+        return view('admin.config.index', compact('settings', 'admins', 'systemInfo', 'isHeadAdmin'));
+    }
+
+    /**
+     * Tambah akun admin baru (regular admin, bukan Super Admin utama).
+     * Hanya boleh dilakukan oleh Super Admin utama (is_head = true).
+     */
+    public function storeAdmin(Request $request): RedirectResponse
+    {
+        $currentAdmin = auth('admin')->user()?->superAdmin;
+
+        abort_unless($currentAdmin?->is_head, 403, 'Hanya Super Admin utama yang dapat menambah akun admin.');
+
+        $validated = $request->validate([
+            'full_name'   => ['required', 'string', 'max:150'],
+            'email'       => ['required', 'email', 'max:150', 'unique:users,email'],
+            'password'    => ['required', 'string', 'min:8', 'confirmed'],
+            'title'       => ['nullable', 'string', 'max:100'],
+            'employee_id' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $user = User::create([
+            'name'      => $validated['full_name'],
+            'email'     => $validated['email'],
+            'password'  => Hash::make($validated['password']),
+            'role'      => 'super_admin',
+            'is_active' => true,
+        ]);
+
+        SuperAdmin::create([
+            'user_id'     => $user->id,
+            'full_name'   => $validated['full_name'],
+            'title'       => $validated['title'] ?? 'Admin',
+            'employee_id' => $validated['employee_id'] ?? null,
+            'is_head'     => false,
+        ]);
+
+        AuditLog::record(
+            action:  'admin_created',
+            details: "Admin baru ditambahkan: {$validated['full_name']} ({$validated['email']}).",
+            targetTable: 'super_admins',
+            targetId: $user->id,
+        );
+
+        return redirect()->route('admin.config')->with('success', "Admin '{$validated['full_name']}' berhasil ditambahkan.");
     }
 
     /**
