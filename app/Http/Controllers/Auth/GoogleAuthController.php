@@ -90,21 +90,34 @@ class GoogleAuthController extends Controller
             ]
         );
 
-        if ($role === 'member' && !$user->member) {
-            Member::create([
-                'user_id'   => $user->id,
-                'full_name' => $googleUser->getName(),
-            ]);
+        if ($role === 'member') {
+            if (! $user->member) {
+                Member::create([
+                    'user_id'           => $user->id,
+                    'full_name'         => $googleUser->getName(),
+                    'profile_photo_url' => $googleUser->getAvatar(),
+                ]);
+            } elseif (! $user->member->profile_photo_url && $googleUser->getAvatar()) {
+                // Akun lama yang baru pertama kali pakai "Login dengan Google":
+                // isi foto profil yang tadinya kosong, tapi jangan timpa foto
+                // yang sudah pernah diunggah manual.
+                $user->member->update(['profile_photo_url' => $googleUser->getAvatar()]);
+            }
         }
 
-        if ($role === 'mentor' && !$user->mentor) {
-            Mentor::create([
-                'user_id'        => $user->id,
-                'full_name'      => $googleUser->getName(),
-                'certification'  => null,
-                'specialization' => null,
-                'bio'            => null,
-            ]);
+        if ($role === 'mentor') {
+            if (! $user->mentor) {
+                Mentor::create([
+                    'user_id'           => $user->id,
+                    'full_name'         => $googleUser->getName(),
+                    'certification'     => null,
+                    'specialization'    => null,
+                    'bio'               => null,
+                    'profile_photo_url' => $googleUser->getAvatar(),
+                ]);
+            } elseif (! $user->mentor->profile_photo_url && $googleUser->getAvatar()) {
+                $user->mentor->update(['profile_photo_url' => $googleUser->getAvatar()]);
+            }
         }
 
         Auth::login($user, remember: true);
