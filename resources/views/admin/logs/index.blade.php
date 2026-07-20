@@ -1,9 +1,5 @@
 @extends('admin.layouts.app')
 
-@php($logTitle = $isAdminLog ? 'Log Admin' : 'Log Aktivitas')
-@php($logSubtitle = $isAdminLog ? 'Riwayat tindakan akun admin' : 'Aktivitas Member & Mentor')
-@php($logRoute = $isAdminLog ? 'admin.admin-logs' : 'admin.logs')
-
 @section('title', $logTitle)
 @section('page_title', $logTitle)
 @section('page_subtitle', $logSubtitle)

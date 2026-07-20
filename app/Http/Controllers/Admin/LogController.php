@@ -119,8 +119,20 @@ class LogController extends Controller
             ->orderBy('target_table')
             ->pluck('target_table');
 
+        $logTitle = $isAdminLog ? 'Log Admin' : 'Log Aktivitas';
+        $logSubtitle = $isAdminLog ? 'Riwayat tindakan akun admin' : 'Aktivitas Member & Mentor';
+        $logRoute = $isAdminLog ? 'admin.admin-logs' : 'admin.logs';
+
         return view('admin.logs.index', compact(
-            'logs', 'stats', 'admins', 'targetTables', 'period', 'isAdminLog'
+            'logs',
+            'stats',
+            'admins',
+            'targetTables',
+            'period',
+            'isAdminLog',
+            'logTitle',
+            'logSubtitle',
+            'logRoute',
         ));
     }
 
