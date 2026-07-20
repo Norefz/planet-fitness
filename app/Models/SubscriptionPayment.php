@@ -15,6 +15,7 @@ class SubscriptionPayment extends Model
         'amount',
         'status',
         'snap_token',
+        'snap_redirect_url',
         'payment_type',
         'paid_at',
         'gateway_payload',

@@ -23,9 +23,12 @@
 
       @if($error)
         <div class="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ $error }}</div>
-      @elseif($payment?->snap_token)
-        <button id="pay-button" class="mt-6 w-full rounded-xl bg-ink-900 hover:bg-black text-white py-3.5 text-sm font-semibold">Bayar Sekarang</button>
+      @elseif($payment?->snap_redirect_url)
+        <a href="{{ $payment->snap_redirect_url }}" class="mt-6 w-full flex items-center justify-center rounded-xl bg-ink-900 hover:bg-black text-white py-3.5 text-sm font-semibold no-underline">Bayar Sekarang</a>
         <form method="POST" action="{{ route('member.payment.retry') }}" class="mt-3">@csrf<button type="submit" class="text-xs text-slate-500 hover:text-slate-700">Buat transaksi baru</button></form>
+      @elseif($payment?->snap_token)
+        <p class="mt-5 text-sm text-amber-700">Link pembayaran lama belum tersedia. Buat transaksi baru untuk melanjutkan pembayaran.</p>
+        <form method="POST" action="{{ route('member.payment.retry') }}" class="mt-4">@csrf<button type="submit" class="w-full rounded-xl bg-ink-900 hover:bg-black text-white py-3.5 text-sm font-semibold">Buat Transaksi Baru</button></form>
       @endif
 
       <form method="POST" action="{{ route('member.logout') }}" class="mt-6">@csrf<button type="submit" class="text-xs text-slate-400 hover:text-slate-600">Keluar dari akun</button></form>
@@ -33,19 +36,4 @@
   </div>
 </div>
 
-@if(! $member->hasActiveSubscription() && $payment?->snap_token)
-  @push('scripts')
-    <script src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
-    <script>
-      document.getElementById('pay-button').addEventListener('click', () => {
-        window.snap.pay(@json($payment->snap_token), {
-          onSuccess: () => window.location.reload(),
-          onPending: () => window.location.reload(),
-          onError: () => window.location.reload(),
-          onClose: () => window.location.reload(),
-        });
-      });
-    </script>
-  @endpush
-@endif
 @endsection

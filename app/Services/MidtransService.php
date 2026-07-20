@@ -48,7 +48,7 @@ class MidtransService
                     'notification_url' => route('midtrans.notification'),
                 ]);
 
-            if (! $response->successful() || ! $response->json('token')) {
+            if (! $response->successful() || ! $response->json('token') || ! $response->json('redirect_url')) {
                 $gatewayMessage = data_get($response->json(), 'error_messages.0')
                     ?? data_get($response->json(), 'message')
                     ?? 'Respons token tidak valid.';
@@ -63,7 +63,10 @@ class MidtransService
                 throw new RuntimeException("Midtrans menolak transaksi ({$response->status()}): {$gatewayMessage}");
             }
 
-            $payment->update(['snap_token' => $response->json('token')]);
+            $payment->update([
+                'snap_token' => $response->json('token'),
+                'snap_redirect_url' => $response->json('redirect_url'),
+            ]);
 
             return $payment->fresh();
         } catch (\Throwable $exception) {
