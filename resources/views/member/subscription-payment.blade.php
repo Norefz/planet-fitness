@@ -24,10 +24,10 @@
       @if($error)
         <div class="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ $error }}</div>
       @elseif($payment?->snap_token)
-        <button id="pay-button" type="button" class="mt-6 w-full flex items-center justify-center gap-2 rounded-xl bg-ink-900 hover:bg-black disabled:bg-slate-400 text-white py-3.5 text-sm font-semibold transition-colors">
+        <a id="pay-button" href="{{ $payment->snap_redirect_url }}" onclick="return typeof window.openMidtransPayment === 'function' ? window.openMidtransPayment(event) : true;" class="mt-6 w-full flex items-center justify-center gap-2 rounded-xl bg-ink-900 hover:bg-black text-white py-3.5 text-sm font-semibold transition-colors no-underline">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>
           Bayar Sekarang
-        </button>
+        </a>
         <p id="payment-message" class="hidden mt-3 text-xs text-amber-700"></p>
         <form method="POST" action="{{ route('member.payment.retry') }}" class="mt-3">@csrf<button type="submit" class="text-xs text-slate-500 hover:text-slate-700">Buat transaksi baru</button></form>
       @endif
@@ -46,49 +46,43 @@
     </div>
   </div>
 
-  @push('scripts')
-    <script id="midtrans-snap" src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
-    <script>
-      (() => {
-        const button = document.getElementById('pay-button');
-        const loading = document.getElementById('payment-loading');
-        const message = document.getElementById('payment-message');
-        const snapToken = @json($payment->snap_token);
-        const redirectUrl = @json($payment->snap_redirect_url);
+  <script src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+  <script>
+    window.openMidtransPayment = function (event) {
+      // If Snap is blocked or still loading, do not prevent the anchor's
+      // normal navigation: the member will continue via Snap Redirect.
+      if (!window.snap || typeof window.snap.pay !== 'function') {
+        return true;
+      }
 
-        const setLoading = (isLoading) => {
-          loading.classList.toggle('hidden', !isLoading);
-          loading.classList.toggle('flex', isLoading);
-          button.disabled = isLoading;
-        };
+      event.preventDefault();
 
-        button.addEventListener('click', () => {
-          setLoading(true);
+      const loading = document.getElementById('payment-loading');
+      const message = document.getElementById('payment-message');
+      loading.classList.remove('hidden');
+      loading.classList.add('flex');
 
-          // Fallback tetap mengarah ke Snap Redirect jika SDK gagal dimuat,
-          // sehingga pembayaran tidak pernah berhenti hanya karena JavaScript.
-          if (!window.snap) {
-            if (redirectUrl) {
-              window.location.assign(redirectUrl);
-              return;
-            }
-
-            setLoading(false);
-            message.textContent = 'Popup Midtrans belum tersedia. Buat transaksi baru lalu coba lagi.';
-            message.classList.remove('hidden');
-            return;
-          }
-
-          window.snap.pay(snapToken, {
-            onSuccess: () => window.location.reload(),
-            onPending: () => window.location.reload(),
-            onError: () => window.location.reload(),
-            onClose: () => setLoading(false),
-          });
+      try {
+        window.snap.pay(@json($payment->snap_token), {
+          onSuccess: () => window.location.reload(),
+          onPending: () => window.location.reload(),
+          onError: () => window.location.reload(),
+          onClose: () => {
+            loading.classList.add('hidden');
+            loading.classList.remove('flex');
+          },
         });
-      })();
-    </script>
-  @endpush
+      } catch (error) {
+        loading.classList.add('hidden');
+        loading.classList.remove('flex');
+        message.textContent = 'Popup pembayaran tidak dapat dibuka. Kamu akan diarahkan ke halaman pembayaran Midtrans.';
+        message.classList.remove('hidden');
+        window.location.assign(event.currentTarget.href);
+      }
+
+      return false;
+    };
+  </script>
 @endif
 
 @endsection
