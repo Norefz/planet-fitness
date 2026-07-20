@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Member;
 use App\Models\SubscriptionPayment;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -48,7 +49,18 @@ class MidtransService
                 ]);
 
             if (! $response->successful() || ! $response->json('token')) {
-                throw new RuntimeException('Midtrans tidak dapat membuat transaksi pembayaran.');
+                $gatewayMessage = data_get($response->json(), 'error_messages.0')
+                    ?? data_get($response->json(), 'message')
+                    ?? 'Respons token tidak valid.';
+
+                Log::error('Midtrans Snap token creation failed.', [
+                    'order_id' => $payment->order_id,
+                    'status' => $response->status(),
+                    'response' => $response->json(),
+                    'sandbox' => ! config('services.midtrans.is_production'),
+                ]);
+
+                throw new RuntimeException("Midtrans menolak transaksi ({$response->status()}): {$gatewayMessage}");
             }
 
             $payment->update(['snap_token' => $response->json('token')]);
@@ -118,7 +130,7 @@ class MidtransService
     private function ensureConfigured(): void
     {
         if (! config('services.midtrans.server_key') || ! config('services.midtrans.client_key')) {
-            throw new RuntimeException('Konfigurasi Midtrans belum lengkap. Hubungi administrator.');
+            throw new RuntimeException('MIDTRANS_SERVER_KEY atau MIDTRANS_CLIENT_KEY belum diatur di server.');
         }
     }
 
