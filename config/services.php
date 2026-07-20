@@ -49,5 +49,11 @@ return [
     'api_secret' => env('CLOUDINARY_API_SECRET'),
         'folder'     => 'workout-exercises',
     ],
+    'midtrans' => [
+        'server_key' => env('MIDTRANS_SERVER_KEY'),
+        'client_key' => env('MIDTRANS_CLIENT_KEY'),
+        'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
+        'monthly_price' => env('MIDTRANS_MONTHLY_PRICE', 60000),
+    ],
 
 ];

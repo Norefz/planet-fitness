@@ -22,6 +22,11 @@ class Member extends Model
         'subscription_expires_at',
     ];
 
+    protected $casts = [
+        'birth_date' => 'date',
+        'subscription_expires_at' => 'datetime',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -36,6 +41,17 @@ class Member extends Model
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function subscriptionPayments()
+    {
+        return $this->hasMany(SubscriptionPayment::class);
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->subscription_type === 'premium'
+            && $this->subscription_expires_at?->isFuture();
     }
 
     /**

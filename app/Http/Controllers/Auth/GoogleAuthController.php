@@ -132,6 +132,12 @@ class GoogleAuthController extends Controller
                 ->with('info', 'Silakan lengkapi profil mentor Anda terlebih dahulu.');
         }
 
-        return redirect()->route($role . '.dashboard');
+        if ($role === 'member') {
+            return $user->member?->hasActiveSubscription()
+                ? redirect()->route('member.dashboard')
+                : redirect()->route('member.payment.show');
+        }
+
+        return redirect()->route('mentor.dashboard');
     }
 }

@@ -16,16 +16,19 @@ use App\Http\Controllers\Mentor\StatisticsController as MentorStatisticsControll
 use App\Http\Controllers\Member\BookingController as MemberBookingController;
 use App\Http\Controllers\Member\MealLogController;
 use App\Http\Controllers\Member\ProfileController as MemberProfileController;
+use App\Http\Controllers\Member\SubscriptionPaymentController;
 
 // ─── Public Landing Routes ───────────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [HomeController::class, 'showLoginSelection'])->name('login');
 Route::get('/register', [HomeController::class, 'showRegisterSelection'])->name('register');
 Route::get('/programs-preview', [App\Http\Controllers\Member\ProgramController::class, 'guestIndex'])->name('programs.preview');
-Route::get('/log-nutrisi', [MealLogController::class, 'index'])->name('log-nutrisi');
 Route::get('/konsultasi-preview', fn() => view('member.konsultasi'))->name('konsultasi.preview');
 // Unified Google OAuth Callback (Handles both roles via session)
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleUnifiedCallback'])->name('auth.google.callback');
+Route::post('/payments/midtrans/notification', [SubscriptionPaymentController::class, 'notification'])
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+    ->name('midtrans.notification');
 
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -44,15 +47,23 @@ Route::prefix('member')->name('member.')->group(function () {
     // 2. Google OAuth Redirection — Member
     Route::get('/auth/google', [GoogleAuthController::class, 'redirectMember'])->name('auth.google');
 
-    // 3. Hanya untuk Member yang SUDAH LOGIN & Memiliki Role Member
+    // Halaman pembayaran tetap dapat diakses saat membership belum aktif.
     Route::middleware(['auth', 'role:member'])->group(function () {
+        Route::get('/payment', [SubscriptionPaymentController::class, 'show'])->name('payment.show');
+        Route::post('/payment/retry', [SubscriptionPaymentController::class, 'retry'])->name('payment.retry');
+    });
+
+    // 3. Hanya untuk Member yang SUDAH LOGIN & Memiliki Role Member
+    Route::middleware(['auth', 'role:member', 'member.subscription'])->group(function () {
 
         // Dashboard Member
         Route::get('/dashboard', fn() => view('home'))->name('dashboard');
 
-        // Logout Member
-        Route::post('/logout', [MemberAuthController::class, 'logout'])->name('logout');
+        // Log nutrisi memakai URL publik lama agar tautan navigasi tetap valid,
+        // tetapi datanya hanya tersedia setelah membership aktif.
+        Route::get('/log-nutrisi', [MealLogController::class, 'index'])->name('log-nutrisi');
 
+        // Logout Member
         // ─── Fitur Manajemen Konsultasi & Booking Zoom Member ──────────────────
         Route::get('/konsultasi', [MemberBookingController::class, 'index'])->name('konsultasi');
         Route::post('/konsultasi', [MemberBookingController::class, 'store'])->name('konsultasi.store');
@@ -72,6 +83,9 @@ Route::prefix('member')->name('member.')->group(function () {
         Route::put('/profile', [MemberProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile/photo', [MemberProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
     });
+
+    // Member yang belum membayar tetap harus bisa keluar dari akun.
+    Route::middleware(['auth', 'role:member'])->post('/logout', [MemberAuthController::class, 'logout'])->name('logout');
 });
 
 

@@ -81,7 +81,7 @@ class MealLogController extends Controller
         $afterTotal        = $beforeTotal + $log->calories;
         $justReachedTarget = $beforeTotal < $member->daily_calorie_target && $afterTotal >= $member->daily_calorie_target;
 
-        $redirect = redirect()->route('log-nutrisi', $this->dateQuery($logDate));
+        $redirect = redirect()->route('member.log-nutrisi', $this->dateQuery($logDate));
 
         if ($justReachedTarget) {
             return $redirect->with('celebrate', '"' . $log->food_name . '" tersimpan — target kalori hari ini tercapai!');
@@ -103,7 +103,7 @@ class MealLogController extends Controller
         $mealLog->delete();
 
         return redirect()
-            ->route('log-nutrisi', $this->dateQuery($date))
+            ->route('member.log-nutrisi', $this->dateQuery($date))
             ->with('success', '"' . $name . '" dihapus dari log nutrisi.');
     }
 

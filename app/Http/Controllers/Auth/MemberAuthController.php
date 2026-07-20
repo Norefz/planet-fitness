@@ -48,7 +48,9 @@ class MemberAuthController extends Controller
         }
 
         $request->session()->regenerate();
-        return redirect()->route('member.dashboard');
+        return Auth::user()->member?->hasActiveSubscription()
+            ? redirect()->route('member.dashboard')
+            : redirect()->route('member.payment.show');
     }
 
     // ─── Register ────────────────────────────────────────────────────────────
@@ -82,7 +84,7 @@ class MemberAuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('member.dashboard');
+        return redirect()->route('member.payment.show');
     }
 
     // ─── Logout ──────────────────────────────────────────────────────────────

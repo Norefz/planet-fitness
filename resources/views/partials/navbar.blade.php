@@ -37,7 +37,7 @@
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
              Program Latihan
         </a>
-        <a href="{{ route('log-nutrisi') }}"
+        <a href="{{ Auth::check() ? route('member.log-nutrisi') : route('member.login') }}"
            class="text-sm font-medium text-white/70 hover:text-[#4ade9e] transition-colors duration-200">
              Log Nutrisi
         </a>
@@ -238,7 +238,7 @@
     >
         <a href="{{ route('home') }}" class="px-2 py-3 text-sm font-medium text-white/80 hover:text-[#4ade9e] rounded-lg no-underline">Fitur Utama</a>
         <a href="{{ Auth::check() ? route('member.programs.index') : route('programs.preview') }}" class="px-2 py-3 text-sm font-medium text-white/80 hover:text-[#4ade9e] rounded-lg no-underline">Program Latihan</a>
-        <a href="{{ route('log-nutrisi') }}" class="px-2 py-3 text-sm font-medium text-white/80 hover:text-[#4ade9e] rounded-lg no-underline">Log Nutrisi</a>
+        <a href="{{ Auth::check() ? route('member.log-nutrisi') : route('member.login') }}" class="px-2 py-3 text-sm font-medium text-white/80 hover:text-[#4ade9e] rounded-lg no-underline">Log Nutrisi</a>
         <a href="{{ Auth::check() ? route('member.konsultasi') : route('konsultasi.preview') }}" class="px-2 py-3 text-sm font-medium text-white/80 hover:text-[#4ade9e] rounded-lg no-underline">Konsultasi Mentor</a>
     </div>
 </nav>

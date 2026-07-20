@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             // Sudah ada sebelumnya
             'role'                    => \App\Http\Middleware\RoleMiddleware::class,
             'mentor.profile.complete' => \App\Http\Middleware\EnsureMentorProfileComplete::class,
+            'member.subscription'     => \App\Http\Middleware\EnsureMemberSubscriptionActive::class,
 
             // Tambahan baru untuk admin guard
             'admin'                   => \App\Http\Middleware\EnsureIsAdmin::class,
