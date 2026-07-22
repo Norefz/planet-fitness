@@ -11,19 +11,27 @@ use Illuminate\Support\Facades\Auth;
 
 class ProgramController extends Controller
 {
-    // 1. UNTUK GUEST (Belum Login) — Batasi hanya muncul 3 program teratas
+    // 1. UNTUK GUEST (Belum Login) — Beri satu program contoh yang konsisten.
     public function guestIndex(Request $request)
     {
         $query = WorkoutProgram::where('status', 'published')->with(['mentor', 'exercises']);
 
-        if ($request->filled('category')) {
-            $query->where('category', $request->category);
-        }
+        // Program gratis tidak berubah ketika guest mengganti filter, sehingga guest
+        // tidak dapat membuka satu program berbeda pada setiap kategori.
+        $freeProgram = (clone $query)->oldest('published_at')->first();
 
-        // Limit 3 untuk memancing pengunjung agar mendaftar
-        $programs = $query->latest()->limit(3)->get();
+        // Tampilkan dua program lain sebagai teaser. Payload latihan/video untuk
+        // program-program ini tidak pernah dikirim ke browser guest.
+        $lockedPrograms = (clone $query)
+            ->when($freeProgram, fn ($programs) => $programs->whereKeyNot($freeProgram->id))
+            ->latest('published_at')
+            ->take(2)
+            ->get();
 
-        return view('member.program-latihan', compact('programs'));
+        $programs = collect([$freeProgram])->filter()->concat($lockedPrograms);
+        $guestAccessibleProgramId = $freeProgram?->id;
+
+        return view('member.program-latihan', compact('programs', 'guestAccessibleProgramId'));
     }
 
 
@@ -55,7 +63,9 @@ class ProgramController extends Controller
             });
         }
 
-        return view('member.program-latihan', compact('programs'));
+        $guestAccessibleProgramId = null;
+
+        return view('member.program-latihan', compact('programs', 'guestAccessibleProgramId'));
     }
 
     /**

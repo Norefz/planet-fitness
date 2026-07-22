@@ -26,8 +26,10 @@
     <div class="max-w-7xl mx-auto px-6 py-10 pb-20">
         <div class="flex flex-wrap gap-2.5 mb-8 -mt-2">
             @php
-                // Menentukan rute aktif untuk tombol chip filter berdasarkan status login
+                // Guest hanya memiliki satu program contoh; filter untuk program lain
+                // mengarahkan ke pendaftaran, bukan mengganti program gratisnya.
                 $routeAction = Auth::check() ? route('member.programs.index') : route('programs.preview');
+                $guestFilterRoute = Auth::guest() ? route('register') : null;
             @endphp
 
             <a href="{{ $routeAction }}"
@@ -35,7 +37,7 @@
                Semua Program
             </a>
             @foreach(['Penurunan Berat Badan', 'Pembentukan Otot', 'Kardio', 'Fleksibilitas'] as $cat)
-                <a href="{{ $routeAction . '?category=' . urlencode($cat) }}"
+                <a href="{{ $guestFilterRoute ?? $routeAction . '?category=' . urlencode($cat) }}"
                    class="text-xs font-semibold px-4 py-2.5 rounded-full border transition duration-200 no-underline {{ request('category') == $cat ? 'bg-ink-900 text-white border-transparent shadow-elevated' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100' }}">
                    {{ $cat }}
                 </a>
@@ -45,10 +47,15 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @forelse($programs as $program)
                 @php
+                    $isGuestLocked = Auth::guest() && $program->id !== $guestAccessibleProgramId;
+                    $visibleExercises = $isGuestLocked
+                        ? collect()
+                        : (Auth::guest() ? $program->exercises->take(1) : $program->exercises);
+
                     // Video latihan tersimpan per-exercise (bukan per-program), jadi kita
                     // kirimkan seluruh daftar exercise sebagai JSON ke tiap kartu supaya
                     // JS bisa menampilkan & memutar video yang benar saat kartu diklik.
-                    $exercisesPayload = $program->exercises->map(function ($exercise) {
+                    $exercisesPayload = $visibleExercises->map(function ($exercise) {
                         return [
                             'id'    => $exercise->id,
                             'name'  => $exercise->name,
@@ -68,10 +75,14 @@
                         'progressPct' => $program->my_progress_pct ?? null,
                     ];
                 @endphp
-                <div class="program-card group bg-white border border-slate-200 rounded-3xl overflow-hidden flex flex-col transition-shadow duration-300 hover:shadow-elevated cursor-pointer"
-                     data-program='@json($programPayload)'
+                <div class="program-card group bg-white border border-slate-200 rounded-3xl overflow-hidden flex flex-col transition-shadow duration-300 cursor-pointer {{ $isGuestLocked ? 'opacity-90 hover:opacity-100' : 'hover:shadow-elevated' }}"
+                     @if (! $isGuestLocked) data-program='@json($programPayload)' @endif
                      data-tilt data-tilt-strength="6"
-                     onclick="loadProgram(this)">
+                     @if ($isGuestLocked)
+                         onclick="window.location.href='{{ route('register') }}'"
+                     @else
+                         onclick="loadProgram(this)"
+                     @endif>
 
                     <div class="h-36 flex items-center justify-center relative bg-gradient-to-br from-emerald-500 to-emerald-800 overflow-hidden">
                         <div class="absolute -bottom-8 -right-8 w-28 h-28 rounded-full bg-white/10 blur-xl group-hover:scale-125 transition-transform duration-500"></div>
@@ -79,6 +90,17 @@
                         <span class="absolute top-3 right-3 bg-white/90 px-2.5 py-1 rounded-full text-[10px] font-bold text-slate-900 capitalize shadow-sm">
                             {{ $program->level }}
                         </span>
+                        @if ($isGuestLocked)
+                            <div class="absolute inset-0 bg-ink-950/55 flex items-center justify-center z-20">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-ink-900 text-[11px] font-bold shadow-sm">
+                                    <i class="ti ti-lock text-sm"></i> Khusus Member
+                                </span>
+                            </div>
+                        @elseif (Auth::guest())
+                            <span class="absolute bottom-3 left-3 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm">
+                                Gratis untuk Guest
+                            </span>
+                        @endif
                     </div>
 
                     <div class="p-5 flex flex-col gap-2 flex-1">
@@ -94,6 +116,9 @@
                             </div>
                             <span class="truncate">{{ $program->mentor->full_name }} · Mentor</span>
                         </div>
+                        @if ($isGuestLocked)
+                            <p class="text-[11px] text-emerald-700 font-semibold m-0 pt-1">Daftar untuk membuka program ini</p>
+                        @endif
                     </div>
                 </div>
             @empty
@@ -139,8 +164,12 @@
                     <div id="set-checkbox-btn" class="w-5 h-5 rounded-md border border-slate-300 flex items-center justify-center cursor-pointer transition duration-200">
                         </div>
                     <div class="flex-1 ml-3">
-                        <div id="active-sets-target" class="font-semibold text-slate-900">0 Total Sets</div>
-                        <div id="active-reps-target" class="text-slate-500 mt-0.5">0 Repetisi per Set</div>
+                        <div id="active-sets-target" class="font-semibold text-slate-900">
+                            @guest Detail latihan terkunci @else 0 Total Sets @endguest
+                        </div>
+                        <div id="active-reps-target" class="text-slate-500 mt-0.5">
+                            @guest Menjadi member untuk melihat set & repetisi @else 0 Repetisi per Set @endguest
+                        </div>
                     </div>
                 </div>
 
@@ -160,9 +189,9 @@
                     <div class="mt-6 p-5 mesh-dark noise-overlay text-white rounded-2xl text-center shadow-md relative overflow-hidden">
                         <div class="absolute -top-6 -right-6 w-24 h-24 orb-mini opacity-50"></div>
                         <h5 class="font-bold text-sm mb-1 text-white m-0 relative z-10">Mau Akses Semua Program?</h5>
-                        <p class="text-[11px] text-white/60 mt-1 mb-3 leading-relaxed relative z-10">Daftar akun gratis sekarang untuk membuka ratusan video latihan dan melacak progress kebugaranmu.</p>
+                        <p class="text-[11px] text-white/60 mt-1 mb-3 leading-relaxed relative z-10">Daftar dan aktifkan membership untuk membuka semua program, detail latihan, dan progress kebugaranmu.</p>
                         <a href="{{ route('register') }}" class="relative z-10 inline-block w-full py-2.5 bg-white text-emerald-700 font-bold text-xs rounded-xl no-underline hover:bg-emerald-50 transition">
-                            Daftar Sekarang (Gratis)
+                            Daftar untuk Membuka
                         </a>
                     </div>
                 @endguest
@@ -179,6 +208,8 @@
     const emptyStateEl   = document.getElementById('video-empty-state');
     const exerciseListEl = document.getElementById('exercise-list');
     const dayCompleteBtn = document.getElementById('mark-day-complete-btn');
+    const canViewExerciseDetails = @auth true @else false @endauth;
+    const registrationUrl = @json(route('register'));
 
     // URL template (id program diganti saat dipakai) — hanya ada untuk user yang
     // sudah login, karena guest tidak boleh membuat baris progres di database.
@@ -299,8 +330,13 @@
             showVideoState('empty');
         }
 
-        document.getElementById('active-sets-target').innerText = (exercise.sets ?? 0) + ' Total Sets';
-        document.getElementById('active-reps-target').innerText = (exercise.reps ?? 0) + ' Repetisi Per Set';
+        if (canViewExerciseDetails) {
+            document.getElementById('active-sets-target').innerText = (exercise.sets ?? 0) + ' Total Sets';
+            document.getElementById('active-reps-target').innerText = (exercise.reps ?? 0) + ' Repetisi Per Set';
+        } else {
+            document.getElementById('active-sets-target').innerText = 'Detail latihan terkunci';
+            document.getElementById('active-reps-target').innerText = 'Menjadi member untuk melihat set & repetisi';
+        }
 
         renderExerciseChips();
 
@@ -315,11 +351,17 @@
     }
 
     function loadProgram(cardEl) {
+        if (!cardEl.dataset.program) {
+            window.location.href = registrationUrl;
+            return;
+        }
+
         const data = JSON.parse(cardEl.dataset.program);
 
         document.getElementById('active-title').innerText = data.title;
-        document.getElementById('active-desc').innerHTML = (data.description ?? '') +
-            `<br><br><small class="text-emerald-700 font-bold">Dipandu oleh: ${data.mentor}</small>`;
+        document.getElementById('active-desc').innerHTML = canViewExerciseDetails
+            ? (data.description ?? '') + `<br><br><small class="text-emerald-700 font-bold">Dipandu oleh: ${data.mentor}</small>`
+            : 'Kamu sedang melihat video contoh. Detail gerakan, set, repetisi, dan seluruh program tersedia setelah menjadi member.';
 
         currentProgramId = data.id ?? null;
 
@@ -354,7 +396,7 @@
                 btn.type = 'button';
                 btn.className = 'text-xs font-semibold px-3.5 py-1.5 rounded-full border transition duration-200 bg-white text-slate-600 border-slate-200 hover:bg-slate-100 inline-flex items-center gap-1.5';
                 btn.innerHTML = `<i class="ti ti-circle-check-filled text-[13px] chip-check-icon hidden"></i>` +
-                    `<span>${exercise.name}${exercise.summary ? ' · ' + exercise.summary : ''}</span>`;
+                    `<span>${canViewExerciseDetails ? exercise.name + (exercise.summary ? ' · ' + exercise.summary : '') : 'Video contoh latihan'}</span>`;
                 btn.addEventListener('click', () => playExercise(index));
                 exerciseListEl.appendChild(btn);
             });
@@ -364,8 +406,8 @@
             exerciseListEl.classList.add('hidden');
             exerciseListEl.classList.remove('flex');
             showVideoState('empty');
-            document.getElementById('active-sets-target').innerText = '0 Total Sets';
-            document.getElementById('active-reps-target').innerText = '0 Repetisi Per Set';
+            document.getElementById('active-sets-target').innerText = canViewExerciseDetails ? '0 Total Sets' : 'Detail latihan terkunci';
+            document.getElementById('active-reps-target').innerText = canViewExerciseDetails ? '0 Repetisi per Set' : 'Menjadi member untuk melihat set & repetisi';
         }
 
         updateDayCompleteButtonUI();
