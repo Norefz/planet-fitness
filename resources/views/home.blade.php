@@ -333,8 +333,8 @@
                     'iconColor'  => '#be185d',
                     'proofBg'    => '#fbeaf0',
                     'proofColor' => '#be185d',
-                    'title'      => 'Gratis untuk memulai',
-                    'desc'       => 'Daftar tanpa kartu kredit. Nikmati akses penuh selama 7 hari pertama, lalu pilih plan yang sesuai kebutuhanmu.',
+                    'title'      => 'Membership yang jelas',
+                    'desc'       => 'Buat akun tanpa kartu kredit, lalu aktifkan membership Rp60.000 per bulan untuk membuka seluruh fitur.',
                     'proof'      => 'Mulai dalam 60 detik',
                     'iconPath'   => '<path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/>',
                     'proofIcon'  => '<path d="M4 13a8 8 0 0 1 7 7a6 6 0 0 0 3 -5a9 9 0 0 0 6 -8a3 3 0 0 0 -3 -3a9 9 0 0 0 -8 6a6 6 0 0 0 -5 3"/><path d="M7 14a6 6 0 0 0 -3 6a6 6 0 0 0 6 -3"/><path d="M14 9a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>',
@@ -473,8 +473,8 @@
             Mulai perjalanan kesehatanmu hari ini
         </h2>
         <p class="text-base text-white/80 max-w-md mx-auto mb-8 leading-7">
-            Bergabung bersama ribuan pengguna yang sudah merasakan manfaat Planet
-            Fitness. Daftar sekarang dan dapatkan akses gratis selama 7 hari pertama!
+            Buat akun gratis, lalu aktifkan membership bulanan untuk membuka seluruh
+            program latihan, log nutrisi, dan konsultasi mentor.
         </p>
         <a href="{{ route('register') }}" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl
                        bg-white text-primary-dark text-sm font-semibold shadow-sm
@@ -486,7 +486,7 @@
                 <path d="M7 14a6 6 0 0 0 -3 6a6 6 0 0 0 6 -3"/>
                 <path d="M14 9a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
             </svg>
-            Buat Akun Gratis
+            Daftar &amp; Aktifkan Membership
         </a>
     </div>
 </div>
