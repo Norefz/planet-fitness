@@ -11,6 +11,12 @@
 @section('content')
 @include('partials.navbar')
 
+@php
+    // Guest memakai route preview publik agar navigasi tanggal tidak memicu
+    // middleware login. Aksi tambah/hapus tetap memakai route member terlindungi.
+    $nutritionRoute = $canLog ? 'member.log-nutrisi' : 'nutrition.preview';
+@endphp
+
 <div
     class="min-h-screen bg-slate-50"
     x-data="nutritionPage({
@@ -72,7 +78,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
             <div class="flex items-center gap-1 self-start rounded-full border border-slate-200 bg-white p-1 shadow-sm sm:self-auto" role="group" aria-label="Navigasi tanggal">
                 <a
-                    href="{{ route('member.log-nutrisi', ['date' => $prevDate]) }}"
+                    href="{{ route($nutritionRoute, ['date' => $prevDate]) }}"
                     class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-50 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                     aria-label="Hari sebelumnya"
                 >
@@ -83,7 +89,7 @@
                 </span>
                 @if ($nextDate)
                     <a
-                        href="{{ route('member.log-nutrisi', ['date' => $nextDate]) }}"
+                        href="{{ route($nutritionRoute, ['date' => $nextDate]) }}"
                         class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-50 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                         aria-label="Hari berikutnya"
                     >

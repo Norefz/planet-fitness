@@ -23,6 +23,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [HomeController::class, 'showLoginSelection'])->name('login');
 Route::get('/register', [HomeController::class, 'showRegisterSelection'])->name('register');
 Route::get('/programs-preview', [App\Http\Controllers\Member\ProgramController::class, 'guestIndex'])->name('programs.preview');
+Route::get('/log-nutrisi', [MealLogController::class, 'index'])->name('nutrition.preview');
 Route::get('/konsultasi-preview', fn() => view('member.konsultasi'))->name('konsultasi.preview');
 // Unified Google OAuth Callback (Handles both roles via session)
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleUnifiedCallback'])->name('auth.google.callback');

@@ -72,8 +72,8 @@
                 </svg>
                 Mulai Sekarang
             </a>
-            <button class="inline-flex items-center gap-2 px-6 py-3 rounded-xl
-                           bg-white/12 border border-white/30 text-white text-sm font-semibold
+            <a href="#demo" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl
+                           bg-white/12 border border-white/30 text-white text-sm font-semibold no-underline
                            backdrop-blur-md hover:bg-white/20 transition-all duration-300 cursor-pointer">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                      fill="none" stroke="currentColor" stroke-width="2"
@@ -81,7 +81,7 @@
                     <path d="M7 4v16l13 -8l-13 -8"/>
                 </svg>
                 Lihat Demo
-            </button>
+            </a>
         </div>
 
         {{-- Stats Bar --}}
@@ -186,7 +186,7 @@
 {{-- =====================================================================
      DASHBOARD REAL-TIME  (2 kolom)
      ===================================================================== --}}
-<section class="max-w-[1200px] mx-auto px-[5%] py-20">
+<section id="demo" class="max-w-[1200px] mx-auto px-[5%] py-20 scroll-mt-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
         {{-- Kiri: teks + progress bars --}}
